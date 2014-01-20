@@ -3,8 +3,8 @@ task('docs', function() {
 	console.log("hello, I'm gonna create the SMC Viewer documentation!");
 
 
-
-	var cmd = 'jsdoc -d=docs -a ./src';
+	jake.rmRf('docs');
+	var cmd = './node_modules/.bin/jsdoc ./src -d docs -r';
 	jake.exec(cmd, {
 		printStdout: true,
 		printStderr: true
