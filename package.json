@@ -1,0 +1,17 @@
+{
+  "name": "smc.viewer",
+  "description": "Map viewer component extending Leaflet with data providers and auto configuration",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "leaflet": "~0.7.1"
+  },
+  "devDependencies": {
+  	"jake" : "*"
+  },
+  "scripts" : {
+  	"docs": "jake docs",
+  	"build": "jake"
+  },
+  "keywords": ["gis", "map", "leaflet"]
+}
