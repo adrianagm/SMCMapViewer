@@ -1,4 +1,4 @@
-SMC.layers.reloaders.TimerReloadTrigger = SMC.layers.reloaders.ReloadTrigger(
+SMC.layers.reloaders.TimerReloadTrigger = SMC.layers.reloaders.ReloadTrigger.extend(
 /** @lends SMC.layers.reloaders.TimerReloadTrigger# */
 {
 	/**
