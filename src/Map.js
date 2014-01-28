@@ -1,3 +1,4 @@
+require("./SMC.js");
 
 /**
  * The map viewer component of SMC. 
