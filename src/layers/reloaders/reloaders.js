@@ -1,3 +1,5 @@
+require("../layers.js");
+
 /**
  * Namespace for layer reloaders for  SMC Viewer's layers.
  * @namespace

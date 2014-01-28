@@ -1,3 +1,5 @@
+require("./Layer.js");
+require("./reloaders/LayerReloader.js");
 
 /**
  * Base class for all SMC viewer layer which are both reloadable and aggregable in grouping layers.

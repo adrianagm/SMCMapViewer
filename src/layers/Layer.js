@@ -1,3 +1,4 @@
+require("./layers.js");
 
 /**
  * Base class for all layer types supporting data providers.

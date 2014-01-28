@@ -1,3 +1,5 @@
+require("./reloaders.js");
+
 /**
  * Layer reloader. Allows setting triggers so a layer's data can be re-retrieved from its original data.
  * 
