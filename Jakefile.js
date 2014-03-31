@@ -20,7 +20,7 @@ task("build", {async:true}, function(){
 
 
 	jake.rmRf('dist');
-	jake.mkdir("dist");
+	jake.mkdirP("dist");
 	var cmd =  "./node_modules/.bin/browserify build/api-deps.js -o ./dist/smc.viewer-bundle.js";
 	jake.exec(cmd, {}, function() {
 		console.log("Bundle created in ./bundle!");

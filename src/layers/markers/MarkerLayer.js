@@ -1,3 +1,8 @@
+require("./markers.js");
+require("../stylers/MarkerCssStyler.js");
+require("../SingleLayer.js");
+require("../../../lib/leaflet.markercluster/dist/leaflet.markercluster.js");
+
 /**
  * Base layer for all SMC map viewer's layers rendered using markers.
  * @class

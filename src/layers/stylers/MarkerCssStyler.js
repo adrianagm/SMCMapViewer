@@ -1,3 +1,5 @@
+require("./Styler.js");
+
 /**
  * Parser of MarkerCSS, for user with SMC Viewer's marker layers.
  *

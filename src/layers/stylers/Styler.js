@@ -1,3 +1,5 @@
+require("./stylers.js");
+
 /**
  * Base class for feature layers' styles processors.
  *
