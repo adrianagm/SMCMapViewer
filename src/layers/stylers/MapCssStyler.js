@@ -1,3 +1,5 @@
+require("./Styler.js");
+
 /**
  * MapCSS styles parser, for user with SMC Viewer's geometry layers.
  *

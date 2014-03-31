@@ -1,3 +1,5 @@
+require("../layers.js");
+
 /**
  * Namespace for SMC Viewer's stylesheet processors.
  * @namespace
