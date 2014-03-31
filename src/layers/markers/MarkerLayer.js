@@ -1,6 +1,11 @@
 require("./markers.js");
 require("../stylers/MarkerCssStyler.js");
 require("../SingleLayer.js");
+require("../../../lib/leaflet/src/layer/LayerGroup.js");
+require("../../../lib/leaflet/src/layer/FeatureGroup.js");
+require("../../../lib/leaflet/src/layer/marker/Icon.js");
+require("../../../lib/leaflet/src/layer/marker/Icon.Default.js");
+require("../../../lib/leaflet/src/layer/marker/Marker.js");
 require("../../../lib/leaflet.markercluster/dist/leaflet.markercluster.js");
 require("../../../lib/LeafletHtmlIcon.js");
 
