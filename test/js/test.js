@@ -26,6 +26,38 @@ layers: "bluemarble",
 
 ///nuevo...............................................
 
+var marcador1_geojson = {
+  "type": "Feature",
+  "geometry": {
+    "type": "Point",
+    "coordinates": [51.5, -0.09]
+  },
+  "properties": {
+    "name": "Marcador 1"
+  }
+};
+
+var marcador2_geojson = {
+  "type": "Feature",
+  "geometry": {
+    "type": "Point",
+    "coordinates": [51.495, -0.083]
+  },
+  "properties": {
+    "name": "Marcador 2"
+  }
+};
+
+
+
+
+
+var marcador = new SMC.layers.markers.MarkerLayer();
+marcador.addMarkerFromFeature([marcador2_geojson, marcador2_geojson, marcador2_geojson, marcador2_geojson, marcador2_geojson, marcador1_geojson, marcador1_geojson]);
+
+
+map.addLayer(marcador);
+
 
 
 var limit = L.geoJson([], {
