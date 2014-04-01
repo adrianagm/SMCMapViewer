@@ -1,4 +1,4 @@
-require("../lib/leaflet/dist/leaflet.js");
+require("../lib/leaflet/leaflet-src.js");
 require("./SMC.js");
 
 /**

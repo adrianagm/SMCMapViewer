@@ -1,3 +1,4 @@
+require("./layers.js");
 /**
  * Class able of creating SMC Viewer layer objects from configuration.
  * @class

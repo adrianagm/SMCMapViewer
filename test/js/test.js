@@ -1,12 +1,9 @@
-
 function initMap() {
-
-
 
 	// Centered in London
 	var map = SMC.map('map');
 	//map.setView([-0.2298500, -78.5249500], 8)
-map.setView([51.735587,0.46855], 8)
+	map.setView([51.735587, 0.46855], 8);
 
 
 
@@ -15,52 +12,80 @@ map.setView([51.735587,0.46855], 8)
 		maxZoom: 18
 	}).addTo(map);
 
-var satelite = L.tileLayer.wms("http://maps.opengeo.org/geowebcache/service/wms", {
-layers: "bluemarble",
-    format: 'image/png',
-    transparent: true,
-    attribution: "Weather data © 2012 IEM Nexrad"
-});
+	var satelite = L.tileLayer.wms("http://maps.opengeo.org/geowebcache/service/wms", {
+		layers: "bluemarble",
+		format: 'image/png',
+		transparent: true,
+		attribution: "Weather data © 2012 IEM Nexrad"
+	});
+
+	///nuevo...............................................	
+
+	var marcador1_geojson = {
+		"type": "Feature",
+		"geometry": {
+			"type": "Point",
+			"coordinates": [51.5, -0.09]
+		},
+		"properties": {
+			"name": "Marcador 1"
+		}
+	};
+
+	var marcador2_geojson = {
+		"type": "Feature",
+		"geometry": {
+			"type": "Point",
+			"coordinates": [51.495, -0.083]
+		},
+		"properties": {
+			"name": "Marcador 2"
+		}
+	};
+
+	var marcador = new SMC.layers.markers.MarkerLayer();
+
+	//html template
+	marcador.STYLER._createStyles = function(properties) {
+		var datos = {
+			name: properties.name
+
+		};
+		var template = "<b>{{name}}</b>";
+
+		return {
+			htmlTemplate: [template, datos]
+		};
+	};
+
+	//icon URL
+	marcador.STYLER._createStyles = function(properties) {
+		var url = "http://pixabay.com/static/uploads/photo/2012/04/26/19/04/red-42871_150.png";
+
+		return {
+			iconUrl: url
+		};
+	};
+
+	//template URL
+	/*marcador.STYLER._createStyles = function(properties) {
+		var url = "laquesea";
+
+		return {
+			templateUrl: url
+		};
+	};*/
+
+	marcador.addMarkerFromFeature([marcador2_geojson, marcador2_geojson, marcador2_geojson, marcador2_geojson, marcador2_geojson, marcador1_geojson, marcador1_geojson]);
+	marcador.on("featureClick", function(f) {
+		alert(f.properties.name);
+	});
+
+	map.addLayer(marcador);
 
 
 
-///nuevo...............................................
-
-var marcador1_geojson = {
-  "type": "Feature",
-  "geometry": {
-    "type": "Point",
-    "coordinates": [51.5, -0.09]
-  },
-  "properties": {
-    "name": "Marcador 1"
-  }
-};
-
-var marcador2_geojson = {
-  "type": "Feature",
-  "geometry": {
-    "type": "Point",
-    "coordinates": [51.495, -0.083]
-  },
-  "properties": {
-    "name": "Marcador 2"
-  }
-};
-
-
-
-
-
-var marcador = new SMC.layers.markers.MarkerLayer();
-marcador.addMarkerFromFeature([marcador2_geojson, marcador2_geojson, marcador2_geojson, marcador2_geojson, marcador2_geojson, marcador1_geojson, marcador1_geojson]);
-
-
-map.addLayer(marcador);
-
-
-
-var limit = L.geoJson([], {
+	/*var limit = L.geoJson([], {
 		style : function(feature){
 		var type = feature.geometry.type;
 			switch (type) {
@@ -240,25 +265,25 @@ dataType:"json",
 			
  
 		}
-	});
+	});*/
 
-var baseLayer = {
-	"Street Map":base,
-	"Satelite":satelite
+	var baseLayer = {
+		"Street Map": base,
+		"Satelite": satelite
+	};
+	var dataLayer = {
+		//"Carreteras": carreteras,
+		//"L&iacutemite": limite
+	};
+
+	var leyenda = L.control.layers(baseLayer, {
+		collapsed: false
+	}).addTo(map);
+
+
+	//................................................................................
+
 }
-var dataLayer = {
-	"Carreteras":carreteras,
-	"L&iacutemite": limite
-}
-
-var leyenda = L.control.layers(baseLayer, dataLayer, {collapsed:false}).addTo(map);
-
-
-//................................................................................
-
-}
-
-
 
 
 

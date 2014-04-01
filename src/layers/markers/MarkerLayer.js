@@ -5,6 +5,7 @@ require("../stylers/MarkerCssStyler.js");
 require("../../../lib/leaflet.markercluster/dist/leaflet.markercluster.js");
 require("../../../lib/LeafletHtmlIcon.js");
 
+
 /**
  * Base layer for all SMC map viewer's layers rendered using markers.
  * @class
@@ -25,25 +26,26 @@ SMC.layers.markers.MarkerLayer = L.MarkerClusterGroup.extend(
 			}
 
 			for (var i = 0; i < features.length; i++) {
-				var f = features[i];
-				var markerLocation = new L.LatLng(f.geometry.coordinates[0], f.geometry.coordinates[1]);
-				var myStyle = this.STYLER.applyStyle(f.properties);
-				var marker = new L.Marker(markerLocation, {
-					icon: myStyle
-				});
-				marker.bindPopup(f.properties.name);
-				this.addLayer(marker);
-				marker.on("click", function() {
-					this.onFeatureClicked(f);
-				}, this);
+				this._addMarker(features[i]);
 			}
+		},
+
+		_addMarker: function(f) {
+			var markerLocation = new L.LatLng(f.geometry.coordinates[0], f.geometry.coordinates[1]);
+			var myStyle = this.STYLER.applyStyle(f.properties);
+			var marker = new L.Marker(markerLocation, {
+				icon: myStyle
+			});
+
+			this.addLayer(marker);
+			//marker.bindPopup(f.properties.name);
+			marker.on("click", function() {
+				this.onFeatureClicked(f);
+			}, this);
 		},
 
 		onFeatureClicked: function(feature) {
 			this.fireEvent("featureClick", feature);
-			alert(feature.properties.name);
+			//alert(feature.properties.name);
 		}
-
-
-
 	});
