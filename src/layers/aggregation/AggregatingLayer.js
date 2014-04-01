@@ -22,3 +22,4 @@ SMC.layers.aggregation.AggregatingLayer = SMC.layers.Layer.extend(
 	}
 
 });
+

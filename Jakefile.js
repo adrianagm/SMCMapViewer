@@ -28,6 +28,19 @@ task("build", {async:true}, function(){
 	});
 });
 
+task("watchAndbuild", {async:true}, function(){
+	console.log("hello, I'm gonna create the SMC Viewer JavaScript bundle!");
+
+
+	jake.rmRf('dist');
+	jake.mkdirP("dist");
+	var cmd =  "./node_modules/.bin/browserify build/api-deps.js -o ./dist/smc.viewer-bundle.js -w";
+	jake.exec(cmd, {}, function() {
+		console.log("Bundle created in ./bundle!");
+		complete();
+	});
+});
+
 task("default",["docs","build"]);
 
 
