@@ -19,26 +19,38 @@ SMC.layers.markers.MarkerLayer = L.MarkerClusterGroup.extend(
 
 		STYLER: new SMC.layers.stylers.MarkerCssStyler(),
 
-		addMarkerFromFeature: function(features) {
-
-			if (!L.Util.isArray(features)) {
-				features = [features];
+		onAdd: function(map) {
+			L.MarkerClusterGroup.prototype.onAdd.call(this, map);
+			if (map) {
+				map.on("zoomend", this._onViewChanged, this);
 			}
+		},
 
-			for (var i = 0; i < features.length; i++) {
-				this._addMarker(features[i]);
+		addMarkerFromFeature: function(features) {
+			for (var i = 0; i < arguments.length; i++) {
+				this._addMarker(arguments[i]);
+
 			}
 		},
 
 		_addMarker: function(f) {
+
 			var markerLocation = new L.LatLng(f.geometry.coordinates[0], f.geometry.coordinates[1]);
-			var myStyle = this.STYLER.applyStyle(f.properties);
-			var marker = new L.Marker(markerLocation, {
-				icon: myStyle
-			});
+
+			var marker = new L.Marker(markerLocation);
+			// We store this here so is avalaible later, on restylings because of zoom changes.
+			marker.properties = f.properties;
+
+			this._applyStyles(marker);
 
 			this.addLayer(marker);
+
 			//marker.bindPopup(f.properties.name);
+			var content = this.STYLER.addPopUp(marker);
+			if (content) {
+				marker.bindPopup(content);
+			}
+
 			marker.on("click", function() {
 				this.onFeatureClicked(f);
 			}, this);
@@ -47,5 +59,27 @@ SMC.layers.markers.MarkerLayer = L.MarkerClusterGroup.extend(
 		onFeatureClicked: function(feature) {
 			this.fireEvent("featureClick", feature);
 			//alert(feature.properties.name);
+		},
+
+		_applyStyles: function(marker) {
+			var zoom = this._map.getZoom();
+			var style = this.STYLER.applyStyle(marker.properties, zoom);
+			if (style.icon) {
+				marker.setIcon(style.icon);
+			}
+			// L.setOptions(this,{
+			// 	disableClusteringAtZoom: style.disableClustering?1:null
+			// });
+		},
+
+		_onViewChanged: function() {
+			var markers = this.getLayers();
+			for (var i = 0; i < markers.length; i++) {
+				var marker = markers[i];
+				this._applyStyles(marker);
+			}
 		}
+
+
+
 	});

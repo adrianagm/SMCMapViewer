@@ -1,6 +1,5 @@
 require("./SingleLayer.js");
-require("../../lib/leaflet/src/layer/tile/TileLayer.js");
-require("../../lib/leaflet/src/layer/tile/TileLayer.WMS.js");
+
 
 /**
  * Wrapper for [Leaflet's WMS layer]{@link http://leafletjs.com/reference.html#tilelayer-wms } so its integrated in the SMC's viewer layer architecture.

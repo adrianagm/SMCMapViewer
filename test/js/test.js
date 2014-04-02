@@ -3,7 +3,7 @@ function initMap() {
 	// Centered in London
 	var map = SMC.map('map');
 	//map.setView([-0.2298500, -78.5249500], 8)
-	map.setView([51.735587, 0.46855], 8);
+	map.setView([51.5135587, 0.26855], 9);
 
 
 
@@ -28,9 +28,13 @@ function initMap() {
 			"coordinates": [51.5, -0.09]
 		},
 		"properties": {
-			"name": "Marcador 1"
+			"name": "Marcador 1",
+			"id": "1",
+			"colour": "red"
 		}
 	};
+
+	L.circleMarker([51.495, -0.083], 20).addTo(map);
 
 	var marcador2_geojson = {
 		"type": "Feature",
@@ -39,233 +43,85 @@ function initMap() {
 			"coordinates": [51.495, -0.083]
 		},
 		"properties": {
-			"name": "Marcador 2"
+			"name": "Marcador 2",
+			"id": "2",
+			"colour": "blue"
 		}
 	};
 
-	var marcador = new SMC.layers.markers.MarkerLayer();
 
-	//html template
-	marcador.STYLER._createStyles = function(properties) {
-		var datos = {
-			name: properties.name
 
-		};
-		var template = "<b>{{name}}</b>";
-
-		return {
-			htmlTemplate: [template, datos]
-		};
-	};
-
-	//icon URL
-	marcador.STYLER._createStyles = function(properties) {
-		var url = "http://pixabay.com/static/uploads/photo/2012/04/26/19/04/red-42871_150.png";
-
-		return {
-			iconUrl: url
-		};
-	};
-
-	//template URL
-	/*marcador.STYLER._createStyles = function(properties) {
-		var url = "laquesea";
-
-		return {
-			templateUrl: url
-		};
-	};*/
-
-	marcador.addMarkerFromFeature([marcador2_geojson, marcador2_geojson, marcador2_geojson, marcador2_geojson, marcador2_geojson, marcador1_geojson, marcador1_geojson]);
-	marcador.on("featureClick", function(f) {
-		alert(f.properties.name);
+	var marcador = new SMC.layers.markers.MarkerLayer({
+		
 	});
 
+
+
+	marcador.STYLER._createStyles = function(properties, zoom) {
+		
+		//template URL
+		/*if (zoom >= 13) {
+			// Charlton Heston :)
+			var url = "http://replygif.net/i/735.gif";
+			return {
+				templateUrl: url,
+				markerWidth: 344,
+				markerHeight: 200,
+				anchorLeft: 172,
+				anchorTop: 100
+			};
+
+		}
+		//html template
+		else if (zoom < 13 && zoom >= 9) {*/
+			var template = "<div style='text-align:center'><b style='color:{{colour}}'>{{name}}</b></div>";
+
+			return {
+				htmlTemplate: template,
+				markerWidth:120,
+				anchorTop:8,
+				anchorLeft:60,
+				disableClustering: true
+			};
+		/*}
+
+		//icon URL
+		else {
+			// Red marker
+			var url = "http://pixabay.com/static/uploads/photo/2012/04/26/19/04/red-42871_150.png";
+
+			return {
+				iconUrl: url,
+				markerWidth:50,
+				markerHeight:40,
+				anchorTop:40,
+				anchorLeft:12
+			};
+		}*/
+	};
+
+	marcador.STYLER._addContentPopUp = function(marker){
+		var template = "Nombre: <b>{{name}}</b><br>Id: {{id}}<br>";
+		return {
+			popUpTemplate: template
+		} 
+	}
+
+	
+
+
+
+	//marcador.addTo(map);
 	map.addLayer(marcador);
 
-
-
-	/*var limit = L.geoJson([], {
-		style : function(feature){
-		var type = feature.geometry.type;
-			switch (type) {
-				case 'Point':
-				case 'MultiPoint':
-					return {
-						color: 'rgba(252,146,114,0.6)',
-						radius: 5
-					};
-
-				case 'LineString':
-				case 'MultiLineString':
-					var lineStyle = {
-						color: 'rgba(0,0,0,0.8)',
-						weight: 2
-
-					};
-
-
-					if (feature.properties.link_type_id == 33) {					
-						lineStyle.color = 'rgba(255,0,0,0.8)';
-						lineStyle.weight = 3;					
-						lineStyle.zIndex = 10;
-						lineStyle.offset = 3;
-					}
-
-					if(feature.properties.clicked) {
-
-						lineStyle.color = "rgba(0,0,255,0.8)";
-						lineStyle.zIndex= 100;
-						lineStyle.weight = feature.properties.clicked;
-					}
-
-					if(feature.properties.color) {
-						lineStyle.color = feature.properties.color;
-					}
-
-					return lineStyle;
-
-				case 'Polygon':
-				case 'MultiPolygon':
-					return {
-
-						color: 'rgba(43,140,190,0.4)',
-						outline: {
-							color: 'rgb(0,0,0)',
-							size: 1
-						}
-					};
-
-				default:
-					return null;
-			}
-}
-
+	marcador.addMarkerFromFeature(marcador2_geojson, marcador2_geojson);
+	marcador.on("featureClick", function(f) {
+		//alert(f.properties.name);
 	});
 
-var geoJsonLayer = L.geoJson([], {
-		style : function(feature){
-		var type = feature.geometry.type;
-			switch (type) {
-				case 'Point':
-				case 'MultiPoint':
-					return {
-						color: 'rgba(252,146,114,0.6)',
-						radius: 5
-					};
-
-				case 'LineString':
-				case 'MultiLineString':
-					var lineStyle = {
-						color: 'rgba(0,0,0,0.8)',
-						weight: 2
-
-					};
-
-
-					if (feature.properties.link_type_id == 33) {					
-						lineStyle.color = 'rgba(255,0,0,0.8)';
-						lineStyle.weight = 3;					
-						lineStyle.zIndex = 10;
-						lineStyle.offset = 3;
-					}
-
-					if(feature.properties.clicked) {
-
-						lineStyle.color = "rgba(0,0,255,0.8)";
-						lineStyle.zIndex= 100;
-						lineStyle.weight = feature.properties.clicked;
-					}
-
-					if(feature.properties.color) {
-						lineStyle.color = feature.properties.color;
-					}
-
-					return lineStyle;
-
-				case 'Polygon':
-				case 'MultiPolygon':
-					return {
-
-						color: 'rgba(43,140,190,0.4)',
-						outline: {
-							color: 'rgb(0,0,0)',
-							size: 1
-						}
-					};
-
-				default:
-					return null;
-			}
-
-},
-		
-
-		onEachFeature : function(feature,layer) {
-
-			var content ="";
-			content+="<p>ID:"+JSON.stringify(feature.properties.id)+"</br>";
-			content+="Distrito:"+JSON.stringify(feature.properties.seg_desc)+"</br>";
-			content+="Red:"+JSON.stringify(feature.properties.lines)+"</p>";
-			layer.bindPopup(content);
 
 
 
-		}
-
-
-	});
-
-geoJsonLayer.on("click", function(e){	
-	this.setStyle({color:'rgb(0,0,0)', weight: 2});
-	var feature = e.layer.toGeoJSON();
-	if(!feature.properties.clicked) 
-		feature.properties.clicked=3;
-
-	feature.properties.clicked++;
-	var estilo = this.options.style(feature);
-	e.layer.setStyle(estilo);
-
-
-});
-
-map.on("click", function(e){
-	geoJsonLayer.setStyle({color:'rgb(0,0,0)', weight: 2});
-});
-
-var limite = L.layerGroup([limit]).addTo(map);
-var carreteras = L.layerGroup([geoJsonLayer]).addTo(map);
-
-$.ajax({
-	
-		url :'http://adriana-4.cartodb.com/api/v2/sql?format=GeoJSON&q=SELECT * FROM tfl_lines',
-
-		dataType:"json",
-		success: function(response) {
-
-			map.setView([51.735587,0.46855], 8)
-
-			geoJsonLayer.addData(response);
-
-			
-			
- 
-		}
-	});
-$.ajax({
-url: 'http://mapit.mysociety.org/area/2247.geojson',
-dataType:"json",
-		success: function(response) {
-
-			map.setView([51.735587,0.46855], 8)
-
-			limit.addData(response);
-
-			
-			
- 
-		}
-	});*/
 
 	var baseLayer = {
 		"Street Map": base,
