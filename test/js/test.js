@@ -132,7 +132,7 @@ function initMap() {
 		//"L&iacutemite": limite
 	};
 
-	var leyenda = L.control.layers(baseLayer, {
+	var leyenda = L.control.layers(baseLayer, null, {
 		collapsed: false
 	}).addTo(map);
 
