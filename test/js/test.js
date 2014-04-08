@@ -19,7 +19,6 @@ function initMap() {
 		attribution: "Weather data © 2012 IEM Nexrad"
 	});
 
-	///nuevo...............................................	
 
 	var marcador1_geojson = {
 		"type": "Feature",
@@ -35,6 +34,7 @@ function initMap() {
 	};
 
 	L.circleMarker([51.495, -0.083], 20).addTo(map);
+	L.circleMarker([51.5, -0.09], 20).addTo(map);
 
 	var marcador2_geojson = {
 		"type": "Feature",
@@ -49,41 +49,64 @@ function initMap() {
 		}
 	};
 
+	var marcador3_geojson = {
+		"type": "Feature",
+		"geometry": {
+			"type": "Point",
+			"coordinates": [51.495, -0.083]
+		},
+		"properties": {
+			"name": "Marcador 3",
+			"id": "3",
+			"colour": "green"
+		}
+	};
+
 
 
 	var marcador = new SMC.layers.markers.MarkerLayer({
-		
+
 	});
 
 
 
 	marcador.STYLER._createStyles = function(properties, zoom) {
-		
+
 		//template URL
-		/*if (zoom >= 13) {
+		if (zoom >= 18) {
 			// Charlton Heston :)
 			var url = "http://replygif.net/i/735.gif";
 			return {
-				templateUrl: url,
-				markerWidth: 344,
-				markerHeight: 200,
-				anchorLeft: 172,
-				anchorTop: 100
+				iconClassName: "marker-blue",
+				//templateUrl: url,				
+				disableClustering: true
 			};
 
-		}
-		//html template
-		else if (zoom < 13 && zoom >= 9) {*/
+			//html template
+		} else if (zoom < 18 && zoom >= 15) {
 			var template = "<div style='text-align:center'><b style='color:{{colour}}'>{{name}}</b></div>";
 
 			return {
 				htmlTemplate: template,
-				markerWidth:120,
-				anchorTop:8,
-				anchorLeft:60,
+				markerWidth: 65,
+				anchorTop: 8,
+				anchorLeft: 33,
 				disableClustering: true
 			};
-		/*}
+		}
+
+		//html template
+		else if (zoom < 15 && zoom >= 10) {
+			var template = "<div style='text-align:center'><b style='color:{{colour}}'>{{name}}</b></div>";
+
+			return {
+				htmlTemplate: template,
+				markerWidth: 65,
+				anchorTop: 8,
+				anchorLeft: 33
+
+			};
+		}
 
 		//icon URL
 		else {
@@ -92,34 +115,65 @@ function initMap() {
 
 			return {
 				iconUrl: url,
-				markerWidth:50,
-				markerHeight:40,
-				anchorTop:40,
-				anchorLeft:12
+				markerWidth: 50,
+				markerHeight: 40,
+				anchorTop: 40,
+				anchorLeft: 12
 			};
-		}*/
+		}
 	};
 
-	marcador.STYLER._addContentPopUp = function(marker){
-		var template = "Nombre: <b>{{name}}</b><br>Id: {{id}}<br>";
-		return {
-			popUpTemplate: template
-		} 
-	}
 
-	
+	marcador.STYLER._addContentPopUp = function(marker, zoom) {
+		//noPopUp
+		if (zoom >= 18) {
+
+			return {
+				noPopUp: true
+			};
+
+			//iframe popUp
+		} else if (zoom < 18 && zoom >= 15) {
+			var url = "http://replygif.net/i/735.gif";
+
+			return {
+				popUpUrl: url,
+				offsetLeft: 10,
+				offsetTop: 5
+			};
+
+			//popUp template
+		} else if (zoom < 15 && zoom >= 10) {
+			var template = "Nombre: <b>{{name}}</b><br>Id: {{id}}<br>";
+
+			return {
+				popUpTemplate: template
+
+			};
+
+			//default popUp (Mustache template all properties)
+		} else {
+			return {
+				defaultPopUp: true
+			};
+		}
+
+	};
 
 
 
-	//marcador.addTo(map);
-	map.addLayer(marcador);
+	marcador.addTo(map);
+	//map.addLayer(marcador);
 
-	marcador.addMarkerFromFeature(marcador2_geojson, marcador2_geojson);
+	marcador.addMarkerFromFeature(marcador2_geojson, marcador3_geojson, marcador1_geojson, marcador1_geojson);
 	marcador.on("featureClick", function(f) {
-		//alert(f.properties.name);
+		alert(f.properties.name);
 	});
 
-
+	L.circleMarker([51.5, -0.39], 20).addTo(map);
+	var marker = new L.Marker(new L.LatLng(51.5, -0.39));
+	marker.properties = marcador3_geojson.properties;
+	marcador.addLayer(marker);
 
 
 
@@ -127,20 +181,18 @@ function initMap() {
 		"Street Map": base,
 		"Satelite": satelite
 	};
-	var dataLayer = {
-		//"Carreteras": carreteras,
-		//"L&iacutemite": limite
-	};
+	
 
 	var leyenda = L.control.layers(baseLayer, null, {
 		collapsed: false
 	}).addTo(map);
 
 
-	//................................................................................
 
 }
 
 
+
+L.Icon.Default.imagePath = "../dist/images";
 
 window.onload = initMap;
