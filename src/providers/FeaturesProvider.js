@@ -1,3 +1,5 @@
+require("./providers.js");
+
 /**
  * Base class for layer data providers returning arrays of Features.
  * @class
@@ -57,3 +59,11 @@ SMC.providers.FeaturesProvider = L.Class.extend(
 	 */
 
 });
+
+/**
+ * API factory method for ease creation of features providers.
+ * @params {Object} options - Options for the provider.
+ */
+SMC.featuresProvider = function() {
+	return new SMC.providers.FeaturesProvider();
+};

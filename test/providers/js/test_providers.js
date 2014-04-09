@@ -29,6 +29,12 @@ function initMap() {
 	var leyenda = L.control.layers(baseLayer, null, {
 		collapsed: false
 	}).addTo(map);
+	// Create a wfs feature provider
+	var provider = SMC.wfsProvider({
+		serverURL: "http://www.juntadeandalucia.es/medioambiente/mapwms/REDIAM_WFS_Patrimonio_Natural",
+		typeName: "RedNatura2000"
+	});
+	var geojson = provider.loadFeatures();
 }
 // On load the page call init map function
 window.onload = initMap;
