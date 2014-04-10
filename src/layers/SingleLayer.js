@@ -13,5 +13,17 @@ require("./reloaders/LayerReloader.js");
 SMC.layers.SingleLayer = SMC.layers.Layer.extend(
 /** @lends SMC.layers.geometry.Layer# */
 {
-	includes: [SMC.layers.reloaders.LayerReloader]
+	includes: [SMC.layers.reloaders.LayerReloader.prototype],
+
+	/**
+	 * Load data from a layer
+	 * @abstract
+	 */
+	load: function(){
+
+	},
+
+	onAdd: function(map){
+		this.load();
+	}
 });
