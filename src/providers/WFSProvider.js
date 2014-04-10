@@ -7,7 +7,7 @@ require("./URLFeatureProvider.js");
  *
  * @author Moisés Arcos (marcos@emergya.com)
  */
-SMC.providers.WFSFeatureProvider = SMC.providers.URLFeatureProvider.extend({
+SMC.providers.WFSProvider = SMC.providers.URLFeatureProvider.extend({
 
 	options: {
 		/**
@@ -130,5 +130,5 @@ SMC.providers.WFSFeatureProvider = SMC.providers.URLFeatureProvider.extend({
  * @params {Object} options - Options for wfs the provider.
  */
 SMC.wfsProvider = function(options) {
-	return new SMC.providers.WFSFeatureProvider(options);
+	return new SMC.providers.WFSProvider(options);
 };

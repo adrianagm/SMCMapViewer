@@ -15,7 +15,7 @@ require("../../../lib/LeafletHtmlIcon.js");
 SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
 	/** @lends SMC.layers.markers.MarkerLayer# */
 	{
-		includes: [SMC.layers.SingleLayer, SMC.layers.stylers.MarkerCssStyler],
+		includes: [SMC.layers.SingleLayer.prototype, SMC.layers.stylers.MarkerCssStyler.prototype],
 
 		STYLER: new SMC.layers.stylers.MarkerCssStyler(),
 
@@ -27,7 +27,6 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
 		}),
 
 		noClusterGroup: new L.FeatureGroup(),
-
 
 
 		/*addTo: function(map) {
@@ -54,11 +53,10 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
 			this.clusterGroup.addTo(map);
 			this.noClusterGroup.addTo(map);
 			L.LayerGroup.prototype.onAdd.call(this, map);
+			SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
 			if (map) {
 				map.on("zoomend", this._onViewChanged, this);
-
 			}
-
 		},
 
 		addLayer: function(layer) {

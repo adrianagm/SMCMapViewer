@@ -26,7 +26,7 @@ SMC.providers.FeaturesProvider = L.Class.extend(
 				 * Features loaded event.
 				 *
 				 * @event SMC.providers.FeaturesProvider#featuresLoaded
-				 * @property {SMC.providers.Feature[]} features - The loaded features.
+				 * @property {object} features - The loaded features.
 				 */
 				tis.fire("featuresLoaded", featureCollection.features);
 			});
