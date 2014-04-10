@@ -78,18 +78,30 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
 
 		},
 
+		_sendFeatures: function(features){
+			var self = this;
+			$.each(features, function(index, feature){
+				self._addMarker(feature);
+			});
+		},
+
 		addMarkerFromFeature: function(features) {
-			for (var i = 0; i < arguments.length; i++) {
-				this._addMarker(arguments[i]);
-
+			if(L.Util.isArray(features) || typeof features == "object"){
+				this._sendFeatures(features);
+			}else{
+				this._sendFeatures(arguments);
 			}
-			return features;
-
 		},
 
 		_addMarker: function(f) {
 
-			var markerLocation = new L.LatLng(f.geometry.coordinates[0], f.geometry.coordinates[1]);
+			if(f.type != "Feature"){
+				return;
+			}
+
+			// For GeoJSON standar the first coordinate is the longitude
+			// Documentation http://geojson.org/geojson-spec.html#positions
+			var markerLocation = new L.LatLng(f.geometry.coordinates[1], f.geometry.coordinates[0]);
 
 			var marker = new L.Marker(markerLocation);
 			// We store this here so is avalaible later, on restylings because of zoom changes.

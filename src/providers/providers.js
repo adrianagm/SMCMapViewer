@@ -1,3 +1,5 @@
+require("../SMC.js");
+
 /**
  * Namespace of SMC.Viewer's data providers for use by layers.
  * @namespace
