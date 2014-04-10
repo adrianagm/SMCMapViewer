@@ -64,7 +64,7 @@ SMC.providers.WFSFeatureProvider = SMC.providers.URLFeatureProvider.extend({
 		 * WFS srsName parameter.
 		 * @property {string} srsName - The default wfs coordinate reference system parameter.
 		 */
-		srsName: null,
+		srsName: "EPSG:4326",
 		/**
 		 * WFS CQL Filter parameter.
 		 * @property {string} cqlFilter - The default wfs cql filter parameter.
@@ -74,57 +74,55 @@ SMC.providers.WFSFeatureProvider = SMC.providers.URLFeatureProvider.extend({
 		 * WFS outputFormat parameter.
 		 * @property {string} outputFormat - The default wfs output format parameter.
 		 */
-		outputFormat: "json",
+		outputFormat: "text/javascript",
 		/**
 		 * WFS serverURL parameter.
 		 * @property {string} serverURL - The wfs server url path parameter.
 		 */
-		serverURL: null
+		serverURL: null,
+		/**
+		 * WFS format_options parameter.
+		 * @property {string} format_options - The wfs format options parameter.
+		 */
+		format_options: "callback:geojsonWFS"
 	},
 	/**
 	 * Initialize the object with the params
-	 * @param {string} options - object with need parameters
+	 * @param {object} options - object with need parameters
 	 */
 	initialize: function(options){
 		L.Util.setOptions(this, options);
 	},
 	/**
-	 * Retrieves the features from its source.
-	 * @fires SMC.providers.FeaturesProvider#featuresLoaded
+	 * Send WFS request to get the features
+	 * @returns {object} Deferred object from jQuery
 	 */
-	loadFeatures: function() {
-		this.options.url = this.getWFSFeatureProviderURL();
-		if(this.options.url != null){
-			$.ajax({
-				url: this.options.url,
+	doFeaturesLoading: function() {
+		if(this.options.serverURL != null){
+			return $.ajax({
+				url: this.options.serverURL,
+				data: this.getParamsFromOptions(),
+				jsonpCallback: "geojsonWFS",
 				type: "GET",
-				success: function(response) {
-					if(response != null){
-
-					}				
-				},
-			dataType: "json"
+				dataType: "jsonp",
+				jsonp: false
 			});
 		}
+		return $.Deferred();
 	},
 
 	/**
-	 * Compose an url from WFS service parameters
+	 * Get params from options attributes
+	 * @returns {object} Object with the wfs params to send
 	 */
-	getWFSFeatureProviderURL: function(){
-		var url = "";
-		if(this.options.serverURL != null){
-			url += this.options.serverURL 
-			+ "?service=" + this.options.service 
-			+ "&request=" + this.options.request 
-			+ "&outputformat=" + this.options.outputFormat 
-			+ "&version=" + this.options.version 
-			+ "&typeName=" + this.options.typeName;
+	getParamsFromOptions: function(){
+		var params = {};
+		for(option in this.options){
+			if(this.options[option] != null){
+				params[option] = this.options[option];
+			}
 		}
-		if(this.options.cqlFilter != null){
-			url += "&" + this.options.cqlFilter;
-		}
-		return url;
+		return params;
 	}
 });
 /**

@@ -8,8 +8,8 @@ require("./FeaturesProvider.js");
  * @author Moisés Arcos (marcos@emergya.com)
  */
 SMC.providers.URLFeatureProvider = SMC.providers.FeaturesProvider.extend({
-/** @lends SMC.providers.URLFeatureProvider# */
-	
+	/** @lends SMC.providers.URLFeatureProvider# */
+
 	options: {
 		/**
 		 * URL path to represent the source features.
@@ -19,33 +19,28 @@ SMC.providers.URLFeatureProvider = SMC.providers.FeaturesProvider.extend({
 	},
 	/**
 	 * Initialize the object with the params
-	 * @param {string} url - url origin of features
+	 * @param {object} options - default options
 	 */
-	initialize: function(options){
+	initialize: function(options) {
 		L.Util.setOptions(this, options);
 	},
 
 	/**
-	 * Retrieves the features from its source.
-	 * @fires SMC.providers.FeaturesProvider#featuresLoaded
+	 * Send request to get the features
+	 * @returns {object} Deferred object from jQuery
 	 */
-	loadFeatures: function() {
-		this.options.url = this.getWFSFeatureProviderURL();
-		if(this.options.url != null){
-			$.ajax({
+	doFeaturesLoading: function() {
+		if (this.options.url != null) {
+			return $.ajax({
 				url: this.options.url,
 				type: "GET",
-				success: function(response) {
-					if(response != null){
-
-					}				
-				},
-			dataType: "json"
+				dataType: "jsonp"
 			});
 		}
+		return $.Deferred();
 	},
 
-	getWFSFeatureProviderURL: function(){
+	getWFSFeatureProviderURL: function() {
 		throw new Error("FeaturesProvider::getWFSFeatureProviderURL must be implemented by derivate classes.");
 	}
 });
