@@ -1,5 +1,6 @@
 require("../lib/leaflet/leaflet-src.js");
 require("./SMC.js");
+require("./Util.js");
 
 /**
  * The map viewer component of SMC.
@@ -12,10 +13,10 @@ require("./SMC.js");
  * @author Luis Román (lroman@emergya.com)
  */
 SMC.Map = L.Map.extend(
-	/** @lends SMC.Map# */
-	{
+    /** @lends SMC.Map# */
+    {
 
-	});
+    });
 
 /**
  * API factory method for creating SMCViewer's Maps.
@@ -24,5 +25,5 @@ SMC.Map = L.Map.extend(
  * @param {object} options Configuration for the map
  */
 SMC.map = function(element, options) {
-	return new SMC.Map(element, options);
+    return new SMC.Map(element, options);
 };

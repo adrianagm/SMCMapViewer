@@ -3,7 +3,7 @@ require("./reloaders/LayerReloader.js");
 
 /**
  * Base class for all SMC viewer layer which are both reloadable and aggregable in grouping layers.
- * @class 
+ * @class
  * @extends SMC.layers.Layer
  * @abstract
  * @mixes SMC.layers.reloaders.LayerReloader
@@ -11,19 +11,11 @@ require("./reloaders/LayerReloader.js");
  * @author Luis Román (lroman@emergya.com)
  */
 SMC.layers.SingleLayer = SMC.layers.Layer.extend(
-/** @lends SMC.layers.geometry.Layer# */
-{
-	includes: [SMC.layers.reloaders.LayerReloader.prototype],
+    /** @lends SMC.layers.geometry.Layer# */
+    {
+        includes: SMC.Util.deepClassInclude([SMC.layers.reloaders.LayerReloader]),
 
-	/**
-	 * Load data from a layer
-	 * @abstract
-	 */
-	load: function(){
-
-	},
-
-	onAdd: function(map){
-		this.load();
-	}
-});
+        onAdd: function(map) {
+            this.load();
+        }
+    });
