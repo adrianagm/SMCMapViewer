@@ -84,7 +84,7 @@ SMC.providers.WFSProvider = SMC.providers.URLFeatureProvider.extend({
          * WFS format_options parameter.
          * @property {string} format_options - The wfs format options parameter.
          */
-        format_options: "callback:geojsonWFS"
+        format_options: "callback:"
     },
     /**
      * Initialize the object with the params
@@ -98,11 +98,13 @@ SMC.providers.WFSProvider = SMC.providers.URLFeatureProvider.extend({
      * @returns {object} Deferred object from jQuery
      */
     doFeaturesLoading: function() {
+    	var jsonpRandom = this._makeid();
+    	this.options.format_options+=jsonpRandom;
         if (this.options.serverURL !== null) {
             return $.ajax({
                 url: this.options.serverURL,
                 data: this.getParamsFromOptions(),
-                jsonpCallback: "geojsonWFS",
+                jsonpCallback: jsonpRandom,
                 type: "GET",
                 dataType: "jsonp",
                 jsonp: false
@@ -123,7 +125,15 @@ SMC.providers.WFSProvider = SMC.providers.URLFeatureProvider.extend({
             }
         }
         return params;
-    }
+    },
+
+    _makeid: function(){
+    	var text = "";
+    	var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    	for( var i=0; i < 5; i++ )
+	        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    	return text;
+	}
 });
 /**
  * API factory method for ease creation of wfs features providers.
