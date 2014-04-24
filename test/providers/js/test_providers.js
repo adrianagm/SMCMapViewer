@@ -28,7 +28,6 @@ function initMap() {
     };
     // Add maker layer to map
     var marcador = new SMC.layers.markers.MarkerLayer({});
-    //marcador.addTo(map);
 
     // Add style properties to marker layer
     var _createStyles = function(properties, zoom) {
@@ -81,28 +80,32 @@ function initMap() {
             };
         }
     };
+    marcador._createStyles = _createStyles;
     // Add legend to map
     var leyenda = L.control.layers(baseLayer, null, {
         collapsed: false
     }).addTo(map);
     // Create a wfs feature provider
-    /*var provider = SMC.wfsProvider({
+    var provider = SMC.wfsProvider({
 		serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
 		typeName: "OpenData:Parks"
 	});
 	// Create a features loaded handler
-	provider.on("featuresLoaded", function(features){
+	provider.onFeaturesLoaded = function(features){
 		marcador.addMarkerFromFeature(features);
-	});
+	};
 	// Load the features from provider
-	provider.loadFeatures();*/
+	provider.loadFeatures();
+	
     // Create WFSMarkerLayer
     var wfsMarkerLayer = SMC.wfsMarkerLayer({
         serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
-        typeName: "OpenData:Parks"
+        typeName: "OpenData:COMMUNITY_CENTRES"
     });
     wfsMarkerLayer._createStyles = _createStyles;
     wfsMarkerLayer.addTo(map);
+    // Add markers to map
+	marcador.addTo(map);
 }
 // On load the page call init map function
 window.onload = initMap;
