@@ -12,264 +12,235 @@ require("../../../lib/mustache.js/mustache.js");
  * @author Luis Román (lroman@emergya.com)
  */
 SMC.layers.stylers.MarkerCssStyler = SMC.layers.stylers.Styler.extend(
-	/** @lends SMC.layers.stylers.MarkerCssStyler# */
-	{
+    /** @lends SMC.layers.stylers.MarkerCssStyler# */
+    {
 
-		applyStyle: function(properties, zoom) {
+        applyStyle: function(properties, zoom) {
 
-			var style = this._createStyles(properties, zoom);
+            var style = this._createStyles(properties, zoom);
 
-			var icon, width, height, anchorLeft, anchorTop;
+            var icon, width, height, anchorLeft, anchorTop;
 
-			width = style.markerWidth || 0;
-			height = style.markerHeight || 0;
+            width = style.markerWidth || 32;
+            height = style.markerHeight || 32;
 
-			anchorLeft = style.anchorLeft || 0;
-			anchorTop = style.anchorTop || 0;
+            anchorLeft = style.anchorLeft || 0;
+            anchorTop = style.anchorTop || 0;
 
-			var disableClustering = !! style.disableClustering;
+            var disableClustering = !! style.disableClustering;
 
-			if (style.iconUrl) {
-				// Load normal marker icon with the specified url.
+            if (style.iconUrl) {
+                // Load normal marker icon with the specified url.
+                icon = new L.icon({
+                    iconUrl: style.iconUrl,
+                    iconSize: [width, height],
+                    iconAnchor: [anchorLeft, anchorTop]
+                });
 
+            } else if (style.templateUrl) {
+                // Load the given page from its url in an iframe.
 
-				icon = new L.icon({
-					iconUrl: style.iconUrl,
-					iconSize: [width, height],
-					iconAnchor: [anchorLeft, anchorTop]
-				});
-
-			} else if (style.templateUrl) {
-				// Load the given page from its url in an iframe.
-
-				icon = new L.HtmlIcon({
-					//html: "<iframe src=" + style.templateUrl + ' style=" border: none;width:' + width + 'px;height:' + height + 'px;margin-top:-' + anchorTop + 'px;margin-left:-' + anchorLeft + 'px"></iframe>',
-					html: this._createHTMLElement("iframe", {
-						"src": style.templateUrl
-					}, {
-						"border": "none",
-						"width": {
-							value: width,
-							units: "px"
-						},
-						"height": {
-							value: height,
-							units: "px",
-						},
-						"margin-top": {
-							value: "-" + anchorTop,
-							units: "px"
-						},
-						"margin-left": {
-							value: "-" + anchorLeft,
-							units: "px"
-						}
-					})
-				});
+                icon = new L.HtmlIcon({
+                    //html: "<iframe src=" + style.templateUrl + ' style=" border: none;width:' + width + 'px;height:' + height + 'px;margin-top:-' + anchorTop + 'px;margin-left:-' + anchorLeft + 'px"></iframe>',
+                    html: this._createHTMLElement("iframe", {
+                        "src": style.templateUrl
+                    }, {
+                        "border": "none",
+                        "width": {
+                            value: width,
+                            units: "px"
+                        },
+                        "height": {
+                            value: height,
+                            units: "px",
+                        },
+                        "margin-top": {
+                            value: "-" + anchorTop,
+                            units: "px"
+                        },
+                        "margin-left": {
+                            value: "-" + anchorLeft,
+                            units: "px"
+                        }
+                    })
+                });
 
 
-			} else if (style.htmlTemplate) {
-				// Load the template into the marker.
-				// TODO: "inflate the template" using mustache.
-				var data = {};
-				for (var propKey in properties) {
-					data[propKey] = properties[propKey];
-				}
+            } else if (style.htmlTemplate) {
+                // Load the template into the marker.
+                var data = {};
+                for (var propKey in properties) {
+                    data[propKey] = properties[propKey];
+                }
 
 
-				var output = Mustache.render(style.htmlTemplate, data);
+                var output = Mustache.render(style.htmlTemplate, data);
 
 
-				//var container = '<div style=" width:' + width + 'px;height:' + height + 'px;margin-top:-' + anchorTop + 'px;margin-left:-' + anchorLeft + 'px">' + output + "</div>";
+                //var container = '<div style=" width:' + width + 'px;height:' + height + 'px;margin-top:-' + anchorTop + 'px;margin-left:-' + anchorLeft + 'px">' + output + "</div>";
 
-				icon = new L.HtmlIcon({
-					html: this._createHTMLElement("div", {
+                icon = new L.HtmlIcon({
+                    html: this._createHTMLElement("div", {
 
-					}, {
-						"width": {
-							value: width,
-							units: "px"
-						},
-						"height": {
-							value: height,
-							units: "px",
-						},
-						"margin-top": {
-							value: "-" + anchorTop,
-							units: "px"
-						},
-						"margin-left": {
-							value: "-" + anchorLeft,
-							units: "px"
-						}
-					}, output),
+                    }, {
+                        "width": {
+                            value: width,
+                            units: "px"
+                        },
+                        "height": {
+                            value: height,
+                            units: "px",
+                        },
+                        "margin-top": {
+                            value: "-" + anchorTop,
+                            units: "px"
+                        },
+                        "margin-left": {
+                            value: "-" + anchorLeft,
+                            units: "px"
+                        }
+                    }, output),
 
-				});
+                });
 
-			} else if (style.iconClassName) {
+            } else if (style.iconClassName) {
 
-				icon = new L.HtmlIcon({
-					//html: '<div class="'+style.iconClassName+'" style=" border: none;width:' + width + 'px;height:' + height + 'px;margin-top:-' + anchorTop + 'px;margin-left:-' + anchorLeft + 'px"></div>',
-					html: this._createHTMLElement("div", {
-						"class": style.iconClassName
-					}, {
-						"border": "none",
-						"width": {
-							value: width,
-							units: "px"
-						},
-						"height": {
-							value: height,
-							units: "px",
-						},
-						"margin-top": {
-							value: anchorTop,
-							units: "px"
-						},
-						"margin-left": {
-							value: anchorLeft,
-							units: "px"
-						}
-					}),
+                icon = new L.HtmlIcon({
+                    //html: '<div class="'+style.iconClassName+'" style=" border: none;width:' + width + 'px;height:' + height + 'px;margin-top:-' + anchorTop + 'px;margin-left:-' + anchorLeft + 'px"></div>',
+                    html: this._createHTMLElement("div", {
+                        "class": style.iconClassName
+                    }, {
+                        "border": "none",
+                        "width": {
+                            value: width,
+                            units: "px"
+                        },
+                        "height": {
+                            value: height,
+                            units: "px",
+                        },
+                        "margin-top": {
+                            value: anchorTop,
+                            units: "px"
+                        },
+                        "margin-left": {
+                            value: anchorLeft,
+                            units: "px"
+                        }
+                    }),
 
-				});
-			} else {
-				// throw new Error("No display style for the marker found!");
-				//markerCluster class by default
+                });
+            } else {
+                icon = new L.icon({
+                    iconUrl: L.Icon.Default.imagePath + "/marker-icon.png",
+                    iconAnchor: [13, 41]
+                });
+            }
 
-				icon = new L.HtmlIcon({
-					//html: '<div class="'+style.iconClassName+'" style=" border: none;width:' + width + 'px;height:' + height + 'px;margin-top:-' + anchorTop + 'px;margin-left:-' + anchorLeft + 'px"></div>',
-					html: this._createHTMLElement("div", {
-						"class": "marker-cluster-large"
-					}, {
-						"border": "none",
-						"width": {
-							value: width,
-							units: "px"
-						},
-						"height": {
-							value: height,
-							units: "px",
-						},
-						"margin-top": {
-							value: anchorTop,
-							units: "px"
-						},
-						"margin-left": {
-							value: anchorLeft,
-							units: "px"
-						}
-					})
+            return {
+                icon: icon,
+                disableClustering: disableClustering
+            };
 
-				});
-			}
+        },
 
-			return {
-				icon: icon,
-				disableClustering: disableClustering
-			};
+        _createHTMLElement: function(elementType, attributes, styles, content) {
 
-		},
+            if (!content) {
+                content = "";
+            }
 
-		_createHTMLElement: function(elementType, attributes, styles, content) {
+            var attributesString = "";
+            for (var attrKey in attributes) {
+                attributesString += attrKey + '="' + attributes[attrKey] + '"';
+            }
 
-			if (!content) {
-				content = "";
-			}
+            var stylesString = "";
+            for (var styleKey in styles) {
+                var style = styles[styleKey];
+                if (!style) {
+                    continue;
+                } else if (typeof style == "object") {
+                    if (style.value) {
+                        stylesString += styleKey + ":" + style.value;
+                        if (style.units) {
+                            stylesString += style.units;
+                        }
+                        stylesString += ";";
+                    }
+                } else {
+                    stylesString += styleKey + ":" + style;
+                    stylesString += ";";
+                }
 
-			var attributesString = "";
-			for (var attrKey in attributes) {
-				attributesString += attrKey + '="' + attributes[attrKey] + '"';
-			}
-
-			var stylesString = "";
-			for (var styleKey in styles) {
-				var style = styles[styleKey];
-				if (!style) {
-					continue;
-				} else if (typeof style == "object") {
-					if (style.value) {
-						stylesString += styleKey + ":" + style.value;
-						if (style.units) {
-							stylesString += style.units;
-						}
-						stylesString += ";";
-					}
-				} else {
-					stylesString += styleKey + ":" + style;
-					stylesString += ";";
-				}
-
-			}
+            }
 
 
-			return "<" + elementType + " " + attributesString + " style=\"position:absolute;" + stylesString + "\">" + content + "</" + elementType + ">";
-		},
+            return "<" + elementType + " " + attributesString + " style=\"position:absolute;" + stylesString + "\">" + content + "</" + elementType + ">";
+        },
 
-		_createStyles: function(properties) {
-			throw new Error("Not implemented, needs parser");
+        _createStyles: function(properties) {
+            console.log("SMC.layers.stylers.MarkerCssStyler::_createStyles: Not implemented, needs parser");
 
-		},
+            return {};
 
-
-		addPopUp: function(marker, zoom) {
-
-			if (marker.popup) {
-				marker.unbindPopup();
-			}
+        },
 
 
-			var style = this._addContentPopUp(marker.properties, zoom);
-			var offsetLeft = style.offsetLeft || 0;
-			var offsetTop = style.offsetTop || 0;
+        addPopUp: function(marker, zoom) {
+
+            if (marker.popup) {
+                marker.unbindPopup();
+            }
 
 
-			var content;
-			if (style.popUpTemplate) {
-				var data = {};
-				for (var propKey in marker.properties) {
-					data[propKey] = marker.properties[propKey];
-				}
+            var style = this._addContentPopUp(marker.properties, zoom);
+            var offsetLeft = style.offsetLeft || 0;
+            var offsetTop = style.offsetTop || 0;
 
-				var output = Mustache.render(style.popUpTemplate, data);
-
-				content = output;
-
-			} else if (style.popUpUrl) {
-				content = "<iframe src=" + style.popUpUrl + "/>";
-
-			} else if (style.noPopUp) {
-				marker.unbindPopup();
-
-			} else {
-				var data = {};
-				var template = "";
-				for (var propKey in marker.properties) {
-					data[propKey] = marker.properties[propKey];
-					template += propKey + ": <b>{{" + propKey + "}}</b><br>";
-				}
-
-				content = Mustache.render(template, data);
-
-			}
+            var data, propKey;
 
 
+            var content;
+            if (style.popUpTemplate) {
+                data = {};
+                for (propKey in marker.properties) {
+                    data[propKey] = marker.properties[propKey];
+                }
 
-			var offset = [offsetLeft, offsetTop];
-			if (content) {
-				marker.bindPopup(content, {
-					offset: offset
-				});
-			} 
+                var output = Mustache.render(style.popUpTemplate, data);
 
+                content = output;
 
+            } else if (style.popUpUrl) {
+                content = "<iframe src=" + style.popUpUrl + "/>";
 
-		},
+            } else if (style.noPopUp) {
+                marker.unbindPopup();
 
-		_addContentPopUp: function(properties, zoom) {
-			// To be overriden in derivate classes.
-			return {
-				defaultPopUp: true
-			};
-		}
-	});
+            } else {
+                data = {};
+                var template = "";
+                for (propKey in marker.properties) {
+                    data[propKey] = marker.properties[propKey];
+                    template += propKey + ": <b>{{" + propKey + "}}</b><br>";
+                }
+
+                content = Mustache.render(template, data);
+            }
+
+            var offset = [offsetLeft, offsetTop];
+            if (content) {
+                marker.bindPopup(content, {
+                    offset: offset
+                });
+            }
+        },
+
+        _addContentPopUp: function(properties, zoom) {
+            // To be overriden in derivate classes.
+            return {
+                defaultPopUp: true
+            };
+        }
+    });
