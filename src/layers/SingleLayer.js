@@ -16,6 +16,6 @@ SMC.layers.SingleLayer = SMC.layers.Layer.extend(
         includes: SMC.Util.deepClassInclude([SMC.layers.reloaders.LayerReloader]),
 
         onAdd: function(map) {
-            this.load();
+        	this.load();
         }
     });
