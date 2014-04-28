@@ -1,6 +1,6 @@
-require("../lib/leaflet/leaflet-src.js");
 require("./SMC.js");
 require("./Util.js");
+require("./LayerLoader.js");
 
 /**
  * The map viewer component of SMC.
@@ -9,13 +9,14 @@ require("./Util.js");
  *
  * @class The map viewer component of SMC.
  * @extends L.Map
+ * @mixes SMC.LayerLoader
  *
  * @author Luis Román (lroman@emergya.com)
  */
 SMC.Map = L.Map.extend(
     /** @lends SMC.Map# */
     {
-
+        includes: SMC.Util.deepClassInclude([SMC.LayerLoader])
     });
 
 /**
