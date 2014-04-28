@@ -19,12 +19,12 @@ function initMap() {
 		attribution: "Weather data © 2012 IEM Nexrad"
 	});
 
-
+	//--------------------------------------------------markers-----------------------------------
 	var marcador1_geojson = {
 		"type": "Feature",
 		"geometry": {
 			"type": "Point",
-			"coordinates": [51.5, -0.09]
+			"coordinates": [-0.09, 51.5]
 		},
 		"properties": {
 			"name": "Marcador 1",
@@ -40,7 +40,7 @@ function initMap() {
 		"type": "Feature",
 		"geometry": {
 			"type": "Point",
-			"coordinates": [51.495, -0.083]
+			"coordinates": [-0.083, 51.495]
 		},
 		"properties": {
 			"name": "Marcador 2",
@@ -53,7 +53,7 @@ function initMap() {
 		"type": "Feature",
 		"geometry": {
 			"type": "Point",
-			"coordinates": [51.495, -0.083]
+			"coordinates": [-0.083, 51.495]
 		},
 		"properties": {
 			"name": "Marcador 3",
@@ -67,10 +67,11 @@ function initMap() {
 	var marcador = new SMC.layers.markers.MarkerLayer({
 
 	});
+	marcador.load = function() {};
 
 
 
-	marcador.STYLER._createStyles = function(properties, zoom) {
+	marcador._createStyles = function(properties, zoom) {
 
 		//template URL
 		if (zoom >= 18) {
@@ -79,7 +80,7 @@ function initMap() {
 			return {
 				iconClassName: "marker-blue",
 				//templateUrl: url,				
-				disableClustering: true
+				//disableClustering: true
 			};
 
 			//html template
@@ -91,7 +92,7 @@ function initMap() {
 				markerWidth: 65,
 				anchorTop: 8,
 				anchorLeft: 33,
-				disableClustering: true
+				//disableClustering: true
 			};
 		}
 
@@ -103,7 +104,8 @@ function initMap() {
 				htmlTemplate: template,
 				markerWidth: 65,
 				anchorTop: 8,
-				anchorLeft: 33
+				anchorLeft: 33,
+				//disableClustering: true
 
 			};
 		}
@@ -118,13 +120,14 @@ function initMap() {
 				markerWidth: 50,
 				markerHeight: 40,
 				anchorTop: 40,
-				anchorLeft: 12
+				anchorLeft: 12,
+				//disableClustering: true
 			};
 		}
 	};
 
 
-	marcador.STYLER._addContentPopUp = function(marker, zoom) {
+	marcador._addContentPopUp = function(marker, zoom) {
 		//noPopUp
 		if (zoom >= 18) {
 
@@ -173,7 +176,7 @@ function initMap() {
 	L.circleMarker([51.5, -0.39], 20).addTo(map);
 	var marker = new L.Marker(new L.LatLng(51.5, -0.39));
 	marker.properties = marcador3_geojson.properties;
-	marcador.addLayer(marker);
+	//marcador.addLayer(marker);
 
 
 
@@ -181,11 +184,180 @@ function initMap() {
 		"Street Map": base,
 		"Satelite": satelite
 	};
-	
+
 
 	var leyenda = L.control.layers(baseLayer, null, {
 		collapsed: false
 	}).addTo(map);
+
+
+
+	//--------------------------------------------------------------------------------------------
+	//------------------------------geometry------------------------------------------------------
+
+
+	var geometry = new SMC.layers.geometry.GeometryLayer({
+
+	});
+
+	var geometry2 = new SMC.layers.geometry.GeometryLayer({
+
+	 });
+	geometry.load = function() {};
+	geometry2.load = function() {};
+
+	geometry.setZIndex(1000);
+	geometry2.setZIndex(1001);
+
+	$.ajax({
+
+		url: 'http://adriana-4.cartodb.com/api/v2/sql?format=GeoJSON&q=SELECT * FROM tfl_lines',
+
+		dataType: "json",
+		success: function(response) {
+			geometry.addTo(map);
+			var features = response.features;
+			geometry.features = features;
+			geometry.render();
+			geometry2.addTo(map);
+			
+			geometry2.features = features;
+			geometry2.render();
+
+		}
+	});
+
+
+
+	// var geometry2 = new SMC.layers.geometry.GeometryLayer({
+
+	// });
+	// geometry2.load = function() {};
+
+	// geometry2.setZIndex(1000);
+
+	// $.ajax({
+
+	// 	url: 'http://adriana-4.cartodb.com/api/v2/sql?format=GeoJSON&q=SELECT * FROM tfl_stations',
+
+	// 	dataType: "json",
+	// 	success: function(response) {
+	// 		geometry2.addTo(map);
+	// 		var features = response.features;
+	// 		geometry2.features = features;
+	// 		geometry2.render();
+
+	// 	}
+	// });
+
+
+
+	geometry._createStyles = function(feature, zoom) {
+		var type = feature.geometry.type;
+		switch (type) {
+			case 'Point':
+			case 'MultiPoint':
+				if (zoom >= 13)
+					return {
+						fillColor: 'blue',
+						strokeColor: 'blue',
+						symbol: 'Star',
+						radius1: 10
+
+					};
+				else if (zoom < 13 && zoom > 10)
+					return {
+						fillColor: 'green',
+						symbol: 'RegularPolygon',
+
+					};
+				else
+					return {
+						fillColor: 'red',
+						symbol: 'RegularPolygon',
+						sides: 5
+
+					};
+
+				break;
+
+			case 'LineString':
+			case 'MultiLineString':
+				var tube = feature.properties.lines;
+				tube = JSON.parse(tube);
+				var color = tube[0].colour;
+				
+					return {
+						strokeWidth: 3,
+						strokeColor: color,
+						offset: 3
+
+					};
+
+				break;
+
+			case 'Polygon':
+			case 'MultiPolygon':
+				return {
+
+					strokeColor: 'blue',
+					offset: 10
+
+				};
+				break;
+		}
+
+	};
+
+
+
+	/*geometry._addContentPopUp = function(feature, zoom) {
+
+			var template = "Nombre: <b>{{name}}</b><br>Id: {{id}}<br>";
+
+			return {
+				popUpTemplate: template
+
+			};
+
+
+	};*/
+
+	/*geometry._createLabel = function(feature) {
+		var type = feature.geometry.type;
+		switch (type) {
+			case 'Point':
+			case 'MultiPoint':
+			var station = feature.properties.name;
+				return {
+					content: station
+				};
+
+
+			case 'LineString':
+			case 'MultiLineString':
+			var tube = feature.properties.lines;
+			tube = JSON.parse(tube);
+			var label = tube[0].name;
+			
+				return {
+					content: label,
+					//uniqueLabel: true
+					
+				};
+
+
+			case 'Polygon':
+			case 'MultiPolygon':
+			var area = feature.properties.descript0;
+				return {
+					content: area
+				};
+		}
+	};*/
+
+
+	//--------------------------------------------------------------------------------------------
 
 
 

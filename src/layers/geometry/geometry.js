@@ -1,3 +1,4 @@
+require("../layers.js");
 /**
  * Namespace of SMC.Viewer's layers displayed using client side geometry rendering .
  * @namespace
