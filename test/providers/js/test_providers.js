@@ -81,6 +81,7 @@ function initMap() {
         }
     };
     marcador._createStyles = _createStyles;
+    marcador.load = function(){};
     // Add legend to map
     var leyenda = L.control.layers(baseLayer, null, {
         collapsed: false
