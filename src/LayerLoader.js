@@ -56,6 +56,12 @@ SMC.LayerLoader = L.Class.extend(
                 params = JSON.parse(params);
             }
 
+            if(!layerConfig.params && layerConfig.label){
+                params = [{
+                    label: layerConfig.label
+                }];
+            }
+
 
             // We traverse the speficied class 'packages' from the root (window) to obtain the actual class object.
             var typePaths = type.split(".");
