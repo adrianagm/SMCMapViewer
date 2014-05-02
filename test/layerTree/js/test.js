@@ -26,16 +26,30 @@ function initMap() {
         collapsed: false
     }).addTo(map);
     // Add tree to map
+
+    /*
+    {
+        type: "folder",
+        label: "Folder 1",
+        layers:  [{
+            type: "SMC.layers.markers.WFSMarkerLayer",
+            params: [{
+                serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+                typeName: "OpenData:COMMUNITY_CENTRES"
+            }]
+        }]
+    }
+
+    */
+
     var tree = [{
-        type: "SMC.controls.layerTree.Folder",
-        params: [{
-            label: "Folder 1",
-            layersConfig: [{
-                type: "SMC.layers.markers.WFSMarkerLayer",
-                params: [{
-                    serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
-                    typeName: "OpenData:COMMUNITY_CENTRES"
-                }]
+        type: "folder",
+        label: "Folder1",
+        layers: [{
+            type: "SMC.layers.markers.WFSMarkerLayer",
+            params: [{
+                serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+                typeName: "OpenData:COMMUNITY_CENTRES"
             }]
         }]
     }, {
