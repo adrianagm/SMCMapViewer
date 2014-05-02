@@ -6,6 +6,3 @@ require("../src/layers/Folder.js");
 
 require("../src/providers/WFSProvider.js");
 require("../src/layers/markers/WFSMarkerLayer.js");
-
-require("../src/controls/layerTree/LayerTreeLeaf.js");
-require("../src/controls/layerTree/LayerTreeFolder.js");
