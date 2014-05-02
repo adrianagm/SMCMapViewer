@@ -1,9 +1,9 @@
 require("../SMC.js");
 
 /**
- * Namespace of LayerTree controls.
+ * Namespace of SMV map viewer controls.
  * @namespace
  * @memberof SMC
  * @author Moisés Arcos (marcos@emergya.com)
  */
-SMC.layertrees = {};
+SMC.controls = {};
