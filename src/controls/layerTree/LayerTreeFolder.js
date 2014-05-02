@@ -1,5 +1,4 @@
 require("./LayerTreeNode.js");
-require("../../LayerLoader.js");
 /**
  * Base class for make a layer tree folder.
  * @class
@@ -8,8 +7,6 @@ require("../../LayerLoader.js");
  * @author Moisés Arcos (marcos@emergya.com)
  */
 SMC.controls.layerTree.LayerTreeFolder = SMC.controls.layerTree.LayerTreeNode.extend({
-
-    includes: SMC.Util.deepClassInclude([SMC.LayerLoader]),
 
     options: {
         /**
