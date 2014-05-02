@@ -7,8 +7,8 @@ require("../LayerLoader.js");
  * @class
  * @abstract
  */
-SMC.controls.layerTree.Folder = L.LayerGroup.extend(
-    /** @lends SMC.controls.layerTree.Folder# */
+SMC.layers.Folder = L.LayerGroup.extend(
+    /** @lends SMC.layers.Folder# */
     {
 
         includes: SMC.Util.deepClassInclude([SMC.controls.layerTree.LayerTreeFolder, SMC.LayerLoader]),
@@ -27,7 +27,7 @@ SMC.controls.layerTree.Folder = L.LayerGroup.extend(
                     options.layers[i].parent = this;
                 }
             } else {
-                throw new Error("SMC.controls.layerTree.Folder::initialize: Either layersConfig or layers must be passed as an initialization option!");
+                throw new Error("SMC.layers.Folder::initialize: Either layersConfig or layers must be passed as an initialization option!");
             }
         }
     });
