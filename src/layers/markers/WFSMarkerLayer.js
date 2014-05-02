@@ -30,6 +30,10 @@ SMC.layers.markers.WFSMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
 
         load: function() {
             this.loadFeatures();
+        },
+
+        createNodeHTML: function() {
+            return this.options.label || this.options.typeName;
         }
 
     });
