@@ -47,33 +47,48 @@ SMC.LayerLoader = L.Class.extend(
                 throw new Error("SMC.layers.LayerLoader::_loadLayerConfig: layer config in position " + idx + " doesn't define a type as a class name string.");
             }
 
-            var params = {};
-            if (layerConfig.params) {
-                params = layerConfig.params;
-            }
+            var params = [];
 
-            if (typeof params == "string") {
-                params = JSON.parse(params);
-            }
-
-            if(!layerConfig.params && layerConfig.label){
+            if (type === "folder") {
+                // Folders are a special case in which we allow a shortcut to ease configuration.
+                layerClass = SMC.layers.Folder;
+                if (!layerConfig.layers) {
+                    throw new Error("SMC.layers.LayerLoader::_loadLayerConfig: layer config in position " + idx + " is of type 'folder' but doesn't define a layers array.");
+                }
+                if (!layerConfig.label) {
+                    throw new Error("SMC.layers.LayerLoader::_loadLayerConfig: layer config in position " + idx + " is of type 'folder' but doesn't define a label property.");
+                }
                 params = [{
+                    layersConfig: layerConfig.layers,
                     label: layerConfig.label
                 }];
+
+            } else {
+                if (layerConfig.params) {
+                    params = layerConfig.params;
+                }
+
+                if (typeof params == "string") {
+                    params = JSON.parse(params);
+                }
+
+                if (!layerConfig.params && layerConfig.label) {
+                    params = [{
+                        label: layerConfig.label
+                    }];
+                }
+
+                // We traverse the speficied class 'packages' from the root (window) to obtain the actual class object.
+                var typePaths = type.split(".");
+                var layerClass = window;
+                for (var i = 0; i < typePaths.length; i++) {
+                    layerClass = layerClass[typePaths[i]];
+                }
+
+                if (!layerClass.prototype) {
+                    throw new Error("SMC.layers.LayerLoader::_loadLayerConfig: layer config in position " + idx + " defined type '" + type + "' is not a valid class");
+                }
             }
-
-
-            // We traverse the speficied class 'packages' from the root (window) to obtain the actual class object.
-            var typePaths = type.split(".");
-            var layerClass = window;
-            for (var i = 0; i < typePaths.length; i++) {
-                layerClass = layerClass[typePaths[i]];
-            }
-
-            if (!layerClass.prototype) {
-                throw new Error("SMC.layers.LayerLoader::_loadLayerConfig: layer config in position " + idx + " defined type '" + type + "' is not a valid class");
-            }
-
 
             // Class instantiation code from http://stackoverflow.com/questions/1606797/use-of-apply-with-new-operator-is-this-possible
             var createClass = (function() {
@@ -89,8 +104,11 @@ SMC.LayerLoader = L.Class.extend(
 
             layer = createClass(params);
 
-            // The layer loader is mixed in into a map so this is the map too.
+            // The layer loader is mixed in into a map (or Folder) so we can add layers to that.
             layer.addTo(this);
+
+            // The loader (that is, the map or Folder) is the layer's parent 
+            layer.parent = this;
 
             var id;
             if (layerConfig.id) {

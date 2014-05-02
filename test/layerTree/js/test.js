@@ -26,20 +26,40 @@ function initMap() {
         collapsed: false
     }).addTo(map);
     // Add tree to map
-    var tree = [
-        {
-            type: "SMC.layertrees.Folder",
-            layers: [],
-            label: "Carpeta 1"
-        },{
+
+    /*
+    {
+        type: "folder",
+        label: "Folder 1",
+        layers:  [{
             type: "SMC.layers.markers.WFSMarkerLayer",
             params: [{
                 serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
-                typeName: "OpenData:COMMUNITY_CENTRES",
-                label: "WFS Marker Layer"
+                typeName: "OpenData:COMMUNITY_CENTRES"
             }]
-        }
-    ];
+        }]
+    }
+
+    */
+
+    var tree = [{
+        type: "folder",
+        label: "Folder1",
+        layers: [{
+            type: "SMC.layers.markers.WFSMarkerLayer",
+            params: [{
+                serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+                typeName: "OpenData:COMMUNITY_CENTRES"
+            }]
+        }]
+    }, {
+        type: "SMC.layers.markers.WFSMarkerLayer",
+        params: [{
+            serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+            typeName: "OpenData:CULTURAL_LOCATIONS",
+            label: "Cultural Locations"
+        }]
+    }];
     map.loadLayers(tree);
 }
 
