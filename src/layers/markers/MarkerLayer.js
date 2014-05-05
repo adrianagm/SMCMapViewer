@@ -17,14 +17,16 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
     {
         includes: SMC.Util.deepClassInclude([SMC.layers.SingleLayer, SMC.layers.stylers.MarkerCssStyler]),
 
-        clusterGroup: new L.MarkerClusterGroup({
+        initialize: function(options){
+            this.clusterGroup = new L.MarkerClusterGroup({
             polygonOptions: {
                 fill: false,
                 stroke: false
             }
-        }),
+        });
 
-        noClusterGroup: new L.FeatureGroup(),
+            this.noClusterGroup = new L.FeatureGroup();
+        },
 
 
         /*addTo: function(map) {
@@ -54,6 +56,15 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
             SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
             if (map) {
                 map.on("zoomend", this._onViewChanged, this);
+            }
+        },
+
+        onRemove: function(map){
+            map.removeLayer(this.clusterGroup);
+            map.removeLayer(this.noClusterGroup);
+            L.LayerGroup.prototype.onRemove.call(this, map);
+            if (map) {
+                map.off("zoomend", this._onViewChanged, this);
             }
         },
 
