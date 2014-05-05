@@ -49,7 +49,8 @@ function initMap() {
             type: "SMC.layers.markers.WFSMarkerLayer",
             params: [{
                 serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
-                typeName: "OpenData:COMMUNITY_CENTRES"
+                typeName: "OpenData:COMMUNITY_CENTRES",
+                label: "Community Centres"
             }]
         }]
     }, {
