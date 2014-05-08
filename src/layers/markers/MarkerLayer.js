@@ -60,7 +60,9 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
         },
 
         onRemove: function(map){
+            this.clusterGroup.clearLayers();
             map.removeLayer(this.clusterGroup);
+            this.noClusterGroup.clearLayers();
             map.removeLayer(this.noClusterGroup);
             L.LayerGroup.prototype.onRemove.call(this, map);
             if (map) {
