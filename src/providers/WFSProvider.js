@@ -84,7 +84,7 @@ SMC.providers.WFSProvider = SMC.providers.URLFeatureProvider.extend({
          * WFS format_options parameter.
          * @property {string} format_options - The wfs format options parameter.
          */
-        format_options: "callback:"
+        format_options: null
     },
     /**
      * Initialize the object with the params
@@ -99,7 +99,7 @@ SMC.providers.WFSProvider = SMC.providers.URLFeatureProvider.extend({
      */
     doFeaturesLoading: function() {
     	var jsonpRandom = this._makeid();
-    	this.options.format_options+=jsonpRandom;
+    	this.options.format_options = "callback:" + jsonpRandom;
         if (this.options.serverURL !== null) {
             return $.ajax({
                 url: this.options.serverURL,
