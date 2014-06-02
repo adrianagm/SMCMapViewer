@@ -28,19 +28,19 @@ function initMap() {
     // Add tree to map
     var tree = [{
         type: "folder",
-        label: "Folder 1",
+        label: 'Folder 1',
         layers: [
-        /*{
+        {
             type: "SMC.layers.markers.WFSMarkerLayer",
             params: [{
                 serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
                 typeName: "OpenData:COMMUNITY_CENTRES",
                 label: "Community Centres"
             }]
-        },*/
+        },
         {
             type: "folder",
-            label: "Folder 2",
+            label: 'Folder 2',
             layers: [
             {
                 type: "SMC.layers.markers.WFSMarkerLayer",
@@ -61,6 +61,9 @@ function initMap() {
         }]
     }*/];
     map.loadLayers(tree);
+    $('i.fa-folder-open').on('click', function(){
+        alert("select");
+    });
 }
 
 L.Icon.Default.imagePath = "../../dist/images";

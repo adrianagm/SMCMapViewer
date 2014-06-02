@@ -258,7 +258,13 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend({
 
                 var groupLabel = document.createElement('span');
                 groupLabel.className = 'leaflet-control-layers-group-name';
-                groupLabel.innerHTML = obj.group.name;
+                // Add label icon folder
+                var groupLabelIcon = document.createElement('i');
+                groupLabelIcon.className = 'fa fa-folder-open';
+                groupLabelIcon.style.cursor = "pointer";
+                groupLabelIcon.onclick = this._clickOnFolder;
+                groupLabelIcon.innerHTML = obj.group.name;
+                groupLabel.appendChild(groupLabelIcon);
 
                 groupContainer.appendChild(groupLabel);
                 container.appendChild(groupContainer);
@@ -297,6 +303,10 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend({
         this._handlingClick = false;
     },
 
+    _clickOnFolder: function(){
+        alert("Collapse folder");
+    },
+
     _expand: function() {
         L.DomUtil.addClass(this._container, 'leaflet-control-layers-expanded');
     },
@@ -307,6 +317,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend({
 });
 /**
  * API factory method for ease creation of LayerTreeControl.
+
  * @params {Object} baseLayer - Javascript object with base layer name and its layer
  * @params {Object} overlays - Javascript object with overalys layer name ans its layer
  * @params {Object} options - Javascript object with the options params
