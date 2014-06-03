@@ -1,89 +1,189 @@
 require("../layers.js");
 require("../stylers/MapCssStyler.js");
-require("../../../lib/paper/paper-full.js");
+//require("../../../lib/paper/paper-full.js");
 
 SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 	includes: SMC.Util.deepClassInclude([SMC.layers.stylers.MapCssStyler]),
 
 	_initialized: false,
-
-	_offset: "",
-	_items: [],
-
-	renderCanvas: function(canvas, features, map) {
-		if (!this._initialized) {
-			// Adds paper stuff so its accesible, don't remove.
-			paper.install(window);
-			this._initialized = true;
+	_papers: [],
+	_features: [],
 
 
-		}
+	renderCanvas: function(ctx, features, map) {
+
+
 		this.labels = [];
 
-		console.time("render");
+		var canvas = ctx.canvas;
 
-		var mypaper = new paper.PaperScope();
-		mypaper.setup(canvas);
+		if (!canvas._paper) {
+			//this._initialized = false;
+			var mypaper = new paper.PaperScope();
+			mypaper.setup(canvas);
+			canvas._paper = mypaper;
 
-		var ctx = {
-			paper: mypaper,
-			map: map,
-			canvas: canvas
-		};
-		if (map) {
-			map.on("click", this._onMouseClick, this);
-			map.on("mousemove", this._onMouseMove, this);
-			map.on("zoomend", function() {
-				this._onViewChanged(ctx, features)
+		}
+
+
+
+		console.time("render " + canvas._paper._id);
+
+		mypaper = canvas._paper;
+
+		ctx.paper = mypaper;
+		ctx.map = map;
+
+		
+
+
+
+		if (this._initialized) {
+			// Adds paper stuff so its accesible, don't remove.
+			//paper.install(window);
+
+			mypaper.activate();
+			mypaper.project.activeLayer.removeChildren();
+
+
+		}
+
+		//var mapCanvas = map._mapPane.children[0].children[1].children[1].children;
+		
+		
+			map.on("click", function(event) {	
+				this._onMouseClick(ctx, event);
+
 			}, this);
+
+			map.on("mousemove", function(event) {	
+				this._onMouseMove(ctx, event);
+			}, this);
+
+			map.on("zoomend", function() {
+				this._onViewChanged(ctx, features);
+			}, this);
+
+			map.on("dragend", function() {
+				if (!this.dragging)
+					this._onViewChanged(ctx, features);
+
+			}, this);
+
+			
+	
+
+
+
+		this._initialized = true;
+
+
+
+		if (!ctx.s) {
+			if (ctx.tile) {
+				ctx.s = ctx.tile.multiplyBy(ctx.canvas.width);
+
+			} else {
+				//ctx.s = new L.Point(0, 0);
+				ctx.s = ctx.map.getPixelBounds().min;
+			}
 		}
 
 
-		console.time("addFeatures");
-		var layer = new ctx.paper.Group();
-		var f;
+		console.time("applyStyles " + canvas._paper._id);
+
+
+		var zBuffer = [];
 		for (var i = 0; i < features.length; i++) {
-			f = this._addFeature(ctx, features[i]);
-			this._items[i] = f.path;
+			var feature = features[i];
+
+			var styles;
+			if (feature._clean || ctx.forceStyles) {
+				styles = feature._styles;
+			} else {
+				styles = feature._styles = this._applyStyles(feature, ctx);
+
+			}
+
+			zBuffer.push({
+				style: styles,
+				zIndex: styles.zIndex,
+				feature: feature
+			});
+
+
 		}
+		console.timeEnd("applyStyles " + canvas._paper._id);
 
-		//layer.position += layer._children[0]._children[0]._segments[0]._point;
-		if (this._offset && this._offset !== 0) {
-			this._items = this._addOffset(this._items, this._offset, ctx);
-		}
-
-		console.timeEnd("addFeatures");
+		zBuffer.sort(function(f1, f2) {
+			return f1.zIndex - f2.zIndex;
+		});
 
 
-		console.time("draw");
+		console.time("addFeatures " + canvas._paper._id);
+		var layer = new mypaper.Group();
 
+		for (i = 0; i < zBuffer.length; i++) {
+
+			var item = this._addFeature(ctx, zBuffer[i]);
+			layer.addChild(item);
+
+		};
+
+
+
+		console.timeEnd("addFeatures " + canvas._paper._id);
+
+		console.time("translate " + canvas._paper._id);
+
+		layer.applyMatrix = false;
+		//layer.transform(new paper.Matrix(1,0,0,1,-ctx.s.x, -ctx.s.y));
+		layer.translate(new paper.Point(-ctx.s.x, -ctx.s.y));
+
+
+		//canvas._lastTransform = ctx;
+
+		console.timeEnd("translate " + canvas._paper._id);
+
+		console.time("draw " + canvas._paper._id);
+
+
+		var text = new mypaper.PointText({
+			point: [5, 10],
+			content: "(" + ctx.tile.x + " , " + ctx.tile.y + ")",
+			fillColor: 'red',
+			fontFamily: 'Courier New',
+			fontWeight: 'bold',
+			fontSize: 10
+		});
+
+		var border = new mypaper.Path.Rectangle(0, 0, canvas.clientWidth, canvas.clientHeight);
+		border.style.strokeColor = "gray";
+
+		this._papers.push(mypaper);
 		mypaper.view.draw();
 
-		console.timeEnd("draw");
+
+		console.timeEnd("draw " + canvas._paper._id);
 
 
-		console.timeEnd("render");
+		console.timeEnd("render " + canvas._paper._id);
+
+
+
+		return layer;
 
 	},
 
-	_sendFeatures: function(features) {
-		var self = this;
-		$.each(features, function(index, feature) {
-			self._addFeature(feature);
-		});
-	},
 
-	addGeometryFromFeatures: function(features) {
-		if (L.Util.isArray(features) || typeof features == "object") {
-			this._sendFeatures(features);
-		} else {
-			this._sendFeatures(arguments);
+	_addFeature: function(ctx, elem) {
+		var feature = elem.feature;
+
+		if (feature._clean) {
+			return feature._item;
 		}
-	},
 
-
-	_addFeature: function(ctx, feature) {
-
+		var styles = elem.style;
 
 		var geom = feature.geometry.coordinates;
 
@@ -92,61 +192,54 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
 		}
 
-		var styles;
-		if (feature._clean || ctx.forceStyles) {
-			styles = feature._styles;
-		} else {
-			styles = feature._styles = this._applyStyles(feature, ctx);
-		}
+		// var styles;
+		// if (feature._clean || ctx.forceStyles) {
+		// 	styles = feature._styles;
+		// } else {
+		// 	styles = feature._styles = this._applyStyles(feature, ctx);
+		// }
 
-		if (styles.offset && styles.offset !== 0) {
-			this._offset = styles.offset;
-		}
-		var labels = this._addLabels(feature);
-		var stylePopup = this.addPopUp(feature);
+
+		var labels = this._addLabels(feature, ctx);
+		var stylePopup = this._addPopUp(feature, ctx);
 
 
 		var type = feature.geometry.type;
 
+		var item, path;
 		switch (type) {
 			case 'Point':
 			case 'MultiPoint':
-				var point = this._createPoint(geom, ctx, feature._clean);
-				var path = styles.path;
-				path.position = point;
-				path.properties = feature.properties;
-				path.map = ctx.map;
-				path.stylePopup = stylePopup;
-				var item = this._createItem(path, styles, labels, ctx);
-				return {
-					geom: geom,
-					item: item
-				};
+
+				var point = this._canvasPoint(geom, ctx, feature._clean);
+				styles.path.position = point;
+				path = styles.path;
+
+				break;
 
 			case 'LineString':
 			case 'MultiLineString':
-				var path = this._createGeometry(ctx, geom, feature, styles.offset, feature._clean);
-				path.stylePopup = stylePopup;
-				var item = this._createItem(path, styles, labels, ctx);
-				return {
-					path: path,
-					item: item
-				};
+
+				path = this._createGeometry(ctx, geom, feature, styles.offset, feature._clean);
+				break;
 
 			case 'Polygon':
 			case 'MultiPolygon':
-				var path = this._createGeometry(ctx, geom, feature, null, feature._clean);
+
+				path = this._createGeometry(ctx, geom, feature, null, feature._clean);
 				path.closed = true;
-				path.stylePopup = stylePopup;
-				var item = this._createItem(path, styles, labels, ctx);
-				return {
-					geom: geom,
-					item: item
-				};
+
+				break;
 
 		}
 
+		path.properties = feature.properties;
+		path.geometry = feature.geometry;
+		
+		item = this._createItem(path, styles, labels, stylePopup, ctx);
+		feature._item = item;
 		feature._clean = true;
+		return item;
 
 	},
 
@@ -154,10 +247,11 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
 		// actual coords to tile 'space'
 		var p;
+		var zoom = ctx.map.getZoom();
 		if (coords._projCoords && clean) {
 			p = coords._projCoords;
 		} else {
-			p = coords._projCoords = ctx.map.project(new L.LatLng(coords[1], coords[0]));;
+			p = coords._projCoords = ctx.map.project(new L.LatLng(coords[1], coords[0]), zoom);;
 		}
 
 
@@ -167,33 +261,30 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 		// }, ctx.zoom);
 
 		// start coords to tile 'space'
-		if (!ctx) {
-			ctx = {};
-		}
+		// if (!ctx) {
+		// 	ctx = {};
+		// }
 
-		if (!ctx.s) {
-			if (ctx.tile) {
-				ctx.s = ctx.tile.multiplyBy(ctx.canvas.width);
-			} else {
-				//ctx.s = new L.Point(0, 0);
-				ctx.s = ctx.map.getPixelBounds().min;
-			}
-		}
+		// if (!ctx.s) {
+		// 	if (ctx.tile) {
+		// 		ctx.s = ctx.tile.multiplyBy(ctx.canvas.width);
+		// 	} else {
+		// 		//ctx.s = new L.Point(0, 0);
+		// 		ctx.s = ctx.map.getPixelBounds().min;
+		// 	}
+		// }
 
 
 		// point to draw        
-		var x = p.x - ctx.s.x;
-		var y = p.y - ctx.s.y;
+		// var x = p.x - ctx.s.x;
+		// var y = p.y - ctx.s.y;
 		return {
-			x: x,
-			y: y
+			x: p.x,
+			y: p.y
 		};
 	},
 
-	// _createPoint: function(point, ctx, clean) {
-	// 	var coor = this._canvasPoint(point, ctx, clean);
-	// 	return coor;
-	// },
+
 
 	_createGeometry: function(ctx, geom, feature, offset, clean) {
 		var path; // = new ctx.paper.Path();
@@ -201,12 +292,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 		var points = [];
 		for (var i = 0; i < geom.length; i++) {
 			points[i] = this._canvasPoint(geom[i], ctx, clean);
-			// if (offset && offset !== 0){
-			// 	points[i] = {
-			// 		x: points[i].x + offset[0],
-			// 		y: points[i].y + offset[0]
-			// 	};
-			// }
+
 		}
 		points = L.LineUtil.simplify(points, 3);
 
@@ -214,49 +300,14 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 			points = this._addOffset(points, offset, ctx);
 		}
 
-
 		path = new ctx.paper.Path({
 			segments: points
 		});
-		path.properties = feature.properties;
-		path.map = ctx.map;
-
 
 		return path;
 
 	},
 
-	_onMouseClick: function(event) {
-		var popup;
-
-		var hitResult = paper.project.hitTest(event.layerPoint);
-
-		paper.project.activeLayer.selected = false;
-		if (hitResult) {
-			hitResult.item.selected = true;
-			popup = L.popup()
-				.setLatLng(event.latlng)
-				.setContent(hitResult.item.stylePopup.content)
-				.openOn(hitResult.item.map);
-			offset: hitResult.item.stylePopup.offset
-
-
-		}
-
-		paper.view.draw();
-
-
-
-	},
-	_onMouseMove: function(event) {
-		map.style.cursor = 'default';
-		var hitResult = paper.project.hitTest(event.layerPoint);
-		if (hitResult) {
-			map.style.cursor = 'pointer';
-
-		}
-
-	},
 
 	_applyStyles: function(feature, ctx) {
 		var zoom = ctx.map.getZoom();
@@ -264,19 +315,53 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 		return style;
 	},
 
-	_addLabels: function(feature) {
-		var label = this.addLabelStyle(feature);
+	_addLabels: function(feature, ctx) {
+		var zoom = ctx.map.getZoom();
+		var label = this.addLabelStyle(feature, zoom);
 		return label;
 
 	},
-	_createItem: function(path, styles, labels, ctx) {
+
+	_addPopUp: function(feature, ctx) {
+		var zoom = ctx.map.getZoom();
+		var popUpStyle = this.addPopUp(feature, zoom);
+		return popUpStyle;
+	},
+
+	_createItem: function(path, styles, labels, stylePopup, ctx) {
+
 		path.style = styles.pathStyle;
 		path.opacity = styles.opacity;
+		path.visible = styles.visible;
+		path.stylePopup = stylePopup;
+
+
+		// path.onMouseEnter = function(event) {
+		// 	ctx.map.getContainer().style.cursor = 'pointer';
+		// 	path.selected = true;
+		// };
+
+		// path.onMouseLeave = function(event) {
+		// 	ctx.map.getContainer().style.cursor = '';
+		// 	path.selected = false;
+
+		// };
+
+		// path.onClick = function(event) {
+		// 	ctx.paper.project.deselectAll();
+		// 	path.selected = true;
+		// 	popup = L.popup()
+		// 		.setLatLng(event.latlng)
+		// 		.setContent(stylePopup.content)
+		// 		.openOn(ctx.map);
+		// 	//???? offset: stylePopup.offset
+		// };
 
 		var item = new ctx.paper.Group();
 		item.addChild(path);
+		item.zIndex = styles.zIndex;
 
-		if (labels.content) {
+		if (labels.content && path.visible) {
 			var pointText = new ctx.paper.PointText(path.interiorPoint);
 			pointText.content = labels.content;
 			pointText.style = labels.style;
@@ -286,14 +371,130 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 		return item;
 	},
 
+	_onMouseClick: function(ctx, event) {
+		if(!event._deselect){
+		 for (var i = 0; i < this._features.length; i++) {
+			this._features[i]._item.selected = false;
+
+		 }
+		 this._features = [];
+		 event._deselect = true;
+		}
+
+		if (event._hit) {	
+			return;
+		}
+
+		//ctx.paper.project.activeLayer.selected = false;
+
+
+		var cPoint = this._canvasPoint([event.latlng.lng, event.latlng.lat], ctx);
+		
+		cPoint.x -= ctx.s.x;
+		cPoint.y -= ctx.s.y;
+
+		// var cPoint = {
+		// 	x: event.originalEvent.clientX ,
+		// 	y: event.originalEvent.clientY 
+		// }
+
+		
+		// cPoint.x -= ctx.canvas.offsetLeft;
+		// cPoint.y -= ctx.canvas.offsetTop;
+		
+
+		var popup;
+
+		var hitResult = ctx.paper.project.hitTest(cPoint, {
+			tolerance: 5,
+			fill: true,
+			stroke: true
+		});
+
+		
+
+		
+		if (hitResult) {
+			event._hit = hitResult;
+			//hitResult.item.selected = true;
+			popup = L.popup({
+				offset: hitResult.item.stylePopup.offset
+			})
+				.setLatLng(event.latlng)
+				.setContent(hitResult.item.stylePopup.content)
+				.openOn(ctx.map);
+			this.fireEvent("featuresUpdated", {
+				feature: hitResult.item,
+				event: event
+			});
+
+		}
+
+		// So the drawing is updated with changes made to the clicked feature.
+		ctx.paper.view.draw();
+	},
+
+	_onMouseMove: function(ctx, event) {
+
+
+		//TODO: Check canvas bounds if this takes too long.
+
+		if (event._hit) {
+			return;
+		}
+
+		var cPoint = this._canvasPoint([event.latlng.lng, event.latlng.lat], ctx);
+		
+		cPoint.x -= ctx.s.x;
+		cPoint.y -= ctx.s.y;
+		
+
+
+		// var cPoint = {
+		// 	x: event.originalEvent.clientX,
+		// 	y: event.originalEvent.clientY
+		// }
+
+		
+		// cPoint.x -= ctx.canvas.offsetLeft;
+		// cPoint.y -= ctx.canvas.offsetTop;
+
+		
+
+		//console.time("mouseMove");
+		var hitResult = ctx.paper.project.hitTest(cPoint, {
+			tolerance: 5,
+			fill: true,
+			stroke: true
+		});
+
+		//console.timeEnd("mouseMove");
+
+
+		if (hitResult) {
+			event._hit = hitResult;
+		}
+
+		ctx.map.getContainer().style.cursor = event._hit ? 'pointer ' : '';
+
+
+
+	},
+
+
+
 	_onViewChanged: function(ctx, features) {
+		
+			
 
 		for (var i = 0; i < features.length; i++) {
 			var f = features[i];
 			f._clean = false;
 			this._applyStyles(f, ctx);
+			
 
 		}
+
 
 
 	},
