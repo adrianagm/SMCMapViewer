@@ -4,6 +4,7 @@ require("./CanvasRenderer.js");
 require("../stylers/MapCssStyler.js");
 require("../../../lib/canvasLayer/leaflet_canvas_layer.js");
 
+
 /**
  * Base class for layers using client side rendering of geographical features in the SCM map viewer component.
  * @class
@@ -26,8 +27,23 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 
 		render: function() {
 			var canvas = this.getCanvas();
+			
+
 			if (this.features.length !== 0) {
-				this.renderCanvas(canvas, this.features, this._map);
+				this.renderCanvas({
+					canvas: canvas
+				}, this.features, this._map);
+			}
+		},
+
+		addGeometryFromFeatures: function(features) {
+
+			if (L.Util.isArray(features)) {
+				this.features = features;
+			} else if (arguments.length > 1) {
+				this.features = arguments;
+			} else {
+				this.features = [features];
 			}
 		},
 
