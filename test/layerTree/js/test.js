@@ -37,19 +37,40 @@ function initMap() {
                 typeName: "OpenData:COMMUNITY_CENTRES",
                 label: "Community Centres"
             }]
+        },{
+            type: "SMC.layers.markers.WFSMarkerLayer",
+            params: [{
+                serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+                typeName: "OpenData:CULTURAL_LOCATIONS",
+                label: "Cultural Locations"
+            }] 
         },
         {
-            type: "folder",
-            label: 'Folder 2',
-            layers: [
-            {
-                type: "SMC.layers.markers.WFSMarkerLayer",
-                params: [{
-                    serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
-                    typeName: "OpenData:V_SURE_START_CENTRES",
-                    label: "Children's centres"
-                }] 
-            }]
+            type: "SMC.layers.markers.WFSMarkerLayer",
+            params: [{
+                serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+                typeName: "OpenData:LIBRARIES",
+                label: "Libraries"
+            }] 
+        },{
+            type: "SMC.layers.markers.WFSMarkerLayer",
+            params: [{
+                serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+                typeName: "OpenData:V_RECYCLING_CENTRES",
+                label: "Recycling centres"
+            }] 
+        }]
+    },{
+        type: "folder",
+        label: 'Folder 2',
+        layers: [
+        {
+            type: "SMC.layers.markers.WFSMarkerLayer",
+            params: [{
+                serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+                typeName: "OpenData:V_SURE_START_CENTRES",
+                label: "Children's centres"
+            }] 
         }]
     }
     /*, {
@@ -61,9 +82,6 @@ function initMap() {
         }]
     }*/];
     map.loadLayers(tree);
-    $('i.fa-folder-open').on('click', function(){
-        alert("select");
-    });
 }
 
 L.Icon.Default.imagePath = "../../dist/images";

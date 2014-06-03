@@ -125,10 +125,10 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend({
         };
 
         if (group) {
-            var groupId = this._groupList.indexOf(group);
+            var groupId = this._groupList.indexOf(group.innerHTML);
 
             if (groupId === -1) {
-                groupId = this._groupList.push(group) - 1;
+                groupId = this._groupList.push(group.innerHTML) - 1;
             }
 
             this._layers[id].group = {
@@ -258,13 +258,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend({
 
                 var groupLabel = document.createElement('span');
                 groupLabel.className = 'leaflet-control-layers-group-name';
-                // Add label icon folder
-                var groupLabelIcon = document.createElement('i');
-                groupLabelIcon.className = 'fa fa-folder-open';
-                groupLabelIcon.style.cursor = "pointer";
-                groupLabelIcon.onclick = this._clickOnFolder;
-                groupLabelIcon.innerHTML = obj.group.name;
-                groupLabel.appendChild(groupLabelIcon);
+                groupLabel.appendChild(obj.group.name);
 
                 groupContainer.appendChild(groupLabel);
                 container.appendChild(groupContainer);
@@ -301,10 +295,6 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend({
             }
         }
         this._handlingClick = false;
-    },
-
-    _clickOnFolder: function(){
-        alert("Collapse folder");
     },
 
     _expand: function() {
