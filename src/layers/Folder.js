@@ -29,5 +29,34 @@ SMC.layers.Folder = L.LayerGroup.extend(
             } else {
                 throw new Error("SMC.layers.Folder::initialize: Either layersConfig or layers must be passed as an initialization option!");
             }
+        },
+
+        createNodeHTML: function() {
+            var node = document.createElement("i");
+            node.className = 'fa fa-folder-open';
+            node.style.cursor = "pointer";
+            node.onclick = this._clickOnFolder;
+            node.innerHTML = (this.options.label || this.options.typeName);
+            return node;
+        },
+
+        _clickOnFolder: function(evt){
+            if(evt.target.className.indexOf("open") != -1){
+                // Folder opened
+                var labels = evt.target.parentElement.parentElement.getElementsByTagName("label");
+                for(var i=0; i<labels.length; i++){
+                    labels[i].style.display = 'none';
+                }
+                evt.target.removeAttribute("class");
+                evt.target.className = "fa fa-folder";
+            }else{
+                // Folder closed
+                var labels = evt.target.parentElement.parentElement.getElementsByTagName("label");
+                for(var i=0; i<labels.length; i++){
+                    labels[i].style.display = 'block';
+                }
+                evt.target.removeAttribute("class");
+                evt.target.className = "fa fa-folder-open";
+            }
         }
     });

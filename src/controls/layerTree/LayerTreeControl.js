@@ -125,10 +125,10 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend({
         };
 
         if (group) {
-            var groupId = this._groupList.indexOf(group);
+            var groupId = this._groupList.indexOf(group.innerHTML);
 
             if (groupId === -1) {
-                groupId = this._groupList.push(group) - 1;
+                groupId = this._groupList.push(group.innerHTML) - 1;
             }
 
             this._layers[id].group = {
@@ -258,7 +258,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend({
 
                 var groupLabel = document.createElement('span');
                 groupLabel.className = 'leaflet-control-layers-group-name';
-                groupLabel.innerHTML = obj.group.name;
+                groupLabel.appendChild(obj.group.name);
 
                 groupContainer.appendChild(groupLabel);
                 container.appendChild(groupContainer);
@@ -307,6 +307,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend({
 });
 /**
  * API factory method for ease creation of LayerTreeControl.
+
  * @params {Object} baseLayer - Javascript object with base layer name and its layer
  * @params {Object} overlays - Javascript object with overalys layer name ans its layer
  * @params {Object} options - Javascript object with the options params

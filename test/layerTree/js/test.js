@@ -28,28 +28,49 @@ function initMap() {
     // Add tree to map
     var tree = [{
         type: "folder",
-        label: "Folder 1",
+        label: 'Folder 1',
         layers: [
-        /*{
+        {
             type: "SMC.layers.markers.WFSMarkerLayer",
             params: [{
                 serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
                 typeName: "OpenData:COMMUNITY_CENTRES",
                 label: "Community Centres"
             }]
-        },*/
+        },{
+            type: "SMC.layers.markers.WFSMarkerLayer",
+            params: [{
+                serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+                typeName: "OpenData:CULTURAL_LOCATIONS",
+                label: "Cultural Locations"
+            }] 
+        },
         {
-            type: "folder",
-            label: "Folder 2",
-            layers: [
-            {
-                type: "SMC.layers.markers.WFSMarkerLayer",
-                params: [{
-                    serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
-                    typeName: "OpenData:V_SURE_START_CENTRES",
-                    label: "Children's centres"
-                }] 
-            }]
+            type: "SMC.layers.markers.WFSMarkerLayer",
+            params: [{
+                serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+                typeName: "OpenData:LIBRARIES",
+                label: "Libraries"
+            }] 
+        },{
+            type: "SMC.layers.markers.WFSMarkerLayer",
+            params: [{
+                serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+                typeName: "OpenData:V_RECYCLING_CENTRES",
+                label: "Recycling centres"
+            }] 
+        }]
+    },{
+        type: "folder",
+        label: 'Folder 2',
+        layers: [
+        {
+            type: "SMC.layers.markers.WFSMarkerLayer",
+            params: [{
+                serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+                typeName: "OpenData:V_SURE_START_CENTRES",
+                label: "Children's centres"
+            }] 
         }]
     }
     /*, {
