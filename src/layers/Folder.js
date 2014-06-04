@@ -43,7 +43,7 @@ SMC.layers.Folder = L.LayerGroup.extend(
         _clickOnFolder: function(evt){
             if(evt.target.className.indexOf("open") != -1){
                 // Folder opened
-                var labels = evt.target.parentElement.parentElement.getElementsByTagName("label");
+                var labels = evt.target.parentElement.parentElement.getElementsByClassName("leaflet-control-layers-group-content");
                 for(var i=0; i<labels.length; i++){
                     labels[i].style.display = 'none';
                 }
@@ -51,7 +51,7 @@ SMC.layers.Folder = L.LayerGroup.extend(
                 evt.target.className = "fa fa-folder";
             }else{
                 // Folder closed
-                var labels = evt.target.parentElement.parentElement.getElementsByTagName("label");
+                var labels = evt.target.parentElement.parentElement.getElementsByClassName("leaflet-control-layers-group-content");
                 for(var i=0; i<labels.length; i++){
                     labels[i].style.display = 'block';
                 }

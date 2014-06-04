@@ -59,6 +59,17 @@ function initMap() {
                 typeName: "OpenData:V_RECYCLING_CENTRES",
                 label: "Recycling centres"
             }] 
+        },{
+            type: "folder",
+            label: 'Folder 1.1',
+            layers: [{
+                type: "SMC.layers.markers.WFSMarkerLayer",
+                params: [{
+                    serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+                    typeName: "OpenData:Parks",
+                    label: "Salford Parks"
+                }] 
+            }]   
         }]
     },{
         type: "folder",

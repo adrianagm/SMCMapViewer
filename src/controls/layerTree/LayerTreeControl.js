@@ -135,6 +135,14 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend({
                 name: group,
                 id: groupId
             };
+
+            if(layer.parent && layer.parent.parent){
+                this._layers[id].group = {
+                    name: group,
+                    id: groupId,
+                    parent: layer.parent.parent.createNodeHTML()
+                };
+            }
         }
 
         if (this.options.autoZIndex && layer.setZIndex) {
@@ -249,29 +257,74 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend({
             container = this._overlaysList;
 
             var groupContainer = this._domGroups[obj.group.id];
+            var groupContent = null;
 
             // Create the group container if it doesn't exist
             if (!groupContainer) {
-                groupContainer = document.createElement('div');
-                groupContainer.className = 'leaflet-control-layers-group';
-                groupContainer.id = 'leaflet-control-layers-group-' + obj.group.id;
-
-                var groupLabel = document.createElement('span');
-                groupLabel.className = 'leaflet-control-layers-group-name';
-                groupLabel.appendChild(obj.group.name);
-
-                groupContainer.appendChild(groupLabel);
-                container.appendChild(groupContainer);
-
-                this._domGroups[obj.group.id] = groupContainer;
+                if(obj.group.parent){
+                    var parent = null;
+                    // Create group container div
+                    groupContainer = document.createElement('div');
+                    groupContainer.className = 'leaflet-control-layers-group';
+                    groupContainer.id = 'leaflet-control-layers-group-' + obj.group.id;
+                    // Create span folder title
+                    var groupLabel = document.createElement('span');
+                    groupLabel.className = 'leaflet-control-layers-group-name';
+                    groupLabel.appendChild(obj.group.name);
+                    // Add folder label to group container
+                    groupContainer.appendChild(groupLabel);
+                    // Create group content div
+                    groupContent = document.createElement('div');
+                    groupContent.className = 'leaflet-control-layers-group-content';
+                    groupContent.appendChild(label);
+                    // Add group content to group container
+                    groupContainer.appendChild(groupContent);
+                    // Get parent id
+                    var parentId = this._groupList.indexOf(obj.group.parent.innerHTML);
+                    // Get parent content
+                    for(var i=0; i<this._domGroups.length; i++){
+                        var groupId = this._domGroups[i].id.split("-")[4];
+                        if(groupId == parentId){
+                            parent = this._domGroups[i];
+                        }
+                    }
+                    var parentContent = parent.getElementsByClassName("leaflet-control-layers-group-content")[0];
+                    parentContent.appendChild(groupContainer);
+                    groupContent.appendChild(label);
+                }else{
+                    // Create group container div
+                    groupContainer = document.createElement('div');
+                    groupContainer.className = 'leaflet-control-layers-group';
+                    groupContainer.id = 'leaflet-control-layers-group-' + obj.group.id;
+                    // Create span folder title
+                    var groupLabel = document.createElement('span');
+                    groupLabel.className = 'leaflet-control-layers-group-name';
+                    groupLabel.appendChild(obj.group.name);
+                    // Add folder label to group container
+                    groupContainer.appendChild(groupLabel);
+                    // Create group content div
+                    groupContent = document.createElement('div');
+                    groupContent.className = 'leaflet-control-layers-group-content';
+                    groupContent.appendChild(label);
+                    // Add group content to group container
+                    groupContainer.appendChild(groupContent);
+                    // Add group container to overlays
+                    container.appendChild(groupContainer);
+                    // Store group container
+                    this._domGroups[obj.group.id] = groupContainer;
+                }
+            }else{
+                groupContent = groupContainer.getElementsByClassName("leaflet-control-layers-group-content")[0];
+                if(groupContent != null){
+                    groupContent.appendChild(label);
+                }else{
+                    groupContainer.appendChild(label);
+                }
             }
-
-            container = groupContainer;
         } else {
             container = this._baseLayersList;
+            container.appendChild(label);
         }
-
-        container.appendChild(label);
 
         return label;
     },
