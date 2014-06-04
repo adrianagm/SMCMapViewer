@@ -261,24 +261,24 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend({
 
             // Create the group container if it doesn't exist
             if (!groupContainer) {
+                // Create group container div
+                groupContainer = document.createElement('div');
+                groupContainer.className = 'leaflet-control-layers-group';
+                groupContainer.id = 'leaflet-control-layers-group-' + obj.group.id;
+                // Create span folder title
+                var groupLabel = document.createElement('span');
+                groupLabel.className = 'leaflet-control-layers-group-name';
+                groupLabel.appendChild(obj.group.name);
+                // Add folder label to group container
+                groupContainer.appendChild(groupLabel);
+                // Create group content div
+                groupContent = document.createElement('div');
+                groupContent.className = 'leaflet-control-layers-group-content';
+                groupContent.appendChild(label);
+                // Add group content to group container
+                groupContainer.appendChild(groupContent);
                 if(obj.group.parent){
                     var parent = null;
-                    // Create group container div
-                    groupContainer = document.createElement('div');
-                    groupContainer.className = 'leaflet-control-layers-group';
-                    groupContainer.id = 'leaflet-control-layers-group-' + obj.group.id;
-                    // Create span folder title
-                    var groupLabel = document.createElement('span');
-                    groupLabel.className = 'leaflet-control-layers-group-name';
-                    groupLabel.appendChild(obj.group.name);
-                    // Add folder label to group container
-                    groupContainer.appendChild(groupLabel);
-                    // Create group content div
-                    groupContent = document.createElement('div');
-                    groupContent.className = 'leaflet-control-layers-group-content';
-                    groupContent.appendChild(label);
-                    // Add group content to group container
-                    groupContainer.appendChild(groupContent);
                     // Get parent id
                     var parentId = this._groupList.indexOf(obj.group.parent.innerHTML);
                     // Get parent content
@@ -292,22 +292,6 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend({
                     parentContent.appendChild(groupContainer);
                     groupContent.appendChild(label);
                 }else{
-                    // Create group container div
-                    groupContainer = document.createElement('div');
-                    groupContainer.className = 'leaflet-control-layers-group';
-                    groupContainer.id = 'leaflet-control-layers-group-' + obj.group.id;
-                    // Create span folder title
-                    var groupLabel = document.createElement('span');
-                    groupLabel.className = 'leaflet-control-layers-group-name';
-                    groupLabel.appendChild(obj.group.name);
-                    // Add folder label to group container
-                    groupContainer.appendChild(groupLabel);
-                    // Create group content div
-                    groupContent = document.createElement('div');
-                    groupContent.className = 'leaflet-control-layers-group-content';
-                    groupContent.appendChild(label);
-                    // Add group content to group container
-                    groupContainer.appendChild(groupContent);
                     // Add group container to overlays
                     container.appendChild(groupContainer);
                     // Store group container
