@@ -213,8 +213,10 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend({
                 this._update();
             }
         }else{
-            delete this._layers[L.Util.stamp(e.layer)];
-            this._update();
+            if(!this._handlingClick){
+                delete this._layers[L.Util.stamp(e.layer)];
+                this._update();
+            }
         }
     },
 
