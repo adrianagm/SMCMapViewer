@@ -194,21 +194,26 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend({
     _onLayerChange: function(e) {
         var obj = this._layers[L.Util.stamp(e.layer)];
 
-        if (!obj) {
-            if(e.layer.options && e.layer.options.label){
-                this._methodRecursive(e.layer);
+        if(e.layer._map){
+            if (!obj) {
+                if(e.layer.options && e.layer.options.label){
+                    this._methodRecursive(e.layer);
+                    this._update();
+                }
+            } else {
+                var type = obj.overlay ?
+                    (e.type === 'layeradd' ? 'overlayadd' : 'overlayremove') :
+                    (e.type === 'layeradd' ? 'baselayerchange' : null);
+                if (type) {
+                    this._map.fire(type, obj);
+                }
+            }
+
+            if (!this._handlingClick) {
                 this._update();
             }
-        } else {
-            var type = obj.overlay ?
-                (e.type === 'layeradd' ? 'overlayadd' : 'overlayremove') :
-                (e.type === 'layeradd' ? 'baselayerchange' : null);
-            if (type) {
-                this._map.fire(type, obj);
-            }
-        }
-
-        if (!this._handlingClick) {
+        }else{
+            delete this._layers[L.Util.stamp(e.layer)];
             this._update();
         }
     },
