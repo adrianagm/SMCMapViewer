@@ -53,13 +53,6 @@ function initMap() {
                 label: "Libraries"
             }] 
         },{
-            type: "SMC.layers.markers.WFSMarkerLayer",
-            params: [{
-                serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
-                typeName: "OpenData:V_RECYCLING_CENTRES",
-                label: "Recycling centres"
-            }] 
-        },{
             type: "folder",
             label: 'Folder 1.1',
             layers: [{
@@ -69,30 +62,45 @@ function initMap() {
                     typeName: "OpenData:Parks",
                     label: "Salford Parks"
                 }] 
-            }]   
+            },{
+                type: "folder",
+                label: 'Folder 1.2',
+                layers: [
+                {
+                    type: "SMC.layers.markers.WFSMarkerLayer",
+                    params: [{
+                        serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+                        typeName: "OpenData:V_SURE_START_CENTRES",
+                        label: "Children's centres"
+                    }] 
+                }]
+            }]
         }]
     },{
         type: "folder",
-        label: 'Folder 2',
-        layers: [
-        {
+        label: 'Folder 3',
+        layers: [{
             type: "SMC.layers.markers.WFSMarkerLayer",
             params: [{
                 serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
-                typeName: "OpenData:V_SURE_START_CENTRES",
-                label: "Children's centres"
-            }] 
+                typeName: "OpenData:CULTURAL_LOCATIONS",
+                label: "Cultural Locations"
+            }]
         }]
-    }
-    /*, {
+    },{
         type: "SMC.layers.markers.WFSMarkerLayer",
         params: [{
             serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
-            typeName: "OpenData:CULTURAL_LOCATIONS",
-            label: "Cultural Locations"
-        }]
-    }*/];
+            typeName: "OpenData:V_RECYCLING_CENTRES",
+            label: "Recycling centres"
+        }] 
+    }];
     map.loadLayers(tree);
+    var wfsMarkerLayer = SMC.wfsMarkerLayer({
+        serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+        typeName: "OpenData:COMMUNITY_CENTRES",
+        label: "Prueba WFS"
+    }).addTo(map);
 }
 
 L.Icon.Default.imagePath = "../../dist/images";
