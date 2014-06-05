@@ -10,6 +10,7 @@
 
 .leaflet-control-layers-group {
 	margin-top: 10px;
+	margin-left: 4px;
 }
 
 .fa-folder-open:before, .fa-folder:before {
