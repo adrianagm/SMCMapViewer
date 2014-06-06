@@ -246,10 +246,10 @@ function initMap() {
 
 
 
-	puntos.addGeometryFromFeatures(geometry_geojson2);
+	//puntos.addGeometryFromFeatures(geometry_geojson2);
 	//puntos.addTo(map);
 	//geometry.addGeometryFromFeatures(geometry_geojson);
-	geometry.addTo(map);
+	//geometry.addTo(map);
 
 	$.ajax({
 
@@ -260,12 +260,14 @@ function initMap() {
 	 	success: function(response) {
 	 		var features = response.features;
 
-	 		// lines.addTo(map);
-	 		// puntos.addTo(map);
-	 		geometry.addTo(map);
-
 	 		lines.addGeometryFromFeatures(features);
-	 		//lines.render();
+	 		lines.addTo(map);
+	 		// puntos.addTo(map);
+
+	 		//geometry.addTo(map);
+
+	 		
+	 		lines.render();
 
 	 	}
 	});
@@ -501,7 +503,7 @@ function initMap() {
 	};
 
 
-	tileLayer.addTo(map);
+	//tileLayer.addTo(map);
 	
 
 	// var max = new L.Marker(new L.LatLng(51.6941, 0.114528));
