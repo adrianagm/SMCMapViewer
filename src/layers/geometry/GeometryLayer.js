@@ -20,6 +20,10 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 
 		features: [],
 
+		initialize: function() {
+			L.CanvasLayer.prototype.initialize.apply(this, arguments);
+		},
+
 		onAdd: function(map) {
 			L.CanvasLayer.prototype.onAdd.call(this, map);
 			SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
