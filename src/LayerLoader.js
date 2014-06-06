@@ -24,14 +24,27 @@ SMC.LayerLoader = L.Class.extend(
                 throw new Error("SMC.layers.LayerLoader::loadLayers: no layers config received");
             }
 
+            if(typeof layersConfig === "object" && layersConfig.url){
+                var self = this;
+                $.ajax({
+                    url: layersConfig.url,
+                    dataType: "json",
+                    success: function(data, textStatus, jqXHR){
+                        self._loadJsonArray(data);
+                    }
+                });
+            }else{
+                this._loadJsonArray(layersConfig);
+            }
+        },
+
+        _loadJsonArray: function(layersConfig){
             if (typeof layersConfig == "string") {
                 layersConfig = JSON.parse(layersConfig);
             }
-
-            if (!L.Util.isArray(layersConfig)) {
+            if (!L.Util.isArray(layersConfig)){
                 throw new Error("SMC.layers.LayerLoader::loadLayers: layers config is not an array");
             }
-
             for (var i = 0; i < layersConfig.length; i++) {
                 var layerConfig = layersConfig[i];
                 this._loadLayerConfig(layerConfig, i + 1);

@@ -282,9 +282,12 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend({
         return groupLabel;
     },
 
-    _getGroupContent: function(){
+    _getGroupContent: function(obj){
         var groupContent = document.createElement('div');
         groupContent.className = 'leaflet-control-layers-group-content';
+        if(obj.name.className.indexOf("open") == -1){
+            groupContent.style.display = 'none';
+        }
         
         return groupContent;
     },
@@ -322,7 +325,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend({
         // Create group container div
         var groupContainer = this._getGroupContainer(obj);
         // Create group content div
-        groupContent = this._getGroupContent();
+        groupContent = this._getGroupContent(obj);
         // Add group content to group container
         groupContainer.appendChild(groupContent);
         // Add group container to container
