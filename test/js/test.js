@@ -72,11 +72,11 @@ function initMap() {
 
 
 	marcador._createStyles = function(properties, zoom) {
-
+		var template, url;
 		//template URL
 		if (zoom >= 18) {
 			// Charlton Heston :)
-			var url = "http://replygif.net/i/735.gif";
+			url = "http://replygif.net/i/735.gif";
 			return {
 				iconClassName: "marker-blue",
 				templateUrl: url,
@@ -85,7 +85,7 @@ function initMap() {
 
 			//html template
 		} else if (zoom < 18 && zoom >= 15) {
-			var template = "<div style='text-align:center'><b style='color:{{colour}}'>{{name}}</b></div>";
+			template = "<div style='text-align:center'><b style='color:{{colour}}'>{{name}}</b></div>";
 
 			return {
 				htmlTemplate: template,
@@ -98,7 +98,7 @@ function initMap() {
 
 		//html template
 		else if (zoom < 15 && zoom >= 10) {
-			var template = "<div style='text-align:center'><b style='color:{{colour}}'>{{name}}</b></div>";
+			template = "<div style='text-align:center'><b style='color:{{colour}}'>{{name}}</b></div>";
 
 			return {
 				htmlTemplate: template,
@@ -113,7 +113,7 @@ function initMap() {
 		//icon URL
 		else {
 			// Red marker
-			var url = "http://pixabay.com/static/uploads/photo/2012/04/26/19/04/red-42871_150.png";
+			url = "http://pixabay.com/static/uploads/photo/2012/04/26/19/04/red-42871_150.png";
 
 			return {
 				iconUrl: url,
@@ -211,10 +211,12 @@ function initMap() {
 	puntos.load = function() {};
 	stations.load = function() {};
 
+	/* Commented as it fails 'cause the geometry layer is not added, and it fails: 
 	geometry.setZIndex(1000);
 	lines.setZIndex(1000);
 	puntos.setZIndex(1000);
 	stations.setZIndex(1000);
+	*/
 
 	var geometry_geojson = {
 		"type": "Feature",
@@ -246,27 +248,27 @@ function initMap() {
 
 	puntos.addGeometryFromFeatures(geometry_geojson2);
 	//puntos.addTo(map);
-	geometry.addGeometryFromFeatures(geometry_geojson);
-	//geometry.addTo(map);
+	//geometry.addGeometryFromFeatures(geometry_geojson);
+	geometry.addTo(map);
 
-	// $.ajax({
+	$.ajax({
 
-	// 	url: 'http://adriana-4.cartodb.com/api/v2/sql?format=GeoJSON&q=SELECT * FROM tfl_lines',
+		url: 'http://adriana-4.cartodb.com/api/v2/sql?format=GeoJSON&q=SELECT * FROM tfl_lines',
 
 
-	// 	dataType: "json",
-	// 	success: function(response) {
-	// 		var features = response.features;
+	 	dataType: "json",
+	 	success: function(response) {
+	 		var features = response.features;
 
-	// 		lines.addTo(map);
-	// 		puntos.addTo(map);
-	// 		geometry.addTo(map);
+	 		// lines.addTo(map);
+	 		// puntos.addTo(map);
+	 		geometry.addTo(map);
 
-	// 		lines.addGeometryFromFeatures(features);
-	// 		//lines.render();
+	 		lines.addGeometryFromFeatures(features);
+	 		//lines.render();
 
-	// 	}
-	// });
+	 	}
+	});
 
 	// $.ajax({
 
@@ -324,17 +326,17 @@ function initMap() {
 				opacity: 0.5
 
 			};
-	}
+	};
 
 	puntos._createStyles = function(feature, zoom) {
 		if (zoom >= 16) {
 			return {
 				fillColor: 'red'
-			}
+			};
 		} else if (zoom < 16 && zoom >= 14) {
 			return {
 				invisible: true
-			}
+			};
 		} else
 			return {
 				fillColor: 'blue',
@@ -343,19 +345,19 @@ function initMap() {
 				opacity: 0.7
 
 			};
-	}
+	};
 
 	lines._createStyles = function(feature, zoom) {
 		return {
 			strokeColor: '#444',
 			strokeWidth: 2,
 			symbol: "RegularPolygon"
-		}
-	}
+		};
+	};
 
 
 
-	geometry._createStyles = function(feature, zoom) {
+	var geomStyles = function(feature, zoom) {
 		var type = feature.geometry.type;
 		switch (type) {
 			case 'Point':
@@ -389,7 +391,7 @@ function initMap() {
 				var tube = feature.properties.lines;
 				tube = JSON.parse(tube);
 				var color = tube[0].colour;
-				var tube = feature.properties.lines;
+				tube = feature.properties.lines;
 				tube = JSON.parse(tube);
 				var name = tube[0].name;
 				if (name == 'Central') {
@@ -399,7 +401,7 @@ function initMap() {
 						offset: 4,
 						zIndex: 30
 
-					}
+					};
 				} else
 					return {
 						strokeWidth: 3,
@@ -420,10 +422,11 @@ function initMap() {
 
 
 				};
-				break;
 		}
 
 	};
+
+	geometry._createStyles = geomStyles;
 
 
 
@@ -476,17 +479,18 @@ function initMap() {
 		if (zoom >= 11) {
 			return {
 				content: feature.properties.name
-			}
+			};
 		} else
 			return {
 				content: feature.properties.id
-			}
-	}
+			};
+	};
 
 	//.................tiled geometry...................
 	var tileLayer = new SMC.layers.geometry.TiledGeometryLayer({});
 	tileLayer.load = function() {};
 	tileLayer.setZIndex(1000);
+	geometry._createStyles =  geomStyles;
 	tileLayer.createRequest = function(bounds) {
 		var url = 'http://adriana-4.cartodb.com/api/v2/sql?format=GeoJSON&q=SELECT * FROM tfl_lines WHERE the_geom %26%26 ST_SetSRID (ST_MakeBox2D(ST_Point('+bounds[0]+','+bounds[1]+'), ST_Point('+bounds[2]+','+ bounds[3]+')),4326)';
 
@@ -494,7 +498,7 @@ function initMap() {
 			url: url,
 			dataType:"json",
 		};
-	}
+	};
 
 
 	tileLayer.addTo(map);
@@ -511,7 +515,7 @@ function initMap() {
 	// 	"name": "min",
 	// };
 	// marcador.addLayer(min);
-	var bounds = [[51.5044, -0.4376], [51.6941, 0.114528]]
+	var bounds = [[51.5044, -0.4376], [51.6941, 0.114528]];
 
 	//var border = new L.rectangle(bounds, {color: 'gray'}).addTo(map);
 	 

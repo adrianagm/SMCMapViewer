@@ -4,6 +4,9 @@ require("./CanvasRenderer.js");
 require("../stylers/MapCssStyler.js");
 require("../../../lib/canvasLayer/leaflet_canvas_layer.js");
 
+// RBush inserts itself as NodeJs module so we must retrieve it this way.
+var rbush = require("../../../lib/rbush.js");
+
 
 
 /**
@@ -31,9 +34,6 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
 
 			});
 
-
-           
-
 			this.drawTile = function(canvas, tilePoint, zoom) {
 				var ctx = {
 					canvas: canvas,
@@ -45,13 +45,9 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
                     this.tree = rbush(9, ['.minx', '.miny', '.maxx', '.maxy']);
                     this.lastZoom = zoom;
                  }
- 
 
 
 				this._draw(ctx);
-
-
-
 			};
 		},
 
