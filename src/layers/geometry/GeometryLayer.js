@@ -27,6 +27,7 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 		onAdd: function(map) {
 			L.CanvasLayer.prototype.onAdd.call(this, map);
 			SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
+			this.render();
 		},
 
 		render: function() {

@@ -5,14 +5,24 @@ require("../stylers/MapCssStyler.js");
 SMC.layers.geometry.CanvasRenderer = L.Class.extend({
     includes: SMC.Util.deepClassInclude([SMC.layers.stylers.MapCssStyler]),
 
-    _initialized: false,
     _papers: [],
     _features: [],
+
+    options: {
+    	draggingUpdates: true
+    },
 
 
     renderCanvas: function(ctx, features, map) {
 
-    	var tileLabel =  "(" + ctx.tile.x + " , " + ctx.tile.y + ")";
+		this._init(ctx, map);
+
+		if(!this.options.draggingUpdates && this.dragging) {
+        	// We don't draw while dragging, as it eats A LOT of CPU.
+        	return;
+        }
+
+        ctx.features = features;
 
         this.labels = [];
 
@@ -27,44 +37,29 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
         }
 
-        console.time("render " + tileLabel);
-
         mypaper = canvas._paper;
 
-        ctx.paper = mypaper;
-        ctx.map = map;
-
-        if (this._initialized) {
+        if (canvas._initialized) {
             // Adds paper stuff so its accesible, don't remove.
             //paper.install(window);
 
             mypaper.activate();
             mypaper.project.activeLayer.removeChildren();
-            this._initialized = true;
         }
 
+        var canvasLabel;
+        if (ctx.tile) {
+            canvasLabel = "(" + ctx.tile.x + " , " + ctx.tile.y + ")";
+        } else {
+            canvasLabel = mypaper._id;
+        }
+
+        console.time("render " + canvasLabel);
+
+        ctx.paper = mypaper;
+        ctx.map = map;
+
         //var mapCanvas = map._mapPane.children[0].children[1].children[1].children;
-
-
-        map.on("click", function(event) {
-            this._onMouseClick(ctx, event);
-
-        }, this);
-
-        map.on("mousemove", function(event) {
-            this._onMouseMove(ctx, event);
-        }, this);
-
-        map.on("zoomend", function() {
-            this._onViewChanged(ctx, features);
-        }, this);
-
-        map.on("dragend", function() {
-            if (!this.dragging)
-                this._onViewChanged(ctx, features);
-
-        }, this);
-        
 
         if (!ctx.s) {
             if (ctx.tile) {
@@ -76,7 +71,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
             }
         }
 
-        console.time("applyStyles " + tileLabel);
+        console.time("applyStyles " + canvasLabel);
 
         var zBuffer = [];
         for (var i = 0; i < features.length; i++) {
@@ -97,14 +92,14 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
             });
         }
 
-        console.timeEnd("applyStyles " + tileLabel);
+        console.timeEnd("applyStyles " + canvasLabel);
 
         zBuffer.sort(function(f1, f2) {
             return f1.zIndex - f2.zIndex;
         });
 
 
-        console.time("addFeatures " + tileLabel);
+        console.time("addFeatures " + canvasLabel);
         var layer = new mypaper.Group();
 
         for (i = 0; i < zBuffer.length; i++) {
@@ -114,9 +109,9 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
         }
 
-        console.timeEnd("addFeatures " + tileLabel);
+        console.timeEnd("addFeatures " + canvasLabel);
 
-        console.time("translate " + tileLabel);
+        console.time("translate " + canvasLabel);
 
         layer.applyMatrix = false;
         //layer.transform(new paper.Matrix(1,0,0,1,-ctx.s.x, -ctx.s.y));
@@ -125,16 +120,16 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
         //canvas._lastTransform = ctx;
 
-        console.timeEnd("translate " + tileLabel);
+        console.timeEnd("translate " + canvasLabel);
 
-        console.time("draw " + tileLabel);
+        console.time("draw " + canvasLabel);
 
 
 
         // Visual debug info:
         var text = new mypaper.PointText({
             point: [5, 10],
-            content: tileLabel,
+            content: canvasLabel,
             fillColor: 'red',
             fontFamily: 'Courier New',
             fontWeight: 'bold',
@@ -148,14 +143,63 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
         mypaper.view.draw();
 
 
-        console.timeEnd("draw " + tileLabel);
+        console.timeEnd("draw " + canvasLabel);
 
 
-        console.timeEnd("render " + tileLabel);
+        console.timeEnd("render " + canvasLabel);
 
 
 
         return layer;
+
+    },
+
+    _init: function(ctx, map) {
+
+        if (ctx.canvas._initialized) {
+        	console.debug("skiped init");
+            return;
+        }
+
+        ctx.canvas._initialized=true;
+
+        var onMouseMove = function(event) {
+            console.debug("moving!");
+            this._onMouseMove(ctx, event);
+        };
+
+        map.on("click", function(event) {
+            this._onMouseClick(ctx, event);
+        }, this);
+
+
+       
+        console.debug("enabling move");
+        map.on("mousemove", onMouseMove, this);
+       
+        map.on("zoomend", function() {
+            this._onViewChanged(ctx);
+        }, this);
+
+
+        // We suspend the mouseMove listenter when dragging, as this makes a dramatic performance improvement.
+        map.on("dragstart", function() {
+            this.dragging = true;
+            console.debug("moving disabled!");
+            map.off("mousemove", onMouseMove, this);
+        }, this);
+
+        map.on("dragend", function() {
+            this.dragging = false;
+            this._onViewChanged(ctx);
+            console.debug("moving renabled!");
+            map.on("mousemove", onMouseMove, this);
+
+            if(!this.options.draggingUpdates) {
+            	this.renderCanvas(ctx, ctx.features, ctx.map);
+            }
+
+        }, this);
 
     },
 
@@ -225,6 +269,23 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
         feature._clean = true;
         return item;
 
+    },
+
+    _getCtxId:  function(ctx) {
+
+    	if(ctx.id) {
+    		return ctx.id;
+    	}
+
+    	
+
+    	if(ctx.tile) {
+    		ctx.id = ctx.tile.x+":"+ctx.tile.y;
+    	} else {
+    		ctx.id = "ctx"; // Just one ctx anyway so any id should work.
+    	}
+
+    	return ctx.id;
     },
 
     _canvasPoint: function(coords, ctx, clean) {
@@ -420,7 +481,6 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
     _onMouseMove: function(ctx, event) {
 
-
         //TODO: Check canvas bounds if this takes too long.
 
         if (event._hit) {
@@ -445,42 +505,27 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
 
 
-        //console.time("mouseMove");
         var hitResult = ctx.paper.project.hitTest(cPoint, {
             tolerance: 5,
             fill: true,
             stroke: true
         });
 
-        //console.timeEnd("mouseMove");
-
-
         if (hitResult) {
             event._hit = hitResult;
         }
 
         ctx.map.getContainer().style.cursor = event._hit ? 'pointer ' : '';
-
-
-
     },
 
 
 
-    _onViewChanged: function(ctx, features) {
-
-
-
-        for (var i = 0; i < features.length; i++) {
-            var f = features[i];
+    _onViewChanged: function(ctx) {
+        for (var i = 0; i < ctx.features.length; i++) {
+            var f = ctx.features[i];
             f._clean = false;
             this._applyStyles(f, ctx);
-
-
         }
-
-
-
     },
 
     _addOffset: function(proj, offset, ctx) {
