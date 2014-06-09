@@ -3,7 +3,7 @@ function initMap() {
 	// Centered in London
 	var map = SMC.map('map');
 	//map.setView([-0.2298500, -78.5249500], 8)
-	map.setView([51.5135587, 0.26855], 11);
+	map.setView([51.5135587, 0.26855], 9);
 
 
 

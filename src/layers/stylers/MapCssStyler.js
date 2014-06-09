@@ -55,13 +55,18 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
 						break;
 					default:
 						path = new ctx.paper.Path.Circle({
-							radius: 3
+							radius: style.radius || 3
 						});
 						break;
 
 				}
 
 
+			}
+
+			if (feature.geometry.type == 'LineString' || feature.geometry.type == 'MultiLineString'){
+				style.fillColor = 'rgba(0,0,0,0)';
+				style.strokeColor = style.strokeColor || "black";
 			}
 
 			var pathStyle = {
@@ -82,14 +87,18 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
 
 
 			}
-			var opacity = style.opacity || 1;
-			var offset = style.offset || 0;
+			var opacity =  style.opacity ? style.opacity : 1;
+			var offset =  style.offset ? style.offset : 0;
+			var zIndex =  style.zIndex ? style.zIndex : 0;
+			var visible = !style.invisible ? true : false;
 
 			return {
 				pathStyle: pathStyle,
 				opacity: opacity,
 				path: path,
-				offset: offset
+				offset: offset,
+				zIndex: zIndex,
+				visible: visible
 			}
 
 
@@ -103,9 +112,9 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
 
 		},
 
-		addLabelStyle: function(feature) {
+		addLabelStyle: function(feature, zoom) {
 
-			var labelStyle = this._createLabel(feature);
+			var labelStyle = this._createLabel(feature, zoom);
 
 
 			var content;
@@ -154,7 +163,7 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
 			};
 		},
 
-		_createLabel: function(feature) {
+		_createLabel: function(feature, zoom) {
 			return {
 				labelStyle: null
 			};
