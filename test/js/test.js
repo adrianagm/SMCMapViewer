@@ -210,6 +210,7 @@ function initMap() {
 	lines.load = function() {};
 	puntos.load = function() {};
 	stations.load = function() {};
+	lines.setZIndex(1000);
 
 	/* Commented as it fails 'cause the geometry layer is not added, and it fails: 
 	geometry.setZIndex(1000);
@@ -253,7 +254,7 @@ function initMap() {
 
 	$.ajax({
 
-		url: 'http://adriana-4.cartodb.com/api/v2/sql?format=GeoJSON&q=SELECT * FROM tfl_lines',
+		url: 'http://adriana-4.cartodb.com/api/v2/sql?format=GeoJSON&q=SELECT * FROM tfl_stations',
 
 
 	 	dataType: "json",
@@ -349,13 +350,13 @@ function initMap() {
 			};
 	};
 
-	lines._createStyles = function(feature, zoom) {
-		return {
-			strokeColor: '#444',
-			strokeWidth: 2,
-			symbol: "RegularPolygon"
-		};
-	};
+	// lines._createStyles = function(feature, zoom) {
+	// 	return {
+	// 		strokeColor: '#444',
+	// 		strokeWidth: 2,
+	// 		symbol: "RegularPolygon"
+	// 	};
+	// };
 
 
 
@@ -492,6 +493,7 @@ function initMap() {
 	var tileLayer = new SMC.layers.geometry.TiledGeometryLayer({});
 	tileLayer.load = function() {};
 	tileLayer.setZIndex(1000);
+	//geometry.setZIndex(1000);
 	geometry._createStyles =  geomStyles;
 	tileLayer.createRequest = function(bounds) {
 		var url = 'http://adriana-4.cartodb.com/api/v2/sql?format=GeoJSON&q=SELECT * FROM tfl_lines WHERE the_geom %26%26 ST_SetSRID (ST_MakeBox2D(ST_Point('+bounds[0]+','+bounds[1]+'), ST_Point('+bounds[2]+','+ bounds[3]+')),4326)';

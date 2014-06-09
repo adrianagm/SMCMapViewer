@@ -22,40 +22,40 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
 				var path;
 				switch (style.symbol) {
 					case 'Circle':
-						path = new ctx.paper.Path.Circle({
+						path = new ctx.canvas._paper.Path.Circle({
 							radius: style.radius || 3
 						});
 						break;
 
 					case 'Rectangle':
-						path = new ctx.paper.Path.Rectangle({
+						path = new  ctx.canvas._paper.Path.Rectangle({
 							size: style.size || [10, 10]
 						});
 						break;
 
 					case 'Ellipse':
-						path = new ctx.paper.Path.Ellipse({
+						path = new  ctx.canvas._paper.Path.Ellipse({
 							size: style.size || [10, 8]
 						});
 						break;
 
 					case 'RegularPolygon':
-						path = new ctx.paper.Path.RegularPolygon({
+						path = new  ctx.canvas._paper.Path.RegularPolygon({
 							sides: style.sides || 3,
 							radius: style.radius || 5
 						});
 						break;
 
 					case 'Star':
-						path = new ctx.paper.Path.Star({
+						path = new  ctx.canvas._paper.Path.Star({
 							points: style.points || 5,
 							radius1: style.radius1 || 3,
 							radius2: style.radius2 || 5
 						});
 						break;
 					default:
-						path = new ctx.paper.Path.Circle({
-							radius: style.radius || 3
+						path = new  ctx.canvas._paper.Path.Circle({
+							radius: 3
 						});
 						break;
 
