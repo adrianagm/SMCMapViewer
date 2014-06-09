@@ -34,6 +34,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
             mypaper = new paper.PaperScope();
             mypaper.setup(canvas);
             canvas._paper = mypaper;
+            canvas._map = map;
 
         }
 
@@ -41,7 +42,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
         if (canvas._initialized) {
             // Adds paper stuff so its accesible, don't remove.
-            //paper.install(window);
+            paper.install(window);
 
             mypaper.activate();
             mypaper.project.activeLayer.removeChildren();
@@ -56,19 +57,15 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
         console.time("render " + canvasLabel);
 
-        ctx.paper = mypaper;
-        ctx.map = map;
-
         //var mapCanvas = map._mapPane.children[0].children[1].children[1].children;
 
-        if (!ctx.s) {
-            if (ctx.tile) {
-                ctx.s = ctx.tile.multiplyBy(ctx.canvas.width);
+  
+        if (ctx.tile) {
+            ctx.canvas._s = ctx.tile.multiplyBy(ctx.canvas.width);
 
-            } else {
-                //ctx.s = new L.Point(0, 0);
-                ctx.s = ctx.map.getPixelBounds().min;
-            }
+        } else {
+            //ctx.canvas._s = new L.Point(0, 0);
+            ctx.canvas._s = ctx.canvas._map.getPixelBounds().min;
         }
 
         console.time("applyStyles " + canvasLabel);
@@ -78,7 +75,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
             var feature = features[i];
 
             var styles;
-            if (feature._clean || ctx.forceStyles) {
+            if (feature._clean && !ctx.forceStyles) {
                 styles = feature._styles;
             } else {
                 styles = feature._styles = this._applyStyles(feature, ctx);
@@ -114,8 +111,8 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
         console.time("translate " + canvasLabel);
 
         layer.applyMatrix = false;
-        //layer.transform(new paper.Matrix(1,0,0,1,-ctx.s.x, -ctx.s.y));
-        layer.translate(new paper.Point(-ctx.s.x, -ctx.s.y));
+        //layer.transform(new paper.Matrix(1,0,0,1,-ctx.canvas._s.x, -ctx.canvas._s.y));
+        layer.translate(new paper.Point(-ctx.canvas._s.x, -ctx.canvas._s.y));
 
 
         //canvas._lastTransform = ctx;
@@ -196,7 +193,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
             map.on("mousemove", onMouseMove, this);
 
             if(!this.options.draggingUpdates) {
-            	this.renderCanvas(ctx, ctx.features, ctx.map);
+            	this.renderCanvas(ctx, ctx.features, ctx.canvas._map);
             }
 
         }, this);
@@ -292,11 +289,11 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
         // actual coords to tile 'space'
         var p;
-        var zoom = ctx.map.getZoom();
+        var zoom = ctx.canvas._map.getZoom();
         if (coords._projCoords && clean) {
             p = coords._projCoords;
         } else {
-            p = coords._projCoords = ctx.map.project(new L.LatLng(coords[1], coords[0]), zoom);
+            p = coords._projCoords = ctx.canvas._map.project(new L.LatLng(coords[1], coords[0]), zoom);
         }
 
 
@@ -310,19 +307,19 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
         // 	ctx = {};
         // }
 
-        // if (!ctx.s) {
+        // if (!ctx.canvas._s) {
         // 	if (ctx.tile) {
-        // 		ctx.s = ctx.tile.multiplyBy(ctx.canvas.width);
+        // 		ctx.canvas._s = ctx.tile.multiplyBy(ctx.canvas.width);
         // 	} else {
-        // 		//ctx.s = new L.Point(0, 0);
-        // 		ctx.s = ctx.map.getPixelBounds().min;
+        // 		//ctx.canvas._s = new L.Point(0, 0);
+        // 		ctx.canvas._s = ctx.canvas._map.getPixelBounds().min;
         // 	}
         // }
 
 
         // point to draw        
-        // var x = p.x - ctx.s.x;
-        // var y = p.y - ctx.s.y;
+        // var x = p.x - ctx.canvas._s.x;
+        // var y = p.y - ctx.canvas._s.y;
         return {
             x: p.x,
             y: p.y
@@ -345,7 +342,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
             points = this._addOffset(points, offset, ctx);
         }
 
-        path = new ctx.paper.Path({
+        path = new ctx.canvas._paper.Path({
             segments: points
         });
 
@@ -355,20 +352,20 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
 
     _applyStyles: function(feature, ctx) {
-        var zoom = ctx.map.getZoom();
+        var zoom = ctx.canvas._map.getZoom();
         var style = this.applyStyle(feature, ctx, zoom);
         return style;
     },
 
     _addLabels: function(feature, ctx) {
-        var zoom = ctx.map.getZoom();
+        var zoom = ctx.canvas._map.getZoom();
         var label = this.addLabelStyle(feature, zoom);
         return label;
 
     },
 
     _addPopUp: function(feature, ctx) {
-        var zoom = ctx.map.getZoom();
+        var zoom = ctx.canvas._map.getZoom();
         var popUpStyle = this.addPopUp(feature, zoom);
         return popUpStyle;
     },
@@ -378,16 +375,19 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
         path.style = styles.pathStyle;
         path.opacity = styles.opacity;
         path.visible = styles.visible;
+        if(typeof styles.visible === "undefined") {
+        	path.visible = true;
+        }
         path.stylePopup = stylePopup;
 
 
         // path.onMouseEnter = function(event) {
-        // 	ctx.map.getContainer().style.cursor = 'pointer';
+        // 	ctx.canvas._map.getContainer().style.cursor = 'pointer';
         // 	path.selected = true;
         // };
 
         // path.onMouseLeave = function(event) {
-        // 	ctx.map.getContainer().style.cursor = '';
+        // 	ctx.canvas._map.getContainer().style.cursor = '';
         // 	path.selected = false;
 
         // };
@@ -398,16 +398,16 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
         // 	popup = L.popup()
         // 		.setLatLng(event.latlng)
         // 		.setContent(stylePopup.content)
-        // 		.openOn(ctx.map);
+        // 		.openOn(ctx.canvas._map);
         // 	//???? offset: stylePopup.offset
         // };
 
-        var item = new ctx.paper.Group();
+        var item = new ctx.canvas._paper.Group();
         item.addChild(path);
         item.zIndex = styles.zIndex;
 
         if (labels.content && path.visible) {
-            var pointText = new ctx.paper.PointText(path.interiorPoint);
+            var pointText = new ctx.canvas._paper.PointText(path.interiorPoint);
             pointText.content = labels.content;
             pointText.style = labels.style;
             item.addChild(pointText);
@@ -417,108 +417,83 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
     },
 
     _onMouseClick: function(ctx, event) {
-        if (!event._deselect) {
-            for (var i = 0; i < this._features.length; i++) {
-                this._features[i]._item.selected = false;
+        // if (!event._deselect) {
+        //     for (var i = 0; i < this._features.length; i++) {
+        //         this._features[i]._item.selected = false;
 
-            }
-            this._features = [];
-            event._deselect = true;
-        }
-
-        if (event._hit) {
-            return;
-        }
-
-        //ctx.paper.project.activeLayer.selected = false;
-
-
-        var cPoint = this._canvasPoint([event.latlng.lng, event.latlng.lat], ctx);
-
-        cPoint.x -= ctx.s.x;
-        cPoint.y -= ctx.s.y;
-
-        // var cPoint = {
-        // 	x: event.originalEvent.clientX ,
-        // 	y: event.originalEvent.clientY 
+        //     }
+        //     this._features = [];
+        //     event._deselect = true;
         // }
 
 
-        // cPoint.x -= ctx.canvas.offsetLeft;
-        // cPoint.y -= ctx.canvas.offsetTop;
 
+        ctx.canvas._paper.project.activeLayer.selected = false;
+
+
+       
 
         var popup;
 
-        var hitResult = ctx.paper.project.hitTest(cPoint, {
-            tolerance: 5,
-            fill: true,
-            stroke: true
-        });
-
-
+        var hitResult = this._hitTest(ctx, event);
 
 
         if (hitResult) {
             event._hit = hitResult;
-            //hitResult.item.selected = true;
+            hitResult.item.selected = true;
             popup = L.popup({
                 offset: hitResult.item.stylePopup.offset
             })
                 .setLatLng(event.latlng)
                 .setContent(hitResult.item.stylePopup.content)
-                .openOn(ctx.map);
-            this.fireEvent("featuresUpdated", {
-                feature: hitResult.item,
-                event: event
-            });
+                .openOn(ctx.canvas._map);
+
+            // this.fireEvent("featuresUpdated", {
+            //     feature: hitResult.item,
+            //     event: event
+            // });
 
         }
 
         // So the drawing is updated with changes made to the clicked feature.
-        ctx.paper.view.draw();
+        ctx.canvas._paper.view.draw();
     },
 
     _onMouseMove: function(ctx, event) {
 
-        //TODO: Check canvas bounds if this takes too long.
-
-        if (event._hit) {
-            return;
-        }
-
-        var cPoint = this._canvasPoint([event.latlng.lng, event.latlng.lat], ctx);
-
-        cPoint.x -= ctx.s.x;
-        cPoint.y -= ctx.s.y;
-
-
-
-        // var cPoint = {
-        // 	x: event.originalEvent.clientX,
-        // 	y: event.originalEvent.clientY
-        // }
-
-
-        // cPoint.x -= ctx.canvas.offsetLeft;
-        // cPoint.y -= ctx.canvas.offsetTop;
-
-
-
-        var hitResult = ctx.paper.project.hitTest(cPoint, {
-            tolerance: 5,
-            fill: true,
-            stroke: true
-        });
+        var hitResult = this._hitTest(ctx, event);
 
         if (hitResult) {
             event._hit = hitResult;
         }
 
-        ctx.map.getContainer().style.cursor = event._hit ? 'pointer ' : '';
+        ctx.canvas._map.getContainer().style.cursor = event._hit ? 'pointer ' : '';
     },
 
 
+    _hitTest: function(ctx, event){
+    	  if (event._hit) {
+            return;
+        }
+
+        var cPoint = this._canvasPoint([event.latlng.lng, event.latlng.lat], ctx);
+
+        var s = ctx.canvas._map.getPixelBounds().min
+    
+
+        cPoint.x -= ctx.canvas._s.x;
+        cPoint.y -= ctx.canvas._s.y;
+
+
+        var hitResult = ctx.canvas._paper.project.hitTest(cPoint, {
+            tolerance: 5,
+            //fill: true, //problemas con los poligonos
+            stroke: true
+        });
+
+        if(hitResult)
+        	return hitResult;
+    },
 
     _onViewChanged: function(ctx) {
         for (var i = 0; i < ctx.features.length; i++) {
