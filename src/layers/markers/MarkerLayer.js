@@ -97,17 +97,17 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
         addMarkerFromFeature: function(features) {
             if (L.Util.isArray(features)) {
                 this._sendFeatures(features);
-            } else if(arguments.length>1){
+            } else if (arguments.length > 1) {
                 this._sendFeatures(arguments);
             } else {
-                 this._sendFeatures([features]);
+                this._sendFeatures([features]);
             }
         },
 
         _addMarker: function(f) {
 
             if (f.type != "Feature") {
-            	console.debug("Received no Feature object");
+                console.debug("Received no Feature object");
                 return;
             }
 
