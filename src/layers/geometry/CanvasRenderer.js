@@ -1,6 +1,7 @@
 require("../layers.js");
 require("../stylers/MapCssStyler.js");
-//require("../../../lib/paper/paper-full.js");
+
+var paper = require("../../../lib/paper/dist/paper-full.js").exports;
 
 SMC.layers.geometry.CanvasRenderer = L.Class.extend({
     includes: SMC.Util.deepClassInclude([SMC.layers.stylers.MapCssStyler]),
@@ -9,23 +10,22 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
     _features: [],
 
     options: {
-    	draggingUpdates: true
+        draggingUpdates: true
     },
 
 
     renderCanvas: function(ctx, features, map) {
 
-		this._init(ctx, map);
+        this._init(ctx, map);
 
-		if(!this.options.draggingUpdates && this.dragging) {
-        	// We don't draw while dragging, as it eats A LOT of CPU.
-        	return;
+        if (!this.options.draggingUpdates && this.dragging) {
+            // We don't draw while dragging, as it eats A LOT of CPU.
+            return;
         }
 
         ctx.features = features;
 
         this.labels = [];
-
         var canvas = ctx.canvas;
 
         var mypaper;
@@ -41,9 +41,6 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
         mypaper = canvas._paper;
 
         if (canvas._initialized) {
-            // Adds paper stuff so its accesible, don't remove.
-            paper.install(window);
-
             mypaper.activate();
             mypaper.project.activeLayer.removeChildren();
         }
@@ -59,7 +56,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
         //var mapCanvas = map._mapPane.children[0].children[1].children[1].children;
 
-  
+
         if (ctx.tile) {
             ctx.canvas._s = ctx.tile.multiplyBy(ctx.canvas.width);
 
@@ -154,11 +151,11 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
     _init: function(ctx, map) {
 
         if (ctx.canvas._initialized) {
-        	console.debug("skiped init");
+            console.debug("skiped init");
             return;
         }
 
-        ctx.canvas._initialized=true;
+        ctx.canvas._initialized = true;
 
         var onMouseMove = function(event) {
             console.debug("moving!");
@@ -170,10 +167,10 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
         }, this);
 
 
-       
+
         console.debug("enabling move");
         map.on("mousemove", onMouseMove, this);
-       
+
         map.on("zoomend", function() {
             this._onViewChanged(ctx);
         }, this);
@@ -192,8 +189,8 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
             console.debug("moving renabled!");
             map.on("mousemove", onMouseMove, this);
 
-            if(!this.options.draggingUpdates) {
-            	this.renderCanvas(ctx, ctx.features, ctx.canvas._map);
+            if (!this.options.draggingUpdates) {
+                this.renderCanvas(ctx, ctx.features, ctx.canvas._map);
             }
 
         }, this);
@@ -219,9 +216,9 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
         // var styles;
         // if (feature._clean || ctx.forceStyles) {
-        // 	styles = feature._styles;
+        //  styles = feature._styles;
         // } else {
-        // 	styles = feature._styles = this._applyStyles(feature, ctx);
+        //  styles = feature._styles = this._applyStyles(feature, ctx);
         // }
 
 
@@ -268,21 +265,21 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
     },
 
-    _getCtxId:  function(ctx) {
+    _getCtxId: function(ctx) {
 
-    	if(ctx.id) {
-    		return ctx.id;
-    	}
+        if (ctx.id) {
+            return ctx.id;
+        }
 
-    	
 
-    	if(ctx.tile) {
-    		ctx.id = ctx.tile.x+":"+ctx.tile.y;
-    	} else {
-    		ctx.id = "ctx"; // Just one ctx anyway so any id should work.
-    	}
 
-    	return ctx.id;
+        if (ctx.tile) {
+            ctx.id = ctx.tile.x + ":" + ctx.tile.y;
+        } else {
+            ctx.id = "ctx"; // Just one ctx anyway so any id should work.
+        }
+
+        return ctx.id;
     },
 
     _canvasPoint: function(coords, ctx, clean) {
@@ -298,22 +295,22 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
 
         // var p = this._map.options.crs.latLngToPoint({
-        // 	lat: coords[1],
-        // 	lng: coords[0]
+        //  lat: coords[1],
+        //  lng: coords[0]
         // }, ctx.zoom);
 
         // start coords to tile 'space'
         // if (!ctx) {
-        // 	ctx = {};
+        //  ctx = {};
         // }
 
         // if (!ctx.canvas._s) {
-        // 	if (ctx.tile) {
-        // 		ctx.canvas._s = ctx.tile.multiplyBy(ctx.canvas.width);
-        // 	} else {
-        // 		//ctx.canvas._s = new L.Point(0, 0);
-        // 		ctx.canvas._s = ctx.canvas._map.getPixelBounds().min;
-        // 	}
+        //  if (ctx.tile) {
+        //      ctx.canvas._s = ctx.tile.multiplyBy(ctx.canvas.width);
+        //  } else {
+        //      //ctx.canvas._s = new L.Point(0, 0);
+        //      ctx.canvas._s = ctx.canvas._map.getPixelBounds().min;
+        //  }
         // }
 
 
@@ -375,31 +372,31 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
         path.style = styles.pathStyle;
         path.opacity = styles.opacity;
         path.visible = styles.visible;
-        if(typeof styles.visible === "undefined") {
-        	path.visible = true;
+        if (typeof styles.visible === "undefined") {
+            path.visible = true;
         }
         path.stylePopup = stylePopup;
 
 
         // path.onMouseEnter = function(event) {
-        // 	ctx.canvas._map.getContainer().style.cursor = 'pointer';
-        // 	path.selected = true;
+        //  ctx.canvas._map.getContainer().style.cursor = 'pointer';
+        //  path.selected = true;
         // };
 
         // path.onMouseLeave = function(event) {
-        // 	ctx.canvas._map.getContainer().style.cursor = '';
-        // 	path.selected = false;
+        //  ctx.canvas._map.getContainer().style.cursor = '';
+        //  path.selected = false;
 
         // };
 
         // path.onClick = function(event) {
-        // 	ctx.paper.project.deselectAll();
-        // 	path.selected = true;
-        // 	popup = L.popup()
-        // 		.setLatLng(event.latlng)
-        // 		.setContent(stylePopup.content)
-        // 		.openOn(ctx.canvas._map);
-        // 	//???? offset: stylePopup.offset
+        //  ctx.paper.project.deselectAll();
+        //  path.selected = true;
+        //  popup = L.popup()
+        //      .setLatLng(event.latlng)
+        //      .setContent(stylePopup.content)
+        //      .openOn(ctx.canvas._map);
+        //  //???? offset: stylePopup.offset
         // };
 
         var item = new ctx.canvas._paper.Group();
@@ -431,7 +428,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
         ctx.canvas._paper.project.activeLayer.selected = false;
 
 
-       
+
 
         var popup;
 
@@ -471,15 +468,15 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
     },
 
 
-    _hitTest: function(ctx, event){
-    	  if (event._hit) {
+    _hitTest: function(ctx, event) {
+        if (event._hit) {
             return;
         }
 
         var cPoint = this._canvasPoint([event.latlng.lng, event.latlng.lat], ctx);
 
         var s = ctx.canvas._map.getPixelBounds().min
-    
+
 
         cPoint.x -= ctx.canvas._s.x;
         cPoint.y -= ctx.canvas._s.y;
@@ -491,8 +488,8 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
             stroke: true
         });
 
-        if(hitResult)
-        	return hitResult;
+        if (hitResult)
+            return hitResult;
     },
 
     _onViewChanged: function(ctx) {
