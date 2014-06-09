@@ -4,15 +4,18 @@
     "homepage": "https://github.com/Emergya/SMCMapViewer",
     "authors": [
         "Luis Román (lroman@emergya.com)",
-	"Moisés Arcos (marcos@emergya.com)",
-	"Adriana García (amartinez@emergya.com)"
+        "Moisés Arcos (marcos@emergya.com)",
+        "Adriana García (amartinez@emergya.com)"
     ],
     "description": "Extensions for Leaflet for a configurable map architecture",
     "dependencies": {
-	"leaflet": "*",
-        "leaflet.markercluster": "*", 
-        "mustache.js":"*"
+        "leaflet": "*",
+        "leaflet.markercluster": "*",
+        "mustache.js": "*",
+        "atmosphere": "*",
+        "paper": "*"
     },
+
     "ignore": [
         "**/.*",
         "node_modules",
