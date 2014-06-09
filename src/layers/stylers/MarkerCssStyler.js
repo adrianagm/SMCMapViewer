@@ -1,6 +1,6 @@
 require("./Styler.js");
 require("../../../lib/LeafletHtmlIcon.js");
-require("../../../lib/mustache.js/mustache.js");
+var Mustache = require("../../../lib/mustache.js/mustache.js");
 
 
 /**
