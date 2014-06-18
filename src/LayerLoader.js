@@ -24,25 +24,25 @@ SMC.LayerLoader = L.Class.extend(
                 throw new Error("SMC.layers.LayerLoader::loadLayers: no layers config received");
             }
 
-            if(typeof layersConfig === "object" && layersConfig.url){
+            if (typeof layersConfig === "object" && layersConfig.url) {
                 var self = this;
                 $.ajax({
                     url: layersConfig.url,
                     dataType: "json",
-                    success: function(data, textStatus, jqXHR){
+                    success: function(data, textStatus, jqXHR) {
                         self._loadJsonArray(data);
                     }
                 });
-            }else{
+            } else {
                 this._loadJsonArray(layersConfig);
             }
         },
 
-        _loadJsonArray: function(layersConfig){
+        _loadJsonArray: function(layersConfig) {
             if (typeof layersConfig == "string") {
                 layersConfig = JSON.parse(layersConfig);
             }
-            if (!L.Util.isArray(layersConfig)){
+            if (!L.Util.isArray(layersConfig)) {
                 throw new Error("SMC.layers.LayerLoader::loadLayers: layers config is not an array");
             }
             for (var i = 0; i < layersConfig.length; i++) {
@@ -117,17 +117,23 @@ SMC.LayerLoader = L.Class.extend(
 
             layer = createClass(params);
 
+            if (layerConfig.listeners) {
+                for (var eventName in layerConfig.listeners) {
+                    layer.on(eventName, layerConfig.listeners[eventName]);
+                }
+            }
+
             // The layer loader is mixed in into a map (or Folder) so we can add layers to that.
             layer.addTo(this);
 
-            // The loader (that is, the map or Folder) is the layer's parent 
+            // The loader (that is, the map or Folder) is the layer's parent
             layer.parent = this;
 
             var id;
             if (layerConfig.id) {
                 id = layerConfig.id;
             } else {
-                id = "layer" + idx;
+                id = "layer" + L.stamp(layer);
             }
 
             this.loadedLayers[id] = layer;

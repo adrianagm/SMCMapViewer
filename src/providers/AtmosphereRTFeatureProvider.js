@@ -1,6 +1,6 @@
 require("./providers.js");
 require("./RTFeatureProvider.js");
-var Atmosphere = require("../../lib/atmosphere/atmosphere.js");
+require("../../lib/atmosphere-jquery/jquery.atmosphere.js");
 
 
 /**
@@ -20,7 +20,7 @@ SMC.providers.AtmosphereRTFeatureProvider = SMC.providers.RTFeatureProvider.exte
         topic: ""
     },
 
-    atmosphereConnector: null,
+    socket: null,
 
 
     /**
@@ -33,6 +33,43 @@ SMC.providers.AtmosphereRTFeatureProvider = SMC.providers.RTFeatureProvider.exte
         if (!options.topic) {
             throw new Error("SMC.providers.AtmosphereRTFeatureProvider::initialize: A valid topic field is required to be included in the options argument");
         }
-    }
+    },
+
+    _createSubscription: function() {
+        var request = {
+            url : this.options.url,
+            contentType : "application/json",
+            logLevel : 'debug',
+            transport : 'websocket',
+            trackMessageLength : true,
+            fallbackTransport : 'long-polling'
+        }
+
+        var self = this;
+        request.onOpen = function(response) {
+            self.fireEvent("socketOpened", self.socket);
+        };
+
+        request.onMessage = function(response) {
+
+            var features = [];
+            for(var i=0; i < response.messages.length; i++) {
+                features.push(JSON.parse(response.messages[i]).featureCollection);
+            }
+
+            self.onFeaturesLoaded(features);
+        };
+
+        request.onClose = function(response) {
+        }
+
+        request.onError = function(response) {
+            console.debug(response);
+        };
+
+        this.socket = $.atmosphere.subscribe(request);
+    },
+
+
 
 });

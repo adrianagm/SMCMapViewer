@@ -20,19 +20,41 @@ function initMap() {
     });
 
 
-
     map.loadLayers([{
         type: "SMC.layers.markers.WFSMarkerLayer",
         params: [{
             serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
             typeName: "OpenData:COMMUNITY_CENTRES"
         }]
-    },{
+    }, {
+        id: "realTimeLayer",
         type: "SMC.layers.markers.AtmosphereRTMarkerLayer",
         params: [{
-            url: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+            url: "http://localhost:8080/chat-app/chat",
             topic: "realTimeMarkers"
-        }]
+        }],
+        listeners: {
+            socketOpened: function(data) {
+                console.debug("RealTime Socket opened");
+
+                var socket = data.target.socket;
+                map.on("click", function(e) {
+                    socket.push(JSON.stringify({
+                        author: "web browser",
+                        featureCollection: {
+                            "type": "FeatureCollection",
+                            "features": [{
+                                "type": "Feature",
+                                "geometry": {
+                                    "type": "Point",
+                                    "coordinates": [e.latlng.lng, e.latlng.lat]
+                                }
+                            }]
+                        }
+                    }));
+                });
+            }
+        }
     }]);
 
     var baseLayer = {
@@ -45,9 +67,8 @@ function initMap() {
         collapsed: false
     }).addTo(map);
 
-
-
 }
+
 
 
 

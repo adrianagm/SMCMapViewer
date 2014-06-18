@@ -20,6 +20,7 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 
 		features: [],
 
+
 		initialize: function() {
 			L.CanvasLayer.prototype.initialize.apply(this, arguments);
 		},
@@ -32,7 +33,7 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 
 		render: function() {
 			var canvas = this.getCanvas();
-			
+
 
 			if (this.features.length !== 0) {
 				this.renderCanvas({
