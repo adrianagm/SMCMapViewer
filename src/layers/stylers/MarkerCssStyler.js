@@ -14,10 +14,13 @@ var Mustache = require("../../../lib/mustache.js/mustache.js");
 SMC.layers.stylers.MarkerCssStyler = SMC.layers.stylers.Styler.extend(
     /** @lends SMC.layers.stylers.MarkerCssStyler# */
     {
-
-        applyStyle: function(properties, zoom) {
-
-            var style = this._createStyles(properties, zoom);
+        initialize: function(options){
+            this._parser_url = "../../src/layers/stylers/parser.txt";
+            SMC.layers.stylers.Styler.prototype.initialize.apply(this, arguments);
+        },
+        applyStyle: function(marker, zoom) {
+            var properties = marker.properties;
+            var style = this._createStyles(marker, zoom);
             if (!style)
                 style = "";
 
@@ -183,12 +186,6 @@ SMC.layers.stylers.MarkerCssStyler = SMC.layers.stylers.Styler.extend(
 
             return "<" + elementType + " " + attributesString + " style=\"position:absolute;" + stylesString + "\">" + content + "</" + elementType + ">";
         },
-
-        _createStyles: function(properties) {
-            console.debug("SMC.layers.stylers.MarkerCssStyler::_createStyles: Not implemented, needs parser");
-            return {};
-        },
-
 
         addPopUp: function(marker, zoom) {
 

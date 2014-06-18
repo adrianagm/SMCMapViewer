@@ -26,6 +26,7 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
         });
 
             this.noClusterGroup = new L.FeatureGroup();
+            SMC.layers.stylers.MarkerCssStyler.prototype.initialize.apply(this, arguments);
         },
 
 
@@ -134,7 +135,7 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
             }
 
             var zoom = this._map.getZoom();
-            var style = this.applyStyle(marker.properties, zoom);
+            var style = this.applyStyle(marker, zoom);
             if (style.icon) {
                 marker.setIcon(style.icon);
             }

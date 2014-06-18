@@ -16,7 +16,7 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
         labels: [],
         initialize: function(options){
             this._parser_url = "../../src/layers/stylers/parser.txt";
-            SMC.layers.stylers.Styler.prototype.initialize.apply(this, options);
+            SMC.layers.stylers.Styler.prototype.initialize.apply(this, arguments);
         },
 
         applyStyle: function(feature, ctx, zoom) {
