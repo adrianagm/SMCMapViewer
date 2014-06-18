@@ -13,6 +13,9 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
     draggingUpdates: true
   },
 
+    initialize: function(options){
+        SMC.layers.stylers.MapCssStyler.prototype.initialize.apply(this, arguments);
+    },
 
   renderCanvas: function(ctx, features, map) {
 
@@ -152,7 +155,6 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
     if (ctx.canvas._initialized) {
       console.debug("skiped init");
-      dsfdfd
       return;
     }
 
