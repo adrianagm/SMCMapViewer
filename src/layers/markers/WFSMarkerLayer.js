@@ -5,7 +5,6 @@ require("../../providers/WFSProvider.js");
 /**
  * Layer for all SMC map viewer's WFS layers rendered using markers.
  * @class
- * @abstract
  * @extends SMC.layers.markers.MarkerLayer
  * @mixes SMC.providers.WFSFeatureProvider
  *

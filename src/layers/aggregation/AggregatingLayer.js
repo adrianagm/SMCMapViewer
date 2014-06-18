@@ -7,19 +7,19 @@
  * @author Luis Román (lroman@emergya.com)
  */
 SMC.layers.aggregation.AggregatingLayer = SMC.layers.Layer.extend(
-/** @lends SMC.layers.aggregation.AggregatingLayer */
-{
 
-	_layers: {},
+	/** @lends SMC.layers.aggregation.AggregatingLayer */
+	{
 
-	/**
-	 * Adds a sublayer to the layer.
-	 *
-	 * 
-	 */
-	addLayer: function(layerId, layer) {
-		throw new Error("Unimplemented method!");
-	}
+		_layers: {},
 
-});
+		/**
+		 * Adds a sublayer to the layer.
+		 *
+		 *
+		 */
+		addLayer: function(layerId, layer) {
+			throw new Error("Unimplemented method!");
+		}
 
+	});

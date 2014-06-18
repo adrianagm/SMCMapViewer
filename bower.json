@@ -12,7 +12,7 @@
         "leaflet": "*",
         "leaflet.markercluster": "*",
         "mustache.js": "*",
-        "atmosphere": "*",
+        "atmosphere-jquery": "*",
         "paper": "*"
     },
 
