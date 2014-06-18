@@ -1,1 +1,1 @@
-Point |z10-14 {color: "#db2136";}
+Point {color: "#db2136"; htmlTemplate: "<div style=\"text-align:center\"><b style=\"color:{{colour}}\">{{name}}</b></div>";}
