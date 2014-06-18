@@ -13,7 +13,8 @@
         "leaflet.markercluster": "*",
         "mustache.js": "*",
         "atmosphere-jquery": "*",
-        "paper": "*"
+        "paper": "*",
+        "pegjs": "*"
     },
 
     "ignore": [
