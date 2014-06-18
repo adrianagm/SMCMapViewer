@@ -16,7 +16,8 @@ SMC.layers.stylers.Styler = L.Class.extend(
 	_grammar: null,
 	_parser_url: null,
 	options: {
-		stylesheet: null
+		stylesheet: null,
+		stylesheetURL: null
 	},
 
 	initialize: function(options){
@@ -27,7 +28,17 @@ SMC.layers.stylers.Styler = L.Class.extend(
 		    type: 'get',
 		    success: function(response) {
 		        scope._grammar = PEG.buildParser(response);
-		        scope.parse(scope.options.stylesheet);
+		        if(scope.options.stylesheetURL){
+		        	$.ajax({
+					    url: scope.options.stylesheetURL,
+					    type: 'get',
+					    success: function(response) {
+					       scope.parse(response);
+					    }
+					});
+		        }else if(scope.options.stylesheet){
+		        	scope.parse(scope.options.stylesheet);
+		        }
 		    }
 		});
 	},

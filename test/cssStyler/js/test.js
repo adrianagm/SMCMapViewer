@@ -16,8 +16,9 @@ function initMap() {
     }).addTo(map);
     // Add layer to map
     var stylesheet = 'Point |z8- {color: "#db2136";}';
+    var stylesheetURL = "style.txt"
     var lines = new SMC.layers.geometry.GeometryLayer({
-        stylesheet: stylesheet
+        stylesheetURL: stylesheetURL
     });
     lines.load = function() {};
     lines.setZIndex(1000);
