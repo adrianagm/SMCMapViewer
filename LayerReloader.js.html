@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Index</title>
+    <title>JSDoc: Source: layers/reloaders/LayerReloader.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,30 +17,55 @@
 
 <div id="main">
 
-    <h1 class="page-title">Index</h1>
+    <h1 class="page-title">Source: layers/reloaders/LayerReloader.js</h1>
 
     
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>require("./reloaders.js");
+
+/**
+ * Layer reloader. Allows setting triggers so a layer's data can be re-retrieved from its original data.
+ *
+ * Intended for being mixed in into a SMC.layer.SingleLayer.
+ *
+ * @class
+ *
+ * @author Luis Román (lroman@emergya.com)
+ */
+SMC.layers.reloaders.LayerReloader = L.Class.extend(
+    /** @lends SMC.layers.reloaders.LayerReloader# */
+    {
+        _triggers: [],
+
+        /**
+         * Load data from a layer
+         * @abstract
+         */
+        load: function() {
+            throw new Error("SMC.layers.reloaders.LayerReloader::load method must be implemented by child classes");
+        },
+
+        /**
+         *
+         */
+        addReloadTrigger: function(trigger) {
+            this._triggers.push(trigger);
+            trigger.on("reloadTriggered", this._onReloadTriggered, this);
+        },
 
 
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+        _onReloadTriggered: function() {
+            // Reloads the layer.
+            this.load();
+        }
+    });
+</code></pre>
+        </article>
+    </section>
 
 
 

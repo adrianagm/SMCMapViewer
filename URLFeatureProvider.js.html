@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Index</title>
+    <title>JSDoc: Source: providers/URLFeatureProvider.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,30 +17,59 @@
 
 <div id="main">
 
-    <h1 class="page-title">Index</h1>
+    <h1 class="page-title">Source: providers/URLFeatureProvider.js</h1>
 
     
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>require("./FeaturesProvider.js");
 
+/**
+ * Base class to create a feature provider with url
+ * @class
+ * @mixes L.Mixin.Events
+ *
+ * @author Moisés Arcos (marcos@emergya.com)
+ */
+SMC.providers.URLFeatureProvider = SMC.providers.FeaturesProvider.extend({
+    /** @lends SMC.providers.URLFeatureProvider# */
 
-    <h3> </h3>
+    options: {
+        /**
+         * URL path to represent the source features.
+         * @property {string} url - The default url to the feature provider
+         */
+        url: null
+    },
+    /**
+     * Initialize the object with the params
+     * @param {object} options - default options
+     */
+    initialize: function(options) {
+        L.Util.setOptions(this, options);
+    },
 
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+    /**
+     * Send request to get the features
+     * @returns {object} Deferred object from jQuery
+     */
+    doFeaturesLoading: function() {
+        if (this.options.url) {
+            return $.ajax({
+                url: this.options.url,
+                type: "GET",
+                dataType: "jsonp"
+            });
+        }
+        return $.Deferred();
+    }
+});
+</code></pre>
+        </article>
+    </section>
 
 
 

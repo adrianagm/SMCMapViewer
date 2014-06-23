@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Index</title>
+    <title>JSDoc: Source: providers/FeaturesProvider.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,30 +17,77 @@
 
 <div id="main">
 
-    <h1 class="page-title">Index</h1>
+    <h1 class="page-title">Source: providers/FeaturesProvider.js</h1>
 
     
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>require("./providers.js");
+
+/**
+ * Base class for layer data providers returning arrays of Features.
+ * @class
+ * @abstract
+ * @mixes L.Mixin.Events
+ *
+ * @author Luis Román (lroman@emergya.com)
+ */
+SMC.providers.FeaturesProvider = L.Class.extend(
+    /** @lends SMC.providers.FeaturesProvider# */
+    {
+
+        includes: L.Mixin.Events,
+
+        /**
+         * Retrieves the features from its source.
+         * @fires SMC.providers.FeaturesProvider#featuresLoaded
+         */
+        loadFeatures: function() {
+            var tis = this;
+            this.doFeaturesLoading().then(function(featureCollection) {
+                tis.onFeaturesLoaded(featureCollection.features);
+                /**
+                 * Features loaded event.
+                 *
+                 * @event SMC.providers.FeaturesProvider#featuresLoaded
+                 * @property {object} features - The loaded features.
+                 */
+                tis.fire("featuresLoaded", featureCollection.features);
+            });
+        },
 
 
-    <h3> </h3>
+        /**
+         * Implementations of FeatureProvider must contain an override of this method, so features can be loaded from their source.
+         * @abstract
+         */
+        doFeaturesLoading: function() {
+            throw new Error("FeaturesProvider::doFeaturesLoading must be implemented by derivate classes.");
+        },
 
+        /**
+         * Implementations or users of FeatureProvider must provide an implementation of this class so retrieved features can be used.
+         * @abstract
+         * @param {object} features - The features retrieved by the provider.
+         */
+        onFeaturesLoaded: function(features) {
+            throw new Error("FeaturesProvider::onFeaturesLoaded must be implemented by derivate classes.");
+        }
+    });
 
-
-
-
-
-
-
-
-    
-
-
-
-
-
+/**
+ * API factory method for ease creation of features providers.
+ * @params {Object} options - Options for the provider.
+ */
+SMC.featuresProvider = function() {
+    return new SMC.providers.FeaturesProvider();
+};
+</code></pre>
+        </article>
+    </section>
 
 
 

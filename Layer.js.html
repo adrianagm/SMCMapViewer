@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Index</title>
+    <title>JSDoc: Source: layers/Layer.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,30 +17,51 @@
 
 <div id="main">
 
-    <h1 class="page-title">Index</h1>
+    <h1 class="page-title">Source: layers/Layer.js</h1>
 
     
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>require("./layers.js");
+require("../controls/layerTree/LayerTreeLeaf.js");
 
+/**
+ * Base class for all layer types supporting data providers.
+ * @class
+ * @abstract
+ */
+SMC.layers.Layer = L.Class.extend(
+    /** @lends SMC.layers.geometry.Layer# */
+    {
 
-    <h3> </h3>
+        includes: SMC.Util.deepClassInclude([SMC.controls.layerTree.LayerTreeLeaf]),
 
+        initialize: function(options) {
+            SMC.controls.layerTree.LayerTreeLeaf.prototype.initialize.call(this, options);
+        },
 
+        /**
+         * Implementations of FeatureProvider must contain an override of this method, so features can be loaded from their source.
+         * @abstract
+         */
+        onAdd: function() {
+            throw new Error("FeaturesProvider::doFeaturesLoading must be implemented by derivate classes.");
+        },
 
+        /**
+         * Method to set the visibility of a tree layer.
+         * @params {Boolean} visible - Boolean param to set visibilty true or false.
+         */
+        setVisible: function(visible) {
 
-
-
-
-
-
-    
-
-
-
-
-
+        }
+    });
+</code></pre>
+        </article>
+    </section>
 
 
 

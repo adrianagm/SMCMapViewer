@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Index</title>
+    <title>JSDoc: Source: layers/aggregation/AggregatingLayer.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,30 +17,42 @@
 
 <div id="main">
 
-    <h1 class="page-title">Index</h1>
+    <h1 class="page-title">Source: layers/aggregation/AggregatingLayer.js</h1>
 
     
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Class formed by the aggregation of several layers.
+ *
+ * @class
+ * @extends SMC.layers.Layer
+ *
+ * @author Luis Román (lroman@emergya.com)
+ */
+SMC.layers.aggregation.AggregatingLayer = SMC.layers.Layer.extend(
 
+	/** @lends SMC.layers.aggregation.AggregatingLayer */
+	{
 
-    <h3> </h3>
+		_layers: {},
 
+		/**
+		 * Adds a sublayer to the layer.
+		 *
+		 *
+		 */
+		addLayer: function(layerId, layer) {
+			throw new Error("Unimplemented method!");
+		}
 
-
-
-
-
-
-
-
-    
-
-
-
-
-
+	});
+</code></pre>
+        </article>
+    </section>
 
 
 

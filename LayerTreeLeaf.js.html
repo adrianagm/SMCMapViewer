@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Index</title>
+    <title>JSDoc: Source: controls/layerTree/LayerTreeLeaf.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,30 +17,58 @@
 
 <div id="main">
 
-    <h1 class="page-title">Index</h1>
+    <h1 class="page-title">Source: controls/layerTree/LayerTreeLeaf.js</h1>
 
     
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>require('./layerTree.js');
+require("./LayerTreeNode.js");
+/**
+ * Base class for layer tree controls.
+ * @class
+ * @extends SMC.controls.layerTree.LayerTreeNode
+ *
+ * @author Moisés Arcos (marcos@emergya.com)
+ */
+SMC.controls.layerTree.LayerTreeLeaf = SMC.controls.layerTree.LayerTreeNode.extend({
 
+    options: {
+        /**
+         * Layer tree leaf label.
+         * @property {string} label - label layer tree.
+         */
+        label: null,
+        /**
+         * True is base layer.
+         * @property {boolean} label - base layer.
+         */
+        baseLayer: false
+    },
 
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+    /**
+     * Initialize the object with the params
+     * @param {object} options - object with need parameters
+     */
+    initialize: function(options) {
+        L.Util.setOptions(this, options);
+    },
+    /**
+     * Method to create an HTML node for the name of the layer.
+     *
+     * Unless overriden by inheriting classes, it returns the layer's label.
+     * @returns {String} HTML code representing the code to be added to the layer's entry in the layer tree.
+     */
+    createNodeHTML: function() {
+        return this.options.label;
+    }
+});
+</code></pre>
+        </article>
+    </section>
 
 
 

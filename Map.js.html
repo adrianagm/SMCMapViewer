@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Index</title>
+    <title>JSDoc: Source: Map.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,30 +17,47 @@
 
 <div id="main">
 
-    <h1 class="page-title">Index</h1>
+    <h1 class="page-title">Source: Map.js</h1>
 
     
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>require("./SMC.js");
+require("./Util.js");
+require("./LayerLoader.js");
 
+/**
+ * The map viewer component of SMC.
+ * Extends [Leaflet's map component]{@link http://leafletjs.com/reference.html#map-class}
+ * to include our needed functionality.
+ *
+ * @class The map viewer component of SMC.
+ * @extends L.Map
+ * @mixes SMC.LayerLoader
+ *
+ * @author Luis Román (lroman@emergya.com)
+ */
+SMC.Map = L.Map.extend(
+    /** @lends SMC.Map# */
+    {
+        includes: SMC.Util.deepClassInclude([SMC.LayerLoader])
+    });
 
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+/**
+ * API factory method for creating SMCViewer's Maps.
+ * @method
+ * @param {(HTMLElement|String)} element The id of the element the map will be created in
+ * @param {object} options Configuration for the map
+ */
+SMC.map = function(element, options) {
+    return new SMC.Map(element, options);
+};
+</code></pre>
+        </article>
+    </section>
 
 
 
