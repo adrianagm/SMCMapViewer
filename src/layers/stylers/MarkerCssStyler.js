@@ -15,7 +15,7 @@ SMC.layers.stylers.MarkerCssStyler = SMC.layers.stylers.Styler.extend(
     /** @lends SMC.layers.stylers.MarkerCssStyler# */
     {
         initialize: function(options){
-            this._parser_url = "../../src/layers/stylers/parser.txt";
+            this._parser_url = SMC.BASE_URL+"resources/parser.txt";
             SMC.layers.stylers.Styler.prototype.initialize.apply(this, arguments);
         },
         applyStyle: function(marker, zoom) {

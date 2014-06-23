@@ -65,14 +65,8 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
 
             }
 
-            if (feature.geometry.type == 'LineString' || feature.geometry.type == 'MultiLineString') {
-                style.fillColor = 'rgba(0,0,0,0)';
-                style.strokeColor = style.strokeColor || "black";
-            }
 
-            var pathStyle = {
-
-                fillColor: style.fillColor || 'rgba(0,0,0,0)',
+             var pathStyle = {
                 strokeColor: style.strokeColor || style.fillColor || "black",
                 strokeWidth: style.strokeWidth || 2,
                 strokeJoin: style.strokeJoin || 'miter',
@@ -85,9 +79,17 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
                 shadowColor: style.shadowColor || 'black',
                 shadowBlur: style.shadowBlur || 0,
                 shadowOffset: style.shadowOffset || []
-
-
             }
+
+
+            if (feature.geometry.type == 'LineString' || feature.geometry.type == 'MultiLineString') {
+                pathStyle.strokeColor = style.strokeColor || "black";
+                 pathStyle.fillColor = null;
+            } else {
+                pathStyle.fillColor || 'rgba(0,0,0,0)'
+            }
+
+           
             var opacity = style.opacity ? style.opacity : 1;
             var offset = style.offset ? style.offset : 0;
             var zIndex = style.zIndex ? style.zIndex : 0;

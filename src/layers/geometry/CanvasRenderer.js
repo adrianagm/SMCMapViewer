@@ -418,10 +418,12 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
 
     _hitTest: function(ctx, event) {
+
         if (event._hit) {
             return;
         }
 
+        console.time("hitTest");
         var cPoint = this._canvasPoint([event.latlng.lng, event.latlng.lat], ctx);
 
         var s = ctx.canvas._map.getPixelBounds().min;
@@ -430,21 +432,22 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
         cPoint.x -= ctx.canvas._s.x;
         cPoint.y -= ctx.canvas._s.y;
         var fill = true;
-        for(var i = 0; i < ctx.features.length; i++){
-            if(ctx.features[i].geometry.type == 'LineString' || ctx.features[i].geometry.type == 'MultiLineString'){
-                fill = false;
-                break;
-            }
-        }
+        // for(var i = 0; i < ctx.features.length; i++){
+        //     if(ctx.features[i].geometry.type == 'LineString' || ctx.features[i].geometry.type == 'MultiLineString'){
+        //         fill = false;
+        //         break;
+        //     }
+        // }
 
         var options = {
             tolerance: 5,
-            fill: fill
+            fill: false,
+            stroke:true
         }
        
 
         var hitResult = ctx.canvas._paper.project.hitTest(cPoint, options);
-
+        console.timeEnd("hitTest");
        
         return hitResult;
     },

@@ -437,8 +437,8 @@ function initMap() {
 	var tileLayer = new SMC.layers.geometry.WFSTiledGeometryLayer({
 		id: 'id',
 		serverURL: 'http://demo.opengeo.org/geoserver/wfs',
-		typeName: 'states',
-		//typeName: 'ne_10m_roads',
+		//typeName: 'states',
+		typeName: 'ne_10m_roads',
 		zoomOffset : 0,
 		tileSize: 256,
 		draggingUpdates: true
@@ -463,10 +463,10 @@ function initMap() {
 	tileLayer.setZIndex(1000);
 	
 	
-	tileLayer.on("layerLoad", function(event){
-		self = this;
-		updateFeatures(event.features);
-	});
+	// tileLayer.on("layerLoad", function(event){
+	// 	self = this;
+	// 	updateFeatures(event.features);
+	// });
 
 
 	// tileLayer._createStyles = function(feature){
