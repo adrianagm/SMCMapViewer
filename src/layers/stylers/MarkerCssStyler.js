@@ -14,15 +14,19 @@ var Mustache = require("../../../lib/mustache.js/mustache.js");
 SMC.layers.stylers.MarkerCssStyler = SMC.layers.stylers.Styler.extend(
     /** @lends SMC.layers.stylers.MarkerCssStyler# */
     {
-        initialize: function(options){
+        initialize: function(options) {
             this._parser_url = "../../src/layers/stylers/parser.txt";
             SMC.layers.stylers.Styler.prototype.initialize.apply(this, arguments);
         },
-        applyStyle: function(marker, zoom) {
-            var properties = marker.properties;
-            var style = this._createStyles(marker, zoom);
-            if (!style)
+        applyStyle: function(feature, zoom) {
+            var properties = feature.properties;
+            var style = this._createStyles(feature, zoom);
+            if (!style) {
                 style = "";
+            }
+
+            feature._style = style;
+
 
             var icon, width, height, anchorLeft, anchorTop;
 
@@ -32,7 +36,7 @@ SMC.layers.stylers.MarkerCssStyler = SMC.layers.stylers.Styler.extend(
             anchorLeft = style.anchorLeft || 0;
             anchorTop = style.anchorTop || 0;
 
-            var disableClustering = !! style.disableClustering;
+            var disableClustering = !!style.disableClustering;
 
             if (style.iconUrl) {
                 // Load normal marker icon with the specified url.
@@ -194,23 +198,19 @@ SMC.layers.stylers.MarkerCssStyler = SMC.layers.stylers.Styler.extend(
             }
 
 
-            var style = this._addContentPopUp(marker.properties, zoom);
+            var style = marker.feature._style;
             if (!style)
                 style = "";
-            var offsetLeft = style.offsetLeft || 0;
-            var offsetTop = style.offsetTop || 0;
+            var offsetLeft = style.popUpOffsetLeft || 0;
+            var offsetTop = style.popUpOffsetTop || 0;
 
 
-            var content;
+            var content, propKey;
+            var data = {};
             if (style.popUpTemplate) {
-                var data = {};
-                for (var propKey in marker.properties) {
-                    data[propKey] = marker.properties[propKey];
-                }
 
-                var output = Mustache.render(style.popUpTemplate, data);
 
-                content = output;
+                content = this._contentFromTemplate(marker.feature, style.popUpTemplate);
 
             } else if (style.popUpUrl) {
                 content = "<iframe src=" + style.popUpUrl + "/>";
@@ -219,34 +219,14 @@ SMC.layers.stylers.MarkerCssStyler = SMC.layers.stylers.Styler.extend(
                 marker.unbindPopup();
 
             } else {
-                var data = {};
-                var template = "";
-                for (var propKey in marker.properties) {
-                    data[propKey] = marker.properties[propKey];
-                    template += propKey + ": <b>{{" + propKey + "}}</b><br>";
-                }
-
-                content = Mustache.render(template, data);
-
+                // Default template, one entry per field;
+                content = this._contentFromTemplate(marker.feature, "");
             }
-
-
-
             var offset = [offsetLeft, offsetTop];
             if (content) {
                 marker.bindPopup(content, {
                     offset: offset
                 });
             }
-
-
-
-        },
-
-        _addContentPopUp: function(properties, zoom) {
-            // To be overriden in derivate classes.
-            return {
-                defaultPopUp: true
-            };
         }
     });

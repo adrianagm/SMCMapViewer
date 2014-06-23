@@ -22,6 +22,7 @@ SMC.providers.RTFeatureProvider = SMC.providers.URLFeatureProvider.extend(
          * @param {object} options - object with need parameters
          */
         initialize: function(options) {
+            SMC.providers.URLFeatureProvider.prototype.initialize.apply(this, arguments);
             L.Util.setOptions(this, options);
         },
 
@@ -34,16 +35,13 @@ SMC.providers.RTFeatureProvider = SMC.providers.URLFeatureProvider.extend(
             throw new Error("SMC.providers.RTFeatureProvider::_createSubscription: must be implemented in derivate classes.");
         },
 
-        _onFeatureAdded: function(addedFeature) {
 
+        onFeaturesModified: function(features) {
+            throw new Error("SMC.providers.RTFeatureProvider::onFeaturesModified must be implemented by derivate classes.");
         },
 
-        _onFeatureModified: function(modifiedFeature) {
-
-        },
-
-        _onFeatureDeleted: function(deletedFeature) {
-
+        onFeaturesDeleted: function(features) {
+            throw new Error("SMC.providers.RTFeatureProvider::onFeaturesDeleted must be implemented by derivate classes.");
         }
 
     });
