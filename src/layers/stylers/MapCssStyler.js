@@ -11,7 +11,6 @@ var Mustache = require("../../../lib/mustache.js/mustache.js");
  */
 SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
     /** @lends SMC.layers.stylers.MapCSSStyler# */
-
     {
         labels: [],
         initialize: function(options) {

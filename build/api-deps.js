@@ -5,7 +5,9 @@ require("../src/layers/geometry/GeometryLayer.js");
 require("../src/layers/geometry/TiledGeometryLayer.js");
 require("../src/layers/Folder.js");
 
-//require("../src/providers/WFSProvider.js");
+require("../src/providers/WFSProvider.js");
 require("../src/layers/markers/WFSMarkerLayer.js");
+require("../src/layers/geometry/WFSGeometryLayer.js");
+require("../src/layers/geometry/WFSTiledGeometryLayer.js");
 
 require("../src/layers/markers/AtmosphereRTMarkerLayer.js");

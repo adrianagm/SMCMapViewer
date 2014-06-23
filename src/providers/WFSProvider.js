@@ -69,7 +69,7 @@ SMC.providers.WFSProvider = SMC.providers.URLFeatureProvider.extend({
          * WFS CQL Filter parameter.
          * @property {string} cqlFilter - The default wfs cql filter parameter.
          */
-        cqlFilter: null,
+        cql_filter: null,
         /**
          * WFS outputFormat parameter.
          * @property {string} outputFormat - The default wfs output format parameter.
@@ -97,18 +97,31 @@ SMC.providers.WFSProvider = SMC.providers.URLFeatureProvider.extend({
      * Send WFS request to get the features
      * @returns {object} Deferred object from jQuery
      */
-    doFeaturesLoading: function() {
+    doFeaturesLoading: function(bounds) {
     	var jsonpRandom = this._makeid();
     	this.options.format_options = "callback:" + jsonpRandom;
+
         if (this.options.serverURL !== null) {
-            return $.ajax({
+            var requestData = {
                 url: this.options.serverURL,
-                data: this.getParamsFromOptions(),
+                //data: this.getParamsFromOptions(),
                 jsonpCallback: jsonpRandom,
                 type: "GET",
                 dataType: "jsonp",
                 jsonp: false
-            });
+            };
+            if(bounds) {
+
+                requestData.bbox =bounds[1]+','
+                    + bounds[0]+ ','
+                    + bounds[3]+ ','
+                    + bounds[2];
+                this.options.bbox = requestData.bbox; 
+               
+            }
+
+            requestData.data =  this.getParamsFromOptions();
+            return $.ajax(requestData);
         }
         return $.Deferred();
     },
