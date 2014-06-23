@@ -7,18 +7,12 @@ var Mustache = require("../../../lib/mustache.js/mustache.js");
  * @class
  * @extends SMC.layers.stylers.Styler
  *
- * @author Luis Román (lroman@emergya.com)
+ * @author Luis RomÃ¡n (lroman@emergya.com)
  */
 SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
     /** @lends SMC.layers.stylers.MapCSSStyler# */
-
     {
         labels: [],
-        initialize: function(options){
-            this._parser_url = "../../src/layers/stylers/parser.txt";
-            SMC.layers.stylers.Styler.prototype.initialize.apply(this, arguments);
-        },
-
         applyStyle: function(feature, ctx, zoom) {
 
             var style = this._createStyles(feature, zoom);
@@ -109,6 +103,13 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
             }
 
 
+
+        },
+
+        _createStyles: function(feature, zoom) {
+            return {
+                style: null
+            };
 
         },
 

@@ -1,4 +1,4 @@
-require("../layers.js");
+
 require("../stylers/MapCssStyler.js");
 
 var paper = require("../../../lib/paper/dist/paper-full.js").exports;
@@ -15,6 +15,10 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
     
     initialize: function(options) {
         L.Util.setOptions(this, options);
+        this.fireEvent('layerLoad', {
+            features: this.features
+        });
+
     },
 
     renderCanvas: function(ctx, features, map) {
@@ -27,38 +31,37 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
             return;
         }
 
-   
+        ctx.features = features;
 
-    ctx.features = features;
+        this.labels = [];
+        var canvas = ctx.canvas;
 
-    this.labels = [];
-    var canvas = ctx.canvas;
+        var mypaper;
+        if (!canvas._paper) {
+            mypaper = new paper.PaperScope();
+            mypaper.setup(canvas);
+            canvas._paper = mypaper;
+            canvas._map = map;
 
-    var mypaper;
-    if (!canvas._paper) {
-      //this._initialized = false;
-      mypaper = new paper.PaperScope();
-      mypaper.setup(canvas);
-      canvas._paper = mypaper;
-      canvas._map = map;
+        }
 
-    }
+        mypaper = canvas._paper;
 
-    mypaper = canvas._paper;
+        if (canvas._initialized) {
+            mypaper.activate();
+            mypaper.project.activeLayer.removeChildren();
+        }
 
-    if (canvas._initialized) {
-      mypaper.activate();
-      mypaper.project.activeLayer.removeChildren();
-    }
+        var canvasLabel;
+        if (ctx.tile) {
+            canvasLabel = "(" + ctx.tile.x + " , " + ctx.tile.y + ")";
+        } else {
+            canvasLabel = mypaper._id;
+        }
 
-    var canvasLabel;
-    if (ctx.tile) {
-      canvasLabel = "(" + ctx.tile.x + " , " + ctx.tile.y + ")";
-    } else {
-      canvasLabel = mypaper._id;
-    }
+        console.time("render " + canvasLabel);
 
-    console.time("render " + canvasLabel);
+
 
         if (ctx.tile) {
             ctx.canvas._s = ctx.tile.multiplyBy(ctx.canvas.width);
@@ -144,13 +147,9 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
         mypaper.view.draw();
 
-
-
         console.timeEnd("draw " + canvasLabel);
 
-
         console.timeEnd("render " + canvasLabel);
- 
 
 
         return layer;
@@ -175,9 +174,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
         map.on("click", function(event) {
             this._onMouseClick(ctx, event);
-
         }, this);
-
 
 
         console.debug("enabling move");
@@ -193,12 +190,11 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
             this.dragging = true;
             console.debug("moving disabled!");
             map.off("mousemove", onMouseMove, this);
-
         }, this);
 
         map.on("dragend", function() {
             this.dragging = false;
-         
+           // this._onViewChanged(ctx);
             console.debug("moving renabled!");
             map.on("mousemove", onMouseMove, this);
 
@@ -206,15 +202,12 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
                 this.renderCanvas(ctx, ctx.features, ctx.canvas._map);
             }
 
-
         }, this);
-
 
        
 
     },
 
-   
 
     _addFeature: function(ctx, elem) {
         var feature = elem.feature;
@@ -231,9 +224,6 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
             geom = geom[0];
 
         }
-
-        
-
 
         var labels = this._addLabels(feature, ctx);
         var stylePopup = this._addPopUp(feature, ctx);
@@ -268,12 +258,11 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
         }
 
-       
-        path._feature = feature;
 
+        feature._clean = true; 
+        path._feature = feature;
         item = this._createItem(path, styles, labels, stylePopup, ctx);
         feature._item = item;
-        feature._clean = true;
         return item;
 
     },
@@ -299,7 +288,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
         // actual coords to tile 'space'
         var p;
-        var zoom = ctx.canvas._map.getZoom();
+        var zoom = ctx.zoom;
         if (coords._projCoords && clean) {
             p = coords._projCoords;
         } else {
@@ -317,7 +306,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
 
     _createGeometry: function(ctx, geom, feature, offset, clean) {
-        var path; 
+        var path; // = new ctx.paper.Path();
 
         var points = [];
         for (var i = 0; i < geom.length; i++) {
@@ -366,7 +355,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
         if (typeof styles.visible === "undefined") {
             path.visible = true;
         }
-        path.stylePopup = stylePopup;
+        path._feature.stylePopup = stylePopup;
 
 
         var item = new ctx.canvas._paper.Group();
@@ -388,19 +377,8 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
         var popup;
         var hitResult = this._hitTest(ctx, event);
 
-        if (hitResult) {
+        if (hitResult && hitResult.item._class == 'Path') {
             event._hit = hitResult;
-            if(hitResult.item.stylePopup.content != null){
-            
-                popup = L.popup({
-                    offset: hitResult.item.stylePopup.offset
-                })
-                    .setLatLng(event.latlng)
-                    .setContent(hitResult.item.stylePopup.content)
-                    .openOn(ctx.canvas._map);
-            } 
-
-             
 
             this.fireEvent("featureClick",{
                 feature: hitResult.item._feature,
@@ -410,9 +388,20 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
  
             this.updateFeature(hitResult.item._feature);
+            var stylePopup = this._addPopUp(hitResult.item._feature, ctx);
+
+            if(stylePopup.content != null){
+            
+                popup = L.popup({
+                    offset: stylePopup.offset
+                })
+                    .setLatLng(event.latlng)
+                    .setContent(stylePopup.content)
+                    .openOn(ctx.canvas._map);
+            } 
+
 
         }
-            
 
     },
 
@@ -420,12 +409,11 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
         var hitResult = this._hitTest(ctx, event);
 
-        if (hitResult) {
+        if (hitResult && hitResult.item._class == 'Path') {
             event._hit = hitResult;
         }
 
         ctx.canvas._map.getContainer().style.cursor = event._hit ? 'pointer ' : '';
-        
     },
 
 
@@ -441,13 +429,21 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
         cPoint.x -= ctx.canvas._s.x;
         cPoint.y -= ctx.canvas._s.y;
+        var fill = true;
+        for(var i = 0; i < ctx.features.length; i++){
+            if(ctx.features[i].geometry.type == 'LineString' || ctx.features[i].geometry.type == 'MultiLineString'){
+                fill = false;
+                break;
+            }
+        }
 
-
-        var hitResult = ctx.canvas._paper.project.hitTest(cPoint, {
+        var options = {
             tolerance: 5,
-            //fill: true, //problemas con los poligonos y puntos de mayor tamaño
-            stroke: true
-        });
+            fill: fill
+        }
+       
+
+        var hitResult = ctx.canvas._paper.project.hitTest(cPoint, options);
 
        
         return hitResult;
@@ -457,7 +453,6 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
         for (var i = 0; i < ctx.features.length; i++) {
             var f = ctx.features[i];
             f._clean = false;
-            this._applyStyles(f, ctx);
         }
     },
 

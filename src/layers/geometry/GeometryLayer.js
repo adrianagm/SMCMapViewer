@@ -11,22 +11,19 @@ require("../../../lib/canvasLayer/leaflet_canvas_layer.js");
  * @abstract
  * @extends SMC.layers.SingleLayer
  *
- * @author Luis Román (lroman@emergya.com)
+ * @author Luis RomÃ¡n (lroman@emergya.com)
  */
 SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 	/** @lends SMC.layers.geometry.GeometryLayer# */
 	{
-		
-
 		includes: SMC.Util.deepClassInclude([SMC.layers.SingleLayer, SMC.layers.geometry.CanvasRenderer]),
 
 		features: [],
-		
 
 		initialize: function(options){
-			L.CanvasLayer.prototype.initialize.apply(this, arguments);
+			L.CanvasLayer.prototype.initialize.apply(this, arguments);	
 			L.Util.setOptions(this, options);
-			
+		
 		},
 
 		onAdd: function(map) {
@@ -74,7 +71,7 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 		},
 
 		addGeometryFromFeatures: function(features) {
-			var id = this.options.id;
+			
 			
 			if (L.Util.isArray(features)) {
 				this.features = features;
@@ -85,20 +82,26 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 			}
 
 			for(var i = 0; i < this.features.length; i++){
-				var feature = this.features[i];
-				if (feature.hasOwnProperty(id))
-					feature.id = feature[id];
-				else{
-
-					for (var propKey in feature) {  
-                       if (feature[propKey].hasOwnProperty(id)){
-                       		feature.id = feature[propKey][id];
-                       }
-                    } 
-				
-				}
+				this._setProperties(this.features[i]);	
 			}
+
+			SMC.layers.geometry.CanvasRenderer.prototype.initialize.call(this, this.options); 
 			this.render();
+		},
+
+		_setProperties: function(feature){
+			var id = this.options.id;
+			if (feature.hasOwnProperty(id))
+					feature.id = feature[id];
+			else{
+
+				for (var propKey in feature) {  
+                   if (feature[propKey].hasOwnProperty(id)){
+                   		feature.id = feature[propKey][id];
+                   }
+                } 
+			
+			}
 		},
 
 		updateFeature: function(feature){
@@ -112,7 +115,5 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 			
 		}
 
-
-	});
 
 	});
