@@ -174,6 +174,8 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
 
 
             var style = this._addContentPopUp(feature, zoom);
+             if (!style)
+                style = "";
             var offsetLeft = style.offsetLeft || 0;
             var offsetTop = style.offsetTop || 0;
 
@@ -211,10 +213,14 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
 
             var offset = [offsetLeft, offsetTop];
 
-            return {
+           
+            return {  
                 content: content,
                 offset: offset
             }
+            
+
+
 
 
 
