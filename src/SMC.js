@@ -6,4 +6,6 @@ require("../lib/leaflet/leaflet-src.js");
  */
 
 
-SMC = {};
+SMC = {
+	BASE_URL: "../dist/"
+};

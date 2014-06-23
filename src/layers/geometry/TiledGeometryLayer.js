@@ -1,8 +1,10 @@
 require("./geometry.js");
+require("../layers.js");
 require("../SingleLayer.js");
 require("./CanvasRenderer.js");
 require("../stylers/MapCssStyler.js");
 require("../../../lib/canvasLayer/leaflet_canvas_layer.js");
+
 
 // RBush inserts itself as NodeJs module so we must retrieve it this way.
 var rbush = require("../../../lib/rbush.js");
@@ -19,21 +21,28 @@ var rbush = require("../../../lib/rbush.js");
  */
 SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
     /** @lends SMC.layers.geometry.TiledGeometryLayer# */
+    
     {
-
+        options : {
+            tileSize: 256,
+        },
 
         includes: SMC.Util.deepClassInclude([SMC.layers.SingleLayer, SMC.layers.geometry.CanvasRenderer]),
 
-        tree: null,
-        tileSize: 256,
+       globalTree: null,
+       features :[],
+       tilesLoad : 1,
+       tilesToLoad: null,
+      
+        
 
         initialize: function(options) {
             L.Util.setOptions(this, options);
-            this.on("featuresUpdated", function(event) {
-                this.updateFeature(event.feature);
+            L.TileLayer.Canvas.prototype.initialize.call(this, options);
+            
 
-            });
-
+           
+            
             this.drawTile = function(canvas, tilePoint, zoom) {
                 var ctx = {
                     canvas: canvas,
@@ -41,28 +50,44 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
                     zoom: this._getZoomForUrl()
                 };
 
-                if (this.tree === null || this.lastZoom != zoom) {
-                    this.tree = rbush(9, ['.minx', '.miny', '.maxx', '.maxy']);
+                if (this.globalTree === null || this.lastZoom != zoom) {
+                    this.globalTree = rbush(9, ['.minx', '.miny', '.maxx', '.maxy']);
+                    this.lastZoom = zoom;
+                   
+                }
+
+                ctx.canvas.tree = null;
+
+                if (ctx.canvas.tree === null || this.lastZoom != zoom) {
+                    ctx.canvas.tree = rbush(9, ['.minx', '.miny', '.maxx', '.maxy']);
                     this.lastZoom = zoom;
                 }
 
-
                 this._draw(ctx);
+                if(this.tilesToLoad == null){
+                    this.tilesToLoad = this._tilesToLoad;
+                }
             };
+
+          
+
         },
 
+        load: function() {
+ 
+        },
+
+        loadTile: function() {
+             throw new Error("TiledGeometrylayer::loadTile must be implemented by derivate classes.");
+        },
 
 
         onAdd: function(map) {
             L.TileLayer.Canvas.prototype.onAdd.call(this, map);
             SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
-            map.on("dragstart", function() {
-                this.dragging = true;
-            }, this);
-            map.on("dragend", function() {
-                this.dragging = false;
-            }, this);
 
+           
+           
         },
 
         _draw: function(ctx) {
@@ -71,16 +96,21 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
             var bounds = this._tileBounds(ctx);
 
 
-            var request = this.createRequest(bounds, ctx);
-            var loader = $.ajax;
-            var self = this;
-            loader($.extend(request, {
-                success: function(response) {
-                    console.log(response.features);
-                    self.addTiledGeometryFromFeatures(response.features, ctx);
+            // var request = this.createRequest(bounds, ctx);
+            // var loader = $.ajax;
+             var self = this;
+            // loader($.extend(request, {
+            //     success: function(response) {
+            //         console.log(response.features);
+            //         self.addTiledGeometryFromFeatures(response.features, ctx);
 
-                }
-            }, this.options.request));
+            //     }
+            // }, this.options.request));
+
+            this.loadTile(bounds).then(function(featuresCollection) {
+                 console.log(featuresCollection.features);
+                 self.addTiledGeometryFromFeatures(featuresCollection.features, ctx);
+            });
         },
 
         addTiledGeometryFromFeatures: function(features, ctx, skipTree) {
@@ -97,11 +127,16 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
 
             for (i = 0; i < f.length; i++) {
                 var feature = f[i];
+                this. _setProperties(feature);
+               
+                
 
                 //We store the retrieved features in a search tree.
                 if (!skipTree) {
                     var treeNode = this._createTreeData(feature, ctx.tile);
-                    this.tree.insert(treeNode);
+                    ctx.canvas.tree.insert(treeNode);
+                    this.globalTree.insert(treeNode);
+                    
                 }
             }
 
@@ -110,9 +145,56 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
 
                 this.renderCanvas(ctx, f, this._map);
             }
+            this.tilesLoad++;
+            if(this.tilesLoad == this.tilesToLoad){
+                 SMC.layers.geometry.CanvasRenderer.prototype.initialize.call(this, this.options); 
+            }
 
 
         },
+
+        _setProperties: function(feature){
+                var id = this.options.featureID;
+                if (feature.hasOwnProperty(id)){
+                    feature.id = feature[id];
+                }
+                else{
+
+                    for (var propKey in feature) {  
+                       if (feature[propKey].hasOwnProperty(id)){
+                            feature.id = feature[propKey][id];
+                       }
+                    } 
+                        
+                }
+
+
+                if(this.features.length == 0){  
+                    this.features.push(feature);
+                   
+                }
+                else{
+                    var sameFeature = false;
+                    for(var j = 0; j < this.features.length; j++){
+                        if(feature.id  == this.features[j].id){
+                             feature.id = this.features[j].id;
+                             feature.selected = this.features[j].selected;
+                             feature.properties = this.features[j].properties;
+                             sameFeature = true;
+                             break; 
+                        }
+
+                    }
+
+                    if(!sameFeature){
+                        this.features.push(feature);
+                    }
+                }
+
+            
+         },
+
+       
 
         _createTreeData: function(feature, tilePoint) {
 
@@ -133,8 +215,7 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
 
         _featureBBox: function(feature) {
             var points = [];
-            // if(feature.properties.id ==35)
-            //    debugger;
+
             var geom = feature.geometry.coordinates;
             var type = feature.geometry.type;
             switch (type) {
@@ -175,8 +256,8 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
 
 
         _tileBounds: function(ctx) {
-            var nwPoint = ctx.tile.multiplyBy(this.tileSize);
-            var sePoint = nwPoint.add(new L.Point(this.tileSize, this.tileSize));
+            var nwPoint = ctx.tile.multiplyBy(this.options.tileSize);
+            var sePoint = nwPoint.add(new L.Point(this.options.tileSize, this.options.tileSize));
 
             // optionally, enlarge request area.
             // with this I can draw points with coords outside this tile area,
@@ -196,19 +277,28 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
 
         updateFeature: function(feature) {
 
+             for (var k = 0; k < this.features.length; k++){
+                if(feature.id == this.features[k].id){
+                    if(feature.selected !== undefined){
+                         this.features[k].selected = feature.selected;
+                    }
+                     this.features[k].properties = feature.properties;
+                     break;
+                }
+            }
+
             var bbox = this._featureBBox(feature);
 
-            var intersectingFeatureNodes = this.tree.search([bbox.min.x, bbox.min.y, bbox.max.x, bbox.max.y]);
+            var intersectingFeatureNodes = this.globalTree.search([bbox.min.x, bbox.min.y, bbox.max.x, bbox.max.y]);
 
-            // var bounds = [[bbox.min.y, bbox.min.x], [bbox.max.y,bbox.max.x]];
-            // var border = new L.rectangle(bounds, {color: 'gray'}).addTo(this._map);
 
             // we determine the tiles to be redrawn from the features.
             var readdedTileKeys = [];
+            
             for (var i = 0; i < intersectingFeatureNodes.length; i++) {
                 var featureTilePoint = intersectingFeatureNodes[i].tilePoint;
-
-                // intersectingFeatureNodes[i].feature._item.selected = true;
+               
+            
                 var key = featureTilePoint.x + ":" + featureTilePoint.y;
 
                 if (readdedTileKeys.indexOf(key) < 0) {
@@ -221,50 +311,45 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
                         var ctx = {
                             canvas: tile,
                             tile: featureTilePoint,
-                            zoom: this._getZoomForUrl() // fix for https://github.com/CloudMade/Leaflet/pull/993
+                            zoom: this._map.getZoom() // fix for https://github.com/CloudMade/Leaflet/pull/993
                         };
 
 
-                        var tileFeatures = this.tree.search(this._tileBounds(ctx));
+                        var tileFeatures = ctx.canvas.tree.search(this._tileBounds(ctx));
 
                         var updatedFeatures = [];
+                        
                         for (var j = 0; j < tileFeatures.length; j++) {
                             var existingFeature = tileFeatures[j].feature;
+                            
 
-                            if (existingFeature.properties.cartodb_id == feature.properties.cartodb_id) {
+                            if (existingFeature.id == feature.id) {
                                 // We update the data!!!!
-                                for (var field in feature) {
-                                    if (feature.hasOwnProperty(field)) {
-                                        existingFeature[field] = feature[field];
-                                    }
 
+                                existingFeature.properties = feature.properties;
+                                if(feature.selected != undefined){
+                                    existingFeature.selected = feature.selected;
                                 }
+                                existingFeature._clean = false;
 
-                                existingFeature._dirty = true;
-                                existingFeature._item.selected = true;
-                                this._features.push(existingFeature);
 
                             }
 
 
 
                             updatedFeatures.push(existingFeature);
+
                         }
 
 
-
-                        if (!this.dragging) {
-                            // To prevent redraws while dragging.
-                            this.addTiledGeometryFromFeatures(updatedFeatures, ctx, true);
-                        } else {
-                            this._map.addOneTimeEventListener("dragend", function() {
-                                this.addTiledGeometryFromFeatures(updatedFeatures, ctx, true);
-                            }, this)
-                        }
+                       this.renderCanvas(ctx, updatedFeatures, this._map); 
+                       
 
                     }
+
                 }
             }
+
 
         },
 

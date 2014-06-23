@@ -3,12 +3,13 @@ function initMap() {
 	// Centered in London
 	var map = SMC.map('map');
 	//map.setView([-0.2298500, -78.5249500], 8)
-	map.setView([51.5135587, 0.26855], 9);
+	//map.setView([51.5135587, 0.26855], 9);
+	map.setView([40.25, -102.21], 5);
 
 
 
 	var base = SMC.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-		attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+		attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery Â© <a href="http://cloudmade.com">CloudMade</a>',
 		maxZoom: 18
 	}).addTo(map);
 
@@ -16,7 +17,7 @@ function initMap() {
 		layers: "bluemarble",
 		format: 'image/png',
 		transparent: true,
-		attribution: "Weather data © 2012 IEM Nexrad"
+		attribution: "Weather data Â© 2012 IEM Nexrad"
 	});
 
 	//--------------------------------------------------markers-----------------------------------
@@ -194,170 +195,86 @@ function initMap() {
 
 	//--------------------------------------------------------------------------------------------
 	//------------------------------geometry------------------------------------------------------
+	var self;
+
+	var geometry = new SMC.layers.geometry.WFSGeometryLayer({	
+			id: 'id',
+			//draggingUpdates: false,
+			serverURL: 'http://demo.opengeo.org/geoserver/wfs',
+			//typeName: 'ne_10m_roads',
+			typeName: 'states'
+			//cql_filter:"sov_a3 ='USA' AND type = 'Major Highway'"
+
+	});
+
+	// geometry.load = function() {};
+	
+	 geometry.setZIndex(1000);
 
 
-	var geometry = new SMC.layers.geometry.GeometryLayer({});
+	// var geometry_geojson = {
+	// 	"type": "Feature",
+	// 	"geometry": {
+	// 		"type": "Point",
+	// 		"coordinates": [-0.39, 51.395]
+	// 	},
+	// 	"properties": {
+	// 		"name": "Marcador 3",
+	// 		"id": "1",
+	// 		"colour": "green"
+	// 	}
+	// };
 
-	var lines = new SMC.layers.geometry.GeometryLayer({});
-
-	var puntos = new SMC.layers.geometry.GeometryLayer({});
-
-	var stations = new SMC.layers.geometry.GeometryLayer({});
-
-
-
-	geometry.load = function() {};
-	lines.load = function() {};
-	puntos.load = function() {};
-	stations.load = function() {};
-	lines.setZIndex(1000);
-
-	/* Commented as it fails 'cause the geometry layer is not added, and it fails: 
-	geometry.setZIndex(1000);
-	lines.setZIndex(1000);
-	puntos.setZIndex(1000);
-	stations.setZIndex(1000);
-	*/
-
-	var geometry_geojson = {
-		"type": "Feature",
-		"geometry": {
-			"type": "Point",
-			"coordinates": [-0.39, 51.395]
-		},
-		"properties": {
-			"name": "Marcador 3",
-			"id": "1",
-			"colour": "green"
-		}
-	};
-
-	var geometry_geojson2 = {
-		"type": "Feature",
-		"geometry": {
-			"type": "Point",
-			"coordinates": [-0.39, 51.355]
-		},
-		"properties": {
-			"name": "Marcador 3",
-			"id": "2",
-			"colour": "green"
-		}
-	};
+	// var geometry_geojson2 = {
+	// 	"type": "Feature",
+	// 	"geometry": {
+	// 		"type": "Point",
+	// 		"coordinates": [-0.39, 51.355]
+	// 	},
+	// 	"properties": {
+	// 		"name": "Marcador 3",
+	// 		"id": "2",
+	// 		"colour": "green"
+	// 	}
+	// };
 
 
 
-	//puntos.addGeometryFromFeatures(geometry_geojson2);
-	//puntos.addTo(map);
+	
 	//geometry.addGeometryFromFeatures(geometry_geojson);
 	//geometry.addTo(map);
 
-	$.ajax({
-
-		url: 'http://adriana-4.cartodb.com/api/v2/sql?format=GeoJSON&q=SELECT * FROM tfl_stations',
-
-
-	 	dataType: "json",
-	 	success: function(response) {
-	 		var features = response.features;
-
-	 		lines.addGeometryFromFeatures(features);
-	 		lines.addTo(map);
-	 		// puntos.addTo(map);
-
-	 		//geometry.addTo(map);
-
-	 		
-	 		lines.render();
-
-	 	}
-	});
-
 	// $.ajax({
 
-	// 	url: 'http://adriana-4.cartodb.com/api/v2/sql?format=GeoJSON&q=SELECT * FROM london_polygon',
+	// 	url: 'http://adriana-4.cartodb.com/api/v2/sql?format=GeoJSON&q=SELECT * FROM tfl_lines',
 
-	// 	dataType: "json",
-	// 	success: function(response) {
-	// 		var features = response.features;
 
-	// 		geometry.addTo(map);
-	// 		geometry.addGeometryFromFeatures(features);
-	// 		//geometry.render();
+	//  	dataType: "json",
+	//  	success: function(response) {
+	//  		var features = response.features;
 
-	// 	}
+	//  		//geometry.addGeometryFromFeatures(features);
+	//  		geometry.addTo(map);
+	//  		//updateFeatures(features);
+
+	//  		//geometry.render();
+
+	//  	}
 	// });
 
-	//puntos.render();
-
-	// $.ajax({
-
-	// 	url: 'http://adriana-4.cartodb.com/api/v2/sql?format=GeoJSON&q=SELECT * FROM tfl_stations',
-
-	// 	dataType: "json",
-	// 	success: function(response) {
-	// 		stations.addTo(map);
-	// 		var features = response.features;
-	// 		stations.addGeometryFromFeatures(features);
-	// 		//stations.render();
-
-	// 	}
-	// });
+	
 
 
-	stations._createStyles = function(feature, zoom) {
-		if (zoom >= 13)
+	geometry._createStyles = function(feature){
+
 			return {
-				fillColor: 'blue',
-				strokeColor: 'blue',
-				symbol: 'Star',
-				radius1: 10
+		 		strokeWidth: 3,
+	 			strokeColor: feature.properties.color	
 
 			};
-		else if (zoom < 13 && zoom > 10)
-			return {
-				fillColor: 'green',
-				symbol: 'RegularPolygon',
-				invisible: true
-
-			};
-		else
-			return {
-				fillColor: 'red',
-				symbol: 'RegularPolygon',
-				sides: 5,
-				opacity: 0.5
-
-			};
-	};
-
-	puntos._createStyles = function(feature, zoom) {
-		if (zoom >= 16) {
-			return {
-				fillColor: 'red'
-			};
-		} else if (zoom < 16 && zoom >= 14) {
-			return {
-				invisible: true
-			};
-		} else
-			return {
-				fillColor: 'blue',
-				symbol: 'RegularPolygon',
-				sides: 8,
-				opacity: 0.7
-
-			};
-	};
-
-	// lines._createStyles = function(feature, zoom) {
-	// 	return {
-	// 		strokeColor: '#444',
-	// 		strokeWidth: 2,
-	// 		symbol: "RegularPolygon"
-	// 	};
-	// };
-
+		
+	}
+	
 
 
 	var geomStyles = function(feature, zoom) {
@@ -379,13 +296,24 @@ function initMap() {
 						symbol: 'RegularPolygon',
 
 					};
-				else
-					return {
-						fillColor: 'red',
-						symbol: 'RegularPolygon',
-						sides: 5
+				else{
+					if (feature.clicked) {
+						return {
+							
+							fillColor: 'aqua',
+							zIndex: 10
 
-					};
+						}
+					}
+					else{
+						return {
+							fillColor: 'red',
+							symbol: 'RegularPolygon',
+							sides: 5
+
+						}
+					}
+				};
 
 				break;
 
@@ -397,20 +325,20 @@ function initMap() {
 				tube = feature.properties.lines;
 				tube = JSON.parse(tube);
 				var name = tube[0].name;
-				if (name == 'Central') {
-					return {
-						strokeWidth: 3,
-						strokeColor: color,
-						offset: 4,
-						zIndex: 30
+				if (feature.clicked) {
+						return {
+							strokeWidth: 3,
+							strokeColor: 'aqua',
+							zIndex: 10
 
-					};
-				} else
+						}
+					}
+				 else
 					return {
-						strokeWidth: 3,
+						
 						strokeColor: color,
 						offset: 4,
-						zIndex: 10
+						
 
 					};
 
@@ -429,7 +357,28 @@ function initMap() {
 
 	};
 
-	geometry._createStyles = geomStyles;
+	//geometry._createStyles = geomStyles;
+	
+
+	geometry.on("featureClick", function(event) {
+		
+		for(var i = 0; i < this.features.length; i++){
+			if(this.features[i].selected){
+				this.features[i].selected = false;
+				this.updateFeature(this.features[i]);
+			}
+		}
+		
+		event.feature.selected = true;
+		
+		
+	});
+	
+
+	geometry.on("layerLoad", function(event){
+		self = this;
+		updateFeatures(event.features);
+	})
 
 
 
@@ -445,109 +394,205 @@ function initMap() {
 
 	// };
 
-	geometry._createLabel = function(feature) {
-		var type = feature.geometry.type;
-		switch (type) {
-			case 'Point':
-			case 'MultiPoint':
-				var station = feature.properties.name;
-				return {
-					content: station
-				};
+	// geometry._createLabel = function(feature) {
+	// 	var type = feature.geometry.type;
+	// 	switch (type) {
+	// 		case 'Point':
+	// 		case 'MultiPoint':
+	// 			var station = feature.properties.name;
+	// 			return {
+	// 				content: station
+	// 			};
 
 
-			case 'LineString':
-			case 'MultiLineString':
-				var tube = feature.properties.lines;
-				tube = JSON.parse(tube);
-				var label = tube[0].name;
-
-				return {
-					content: label,
-					uniqueLabel: true
-
-				};
-
-
-			case 'Polygon':
-			case 'MultiPolygon':
-				var area = feature.properties.descript0;
-				return {
-					content: area
-				};
-		}
-	};
-
-	puntos._createLabel = function(feature, zoom) {
-		if (zoom >= 11) {
-			return {
-				content: feature.properties.name
-			};
-		} else
-			return {
-				content: feature.properties.id
-			};
-	};
-
-	//.................tiled geometry...................
-	var tileLayer = new SMC.layers.geometry.TiledGeometryLayer({});
-	tileLayer.load = function() {};
-	tileLayer.setZIndex(1000);
-	//geometry.setZIndex(1000);
-	geometry._createStyles =  geomStyles;
-	tileLayer.createRequest = function(bounds) {
-		var url = 'http://adriana-4.cartodb.com/api/v2/sql?format=GeoJSON&q=SELECT * FROM tfl_lines WHERE the_geom %26%26 ST_SetSRID (ST_MakeBox2D(ST_Point('+bounds[0]+','+bounds[1]+'), ST_Point('+bounds[2]+','+ bounds[3]+')),4326)';
-
-		return {
-			url: url,
-			dataType:"json",
-		};
-	};
-
-
-	//tileLayer.addTo(map);
-	
-
-	// var max = new L.Marker(new L.LatLng(51.6941, 0.114528));
-	// max.properties = {
-	// 	"name": "max",
-	// };
-	// marcador.addLayer(max);
-
-	// var min = new L.Marker(new L.LatLng(51.5044, -0.4376));
-	// min.properties = {
-	// 	"name": "min",
-	// };
-	// marcador.addLayer(min);
-	var bounds = [[51.5044, -0.4376], [51.6941, 0.114528]];
-
-	//var border = new L.rectangle(bounds, {color: 'gray'}).addTo(map);
-	 
-	
-
-	// tileLayer._createStyles = function(feature){
-	// 	var tube = feature.properties.lines;
-	// 			tube = JSON.parse(tube);
-	// 			var color = tube[0].colour;
+	// 		case 'LineString':
+	// 		case 'MultiLineString':
 	// 			var tube = feature.properties.lines;
 	// 			tube = JSON.parse(tube);
-	// 			var name = tube[0].name;
-	// 			if (feature.properties.id == 35) {
-	// 				return {
-	// 					strokeWidth: 3,
-	// 					strokeColor: 'blue',
-	// 					zIndex: 30
+	// 			var label = tube[0].name;
 
-	// 				}
-	// 			}
-	// 			 // else
-	// 				// return {
-	// 				// 	strokeWidth: 2,
-	// 				// 	strokeColor: color,
-	// 				// 	zIndex: 10
+	// 			return {
+	// 				content: label,
+	// 				uniqueLabel: true
 
-	// 				// };
+	// 			};
+
+
+	// 		case 'Polygon':
+	// 		case 'MultiPolygon':
+	// 			var area = feature.properties.descript0;
+	// 			return {
+	// 				content: area
+	// 			};
+	// 	}
+	// };
+
+	
+
+	//.................tiled geometry...................
+	// var tileLayer = new SMC.layers.geometry.TiledGeometryLayer({
+	// 	id: 'cartodb_id'
+	// });
+
+	var tileLayer = new SMC.layers.geometry.WFSTiledGeometryLayer({
+		id: 'id',
+		serverURL: 'http://demo.opengeo.org/geoserver/wfs',
+		//typeName: 'states',
+		typeName: 'ne_10m_roads',
+		zoomOffset : 0,
+		tileSize: 256,
+		draggingUpdates: true
+
+	});
+
+
+
+	// tileLayer.load = function() {};
+	
+
+	// tileLayer.createRequest = function(bounds) {
+	// 	var url = 'http://adriana-4.cartodb.com/api/v2/sql?format=GeoJSON&q=SELECT * FROM tfl_lines WHERE the_geom %26%26 ST_SetSRID (ST_MakeBox2D(ST_Point('+bounds[0]+','+bounds[1]+'), ST_Point('+bounds[2]+','+ bounds[3]+')),4326)';
+
+	// 	return {
+	// 		url: url,
+	// 		dataType:"json",
+	// 	};
+	// };
+
+	tileLayer.addTo(map);
+	tileLayer.setZIndex(1000);
+	
+	
+	// tileLayer.on("layerLoad", function(event){
+	// 	self = this;
+	// 	updateFeatures(event.features);
+	// });
+
+
+	// tileLayer._createStyles = function(feature){
+ //        var tube = feature.properties.lines;
+	// 	tube = JSON.parse(tube);
+	// 	var color = tube[0].colour;
+	// 	var tube = feature.properties.lines;
+	// 	tube = JSON.parse(tube);
+	// 	var name = tube[0].name;
+		
+	// 	if (feature.selected) {
+	// 		return {
+	// 			strokeWidth: 3,
+	// 			strokeColor: 'aqua',
+	// 			zIndex: 10
+				
+
+	// 		}
+	// 	}
+
+	// 	 else
+	// 		return {
+	// 			strokeWidth: 2,
+	// 			strokeColor: color,
+				
+
+	// 		};
 	// }
+
+	tileLayer._createStyles = function(feature){
+		if(feature.selected){
+			return {
+		 		strokeWidth: 3,
+		 		fillColor: feature.properties.color,
+	 			strokeColor: 'black'
+	 			//selectedColor: 'rgba(0,0,0,0)'	
+
+			};
+		}
+		else{
+			return {
+		 		strokeWidth: 3,
+		 		fillColor: feature.properties.color,
+	 			strokeColor: 'black',
+	 			opacity: 0.5	
+
+			};
+		}
+	}
+
+
+	tileLayer._addContentPopUp = function(feature, zoom){
+		if(!feature.selected){
+			return{
+				noPopUp: true
+			}
+		}
+		
+
+	},
+
+	
+
+	tileLayer.on("featureClick", function(event) {
+		var select = false;
+
+		
+		for(var i = 0; i < this.features.length; i++){
+			if(event.feature.id == this.features[i].id){
+				if(this.features[i].selected){
+					select = true;
+				}
+				
+			}
+			if(this.features[i].selected){
+				this.features[i].selected = false;
+				this.updateFeature(this.features[i]);
+			}
+	
+		}
+
+		if(!select){
+			event.feature.selected = true;
+	 
+		}
+
+	});
+
+	
+	
+
+	
+	var colors = ["red","yellow","green"];
+	
+	var updateFeatures = function(features) {
+		var feature = features[Math.floor(Math.random()*features.length)];
+		
+		feature.properties.color = colors[ Math.floor(Math.random()*colors.length)];
+		self.updateFeature(feature);
+
+
+		var updateInterval = parseInt($("#updateInterval").val());
+		$("#intervalLabel")[0].innerHTML = "Update interval ("+updateInterval+"ms)";
+		setTimeout(function() {
+			updateFeatures(features);
+		}, updateInterval);
+	};
+	
+
+
+	var sliderControl = L.control({position:"bottomleft"});
+
+	sliderControl.onAdd = function() {
+		var div = L.DomUtil.create('div', 'leaflet-bar leaflet-update-interval');
+		div.innerHTML+='<label for="updateInterval" id="intervalLabel">Update interval (1000ms):</label> <input id="updateInterval" min="100" max="2000" type="range" step="100" value="1000"/>'
+
+		L.DomEvent.addListener(div, 'mousedown', L.DomEvent.stopPropagation);
+		L.DomEvent.addListener(div, 'mouseup', L.DomEvent.stopPropagation);
+
+		L.DomEvent.addListener(div, 'touchstart', L.DomEvent.stopPropagation);
+		L.DomEvent.addListener(div, 'touchend', L.DomEvent.stopPropagation);
+
+		return div;
+	};
+
+	sliderControl.addTo(map);
 
 
 	
