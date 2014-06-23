@@ -1,4 +1,4 @@
-
+require("../layers.js");
 require("../stylers/MapCssStyler.js");
 
 var paper = require("../../../lib/paper/dist/paper-full.js").exports;
@@ -27,36 +27,38 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
             return;
         }
 
-        ctx.features = features;
+   
 
-        this.labels = [];
-        var canvas = ctx.canvas;
+    ctx.features = features;
 
-        var mypaper;
-        if (!canvas._paper) {
-            mypaper = new paper.PaperScope();
-            mypaper.setup(canvas);
-            canvas._paper = mypaper;
-            canvas._map = map;
+    this.labels = [];
+    var canvas = ctx.canvas;
 
-        }
+    var mypaper;
+    if (!canvas._paper) {
+      //this._initialized = false;
+      mypaper = new paper.PaperScope();
+      mypaper.setup(canvas);
+      canvas._paper = mypaper;
+      canvas._map = map;
 
-        mypaper = canvas._paper;
+    }
 
-        if (canvas._initialized) {
-            mypaper.activate();
-            mypaper.project.activeLayer.removeChildren();
-        }
+    mypaper = canvas._paper;
 
-        var canvasLabel;
-        if (ctx.tile) {
-            canvasLabel = "(" + ctx.tile.x + " , " + ctx.tile.y + ")";
-        } else {
-            canvasLabel = mypaper._id;
-        }
+    if (canvas._initialized) {
+      mypaper.activate();
+      mypaper.project.activeLayer.removeChildren();
+    }
 
-        console.time("render " + canvasLabel);
+    var canvasLabel;
+    if (ctx.tile) {
+      canvasLabel = "(" + ctx.tile.x + " , " + ctx.tile.y + ")";
+    } else {
+      canvasLabel = mypaper._id;
+    }
 
+    console.time("render " + canvasLabel);
 
         if (ctx.tile) {
             ctx.canvas._s = ctx.tile.multiplyBy(ctx.canvas.width);
