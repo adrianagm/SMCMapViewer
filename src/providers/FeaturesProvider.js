@@ -14,6 +14,14 @@ SMC.providers.FeaturesProvider = L.Class.extend(
 
         includes: L.Mixin.Events,
 
+        options: {
+            featureId: "id"
+        },
+
+        initialize: function(options) {
+            L.setOptions(this, options);
+        },
+
         /**
          * Retrieves the features from its source.
          * @fires SMC.providers.FeaturesProvider#featuresLoaded

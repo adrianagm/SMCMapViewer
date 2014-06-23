@@ -37,13 +37,13 @@ SMC.providers.AtmosphereRTFeatureProvider = SMC.providers.RTFeatureProvider.exte
 
     _createSubscription: function() {
         var request = {
-            url : this.options.url,
-            contentType : "application/json",
-            logLevel : 'debug',
-            transport : 'websocket',
-            trackMessageLength : true,
-            fallbackTransport : 'long-polling'
-        }
+            url: this.options.url,
+            contentType: "application/json",
+            logLevel: 'debug',
+            transport: 'websocket',
+            trackMessageLength: true,
+            fallbackTransport: 'long-polling'
+        };
 
         var self = this;
         request.onOpen = function(response) {
@@ -51,17 +51,10 @@ SMC.providers.AtmosphereRTFeatureProvider = SMC.providers.RTFeatureProvider.exte
         };
 
         request.onMessage = function(response) {
-
-            var features = [];
-            for(var i=0; i < response.messages.length; i++) {
-                features.push(JSON.parse(response.messages[i]).featureCollection);
-            }
-
-            self.onFeaturesLoaded(features);
+            self._onMessage(response);
         };
 
-        request.onClose = function(response) {
-        }
+        request.onClose = function(response) {};
 
         request.onError = function(response) {
             console.debug(response);
@@ -70,6 +63,35 @@ SMC.providers.AtmosphereRTFeatureProvider = SMC.providers.RTFeatureProvider.exte
         this.socket = $.atmosphere.subscribe(request);
     },
 
+    _onMessage: function(response) {
+        var featuresAdded = [];
+        var featuresDeleted = [];
+        var featuresModified = [];
+        for (var i = 0; i < response.messages.length; i++) {
+            var message = JSON.parse(response.messages[i]);
+            for (var j = 0; j < message.featureCollection.features.length; j++) {
+                var feature = message.featureCollection.features[j];
+                switch (message.action) {
+                    case "ADD":
+                        featuresAdded.push(feature);
+                        break;
+                    case "DELETE":
+                        featuresDeleted.push(feature);
+                        break;
+                    case "MODIFY":
+                        featuresModified.push(feature);
+                        break;
+                    default:
+                        throw new Error("SMC.providers.AtmosphereRTFeatureProvider::_onMessage: Unsupported action " + message.action);
+                }
 
+            }
+        }
+
+
+        this.onFeaturesLoaded(featuresAdded);
+        this.onFeaturesDeleted(featuresDeleted);
+        this.onFeaturesModified(featuresModified);
+    }
 
 });

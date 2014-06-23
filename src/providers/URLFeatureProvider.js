@@ -22,6 +22,7 @@ SMC.providers.URLFeatureProvider = SMC.providers.FeaturesProvider.extend({
      * @param {object} options - default options
      */
     initialize: function(options) {
+        SMC.providers.FeaturesProvider.prototype.initialize.apply(this, arguments);
         L.Util.setOptions(this, options);
     },
 

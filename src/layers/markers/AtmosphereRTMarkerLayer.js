@@ -7,7 +7,7 @@ require("../../providers/AtmosphereRTFeatureProvider.js");
  * Marker layer able to retrieve and update its markers from an Atmosphere
  * real time source.
  * @class
- 
+
  * @extends SMC.layers.markers.MarkerLayer
  * @mixes SMC.providers.WFSFeatureProvider
  *
@@ -17,6 +17,8 @@ SMC.layers.markers.AtmosphereRTMarkerLayer = SMC.layers.markers.MarkerLayer.exte
     /** @lends SMC.layers.markers.AtmosphereRTMarkerLayer# */
     {
         includes: SMC.Util.deepClassInclude([SMC.providers.AtmosphereRTFeatureProvider]),
+
+        _markersMap: {},
 
         initialize: function(options) {
             SMC.layers.markers.MarkerLayer.prototype.initialize.call(this, options);
@@ -28,6 +30,22 @@ SMC.layers.markers.AtmosphereRTMarkerLayer = SMC.layers.markers.MarkerLayer.exte
          */
         onFeaturesLoaded: function(features) {
             this.addMarkerFromFeature(features);
+        },
+
+        onFeaturesDeleted: function(features) {
+            for (var i = 0; i < features.length; i++) {
+                var feature = features[i];
+                var featureId = feature[this.options.featureId];
+                var layer = this._markersMap[featureId];
+                this.removeLayer(layer);
+
+                delete this._markersMap[featureId];
+            }
+        },
+
+        onFeaturesModified: function(features) {
+            this.onFeaturesDeleted(features);
+            this.onFeaturesLoaded(features);
         },
 
         load: function() {
