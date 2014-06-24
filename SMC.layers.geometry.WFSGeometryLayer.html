@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: FeatureHistoryProvider</title>
+    <title>JSDoc: Class: WFSGeometryLayer</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: FeatureHistoryProvider</h1>
+    <h1 class="page-title">Class: WFSGeometryLayer</h1>
 
     
 
@@ -27,9 +27,9 @@
 
 <header>
     <h2>
-        <span class="ancestors"><a href="SMC.html">SMC</a><a href="SMC.providers.html">.providers</a>.</span>
+        <span class="ancestors"><a href="SMC.html">SMC</a><a href="SMC.layers.html">.layers</a><a href="SMC.layers.geometry.html">.geometry</a>.</span>
     
-    FeatureHistoryProvider
+    WFSGeometryLayer
     </h2>
     
 </header>
@@ -41,7 +41,7 @@
     
         
 <dt>
-    <h4 class="name" id="FeatureHistoryProvider"><span class="type-signature">(abstract) </span>new FeatureHistoryProvider<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="WFSGeometryLayer"><span class="type-signature">(abstract) </span>new WFSGeometryLayer<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 </dt>
@@ -49,8 +49,7 @@
 
     
     <div class="description">
-        Base class for layer data providers getting a historical set of features, grouped by the time point
-the features' values are present.
+        Base class for layers using a WFS provider to get the features
     </div>
     
 
@@ -90,7 +89,7 @@ the features' values are present.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="FeatureHistoryProvider.js.html">providers/FeatureHistoryProvider.js</a>, <a href="FeatureHistoryProvider.js.html#line11">line 11</a>
+        <a href="WFSGeometryLayer.js.html">layers/geometry/WFSGeometryLayer.js</a>, <a href="WFSGeometryLayer.js.html#line14">line 14</a>
     </li></ul></dd>
     
 
@@ -124,7 +123,7 @@ the features' values are present.
         <h3 class="subsection-title">Extends</h3>
 
         <ul>
-            <li><a href="L.Class.html">L.Class</a></li>
+            <li><a href="SMC.layers.geometry.GeometryLayer.html">SMC.layers.geometry.GeometryLayer</a></li>
         </ul>
     
 
@@ -132,7 +131,7 @@ the features' values are present.
         <h3 class="subsection-title">Mixes In</h3>
 
         <ul>
-            <li>L.Mixin.Events</li>
+            <li><a href="SMC.providers.WFSProvider.html">SMC.providers.WFSProvider</a></li>
         </ul>
     
 
@@ -152,7 +151,7 @@ the features' values are present.
         <dl>
             
 <dt>
-    <h4 class="name" id="doFeatureHistoryLoading"><span class="type-signature">(abstract) </span>doFeatureHistoryLoading<span class="signature">(callback)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="addGeometryFromFeatures"><span class="type-signature"></span>addGeometryFromFeatures<span class="signature">(features)</span><span class="type-signature"></span></h4>
 
     
 </dt>
@@ -160,7 +159,7 @@ the features' values are present.
 
     
     <div class="description">
-        Implementations of FeatureHistoryProvider must contain an override of this method, so feature histore can be loaded from their source.
+        Method to add geometries from features
     </div>
     
 
@@ -173,457 +172,6 @@ the features' values are present.
         
 
 <table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>callback</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="SMC.providers.FeatureHistoryProvider.html#doFeatureHistoryLoadCallback">SMC.providers.FeatureHistoryProvider~doFeatureHistoryLoadCallback</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Callback that handles the loading end. Must be called by implementations before the method ends.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-    
-
-    
-<dl class="details">
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="FeatureHistoryProvider.js.html">providers/FeatureHistoryProvider.js</a>, <a href="FeatureHistoryProvider.js.html#line42">line 42</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="loadFeatures"><span class="type-signature"></span>loadFeatures<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Retrieves the feature history from its source.
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-<dl class="details">
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="FeatureHistoryProvider.js.html">providers/FeatureHistoryProvider.js</a>, <a href="FeatureHistoryProvider.js.html#line21">line 21</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-    <h5>Fires:</h5>
-    <ul>
-        <li><a href="SMC.providers.FeatureHistoryProvider.html#event:featureHistoryLoaded">SMC.providers.FeatureHistoryProvider#event:featureHistoryLoaded</a></li>
-    </ul>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="onFeatureHistoryLoaded"><span class="type-signature">(abstract) </span>onFeatureHistoryLoaded<span class="signature">(featureHistory)</span><span class="type-signature"></span></h4>
-
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Implementations or users of FeatureHistoryProvider must provide an implementation of this class so the retrieved features history can be used.
-    </div>
-    
-
-    
-
-    
-
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>featureHistory</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="SMC.providers.FeatureHistory.html">SMC.providers.FeatureHistory</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The feature history retrieved by the provider.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-    
-
-    
-<dl class="details">
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="FeatureHistoryProvider.js.html">providers/FeatureHistoryProvider.js</a>, <a href="FeatureHistoryProvider.js.html#line51">line 51</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        </dl>
-    
-
-    
-        <h3 class="subsection-title">Type Definitions</h3>
-
-        <dl>
-                
-<dt>
-    <h4 class="name" id="doFeatureHistoryLoadCallback"><span class="type-signature"></span>doFeatureHistoryLoadCallback<span class="signature">(featureHistory)</span><span class="type-signature"></span></h4>
-
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Callback needed to be called as finishing step of feature history loading.
-    </div>
-    
-
-    
-
-    
-
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>featureHistory</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="SMC.providers.FeatureHistory.html">SMC.providers.FeatureHistory</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The feature history retrieved.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-    
-
-    
-<dl class="details">
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="FeatureHistoryProvider.js.html">providers/FeatureHistoryProvider.js</a>, <a href="FeatureHistoryProvider.js.html#line55">line 55</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-            </dl>
-    
-
-    
-        <h3 class="subsection-title">Events</h3>
-
-        <dl>
-            
-<dt>
-    <h4 class="name" id="event:featureHistoryLoaded">featureHistoryLoaded</h4>
-
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Features loaded event.
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-<dl class="details">
-    
-
-        <h5 class="subsection-title">Properties:</h5>
-
-        <dl>
-
-<table class="props">
     <thead>
     <tr>
         
@@ -651,7 +199,7 @@ the features' values are present.
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;SMC.providers.Feature></span>
+<span class="param-type">object</span>
 
 
             
@@ -661,13 +209,92 @@ the features' values are present.
 
             
 
-            <td class="description last">The loaded features.</td>
+            <td class="description last">Features to get its geometries</td>
         </tr>
 
     
     </tbody>
-</table></dl>
+</table>
+    
 
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="SMC.layers.geometry.GeometryLayer.html#addGeometryFromFeatures">SMC.layers.geometry.GeometryLayer#addGeometryFromFeatures</a>
+    </li></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="GeometryLayer.js.html">layers/geometry/GeometryLayer.js</a>, <a href="GeometryLayer.js.html#line87">line 87</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="createNodeHTML"><span class="type-signature"></span>createNodeHTML<span class="signature">()</span><span class="type-signature"> &rarr; {String}</span></h4>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Method to create an HTML node for the name of the layer.
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+<dl class="details">
     
 
     
@@ -689,7 +316,710 @@ the features' values are present.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="FeatureHistoryProvider.js.html">providers/FeatureHistoryProvider.js</a>, <a href="FeatureHistoryProvider.js.html#line26">line 26</a>
+        <a href="WFSGeometryLayer.js.html">layers/geometry/WFSGeometryLayer.js</a>, <a href="WFSGeometryLayer.js.html#line50">line 50</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    HTML code representing the code to be added to the layer's entry in the layer tree.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">String</span>
+
+
+    </dd>
+</dl>
+
+        
+
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="initialize"><span class="type-signature"></span>initialize<span class="signature">(options)</span><span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Initialize the object with the params
+    </div>
+    
+
+    
+
+    
+
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">object with need parameters</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+    
+
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="WFSGeometryLayer.js.html">layers/geometry/WFSGeometryLayer.js</a>, <a href="WFSGeometryLayer.js.html#line24">line 24</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="load"><span class="type-signature"></span>load<span class="signature">(features)</span><span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Method to load the features
+    </div>
+    
+
+    
+
+    
+
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>features</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Features to be loaded</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+    
+
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="WFSGeometryLayer.js.html">layers/geometry/WFSGeometryLayer.js</a>, <a href="WFSGeometryLayer.js.html#line42">line 42</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="onAdd"><span class="type-signature"></span>onAdd<span class="signature">(map)</span><span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Method to load the control in the map
+    </div>
+    
+
+    
+
+    
+
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>map</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="SMC.Map.html">SMC.Map</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Map to be added</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+    
+
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="SMC.layers.geometry.GeometryLayer.html#onAdd">SMC.layers.geometry.GeometryLayer#onAdd</a>
+    </li></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="GeometryLayer.js.html">layers/geometry/GeometryLayer.js</a>, <a href="GeometryLayer.js.html#line37">line 37</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="onFeaturesLoaded"><span class="type-signature"></span>onFeaturesLoaded<span class="signature">(features)</span><span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Method to load the features on the map
+    </div>
+    
+
+    
+
+    
+
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>features</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Features to be loaded</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+    
+
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="WFSGeometryLayer.js.html">layers/geometry/WFSGeometryLayer.js</a>, <a href="WFSGeometryLayer.js.html#line34">line 34</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="render"><span class="type-signature"></span>render<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Method to render a layer on the map
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="SMC.layers.geometry.GeometryLayer.html#render">SMC.layers.geometry.GeometryLayer#render</a>
+    </li></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="GeometryLayer.js.html">layers/geometry/GeometryLayer.js</a>, <a href="GeometryLayer.js.html#line72">line 72</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="updateFeature"><span class="type-signature"></span>updateFeature<span class="signature">(feature)</span><span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Method to update the style of a feature
+    </div>
+    
+
+    
+
+    
+
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>feature</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">feature to be updated</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+    
+
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="SMC.layers.geometry.GeometryLayer.html#updateFeature">SMC.layers.geometry.GeometryLayer#updateFeature</a>
+    </li></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="GeometryLayer.js.html">layers/geometry/GeometryLayer.js</a>, <a href="GeometryLayer.js.html#line124">line 124</a>
     </li></ul></dd>
     
 
@@ -717,6 +1047,10 @@ the features' values are present.
 </dd>
 
         </dl>
+    
+
+    
+
     
 </article>
 
