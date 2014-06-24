@@ -30,141 +30,120 @@
 /**
  * Base class to create a WFS provider
  * @class
+ * @extends SMC.providers.URLFeatureProvider
  * @mixes L.Mixin.Events
+ * @param {SMC.providers.WFSProvider~options} options - The configuration for the class
  *
  * @author Moisés Arcos (marcos@emergya.com)
  */
-SMC.providers.WFSProvider = SMC.providers.URLFeatureProvider.extend({
+SMC.providers.WFSProvider = SMC.providers.URLFeatureProvider.extend(
+    /** @lends SMC.providers.WFSProvider# */
+    {
+        /**
+         * @typedef {Object} SMC.providers.WFSProvider~options
+         * @property {string} service="wfs" - Default wfs service
+         * @property {string} version="1.1.0" - Default wfs version
+         * @property {string} request="GetFeature" - Default wfs request
+         * @property {string} typeName="namespace:featuretype" - Default wfs typename
+         * @property {string} featureID=null - Default wfs feature id
+         * @property {string} count=null - Default wfs count parameter
+         * @property {string} maxFeatures=null - Default wfs max features parameter
+         * @property {string} sortBy=null - Default wfs sort by parameter
+         * @property {string} propertyName=null - Default wfs property nanem parameter
+         * @property {string} bbox=null - Default wfs bounding box parameter
+         * @property {string} srsName="EPSG:4326" - Default wfs coordinate reference system parameter
+         * @property {string} cqlFilter=null - Default wfs cql filter parameter
+         * @property {string} outputFormat="text/javascript" - Default wfs output format parameter
+         * @property {string} serverURL=null - The wfs server url path parameter
+         * @property {string} format_options=null - The wfs format options parameter
+         */
+        options: {
+            service: "wfs",
+            version: "1.1.0",
+            request: "GetFeature",
+            typeName: "namespace:featuretype",
+            featureID: null,
+            count: null,
+            maxFeatures: null,
+            sortBy: null,
+            propertyName: null,
+            bbox: null,
+            srsName: "EPSG:4326",
+            cql_filter: null,
+            outputFormat: "text/javascript",
+            serverURL: null,
+            format_options: null
+        },
+        /**
+         * Initialize the class with options parameter
+         * @param {object} options - default options
+         */
+        initialize: function(options) {
+            L.Util.setOptions(this, options);
+        },
+        /**
+         * Send WFS request to get the features
+         * @returns {object} Deferred object from jQuery
+         */
+        doFeaturesLoading: function(bounds) {
+        	var jsonpRandom = this._makeid();
+        	this.options.format_options = "callback:" + jsonpRandom;
 
-    options: {
-        /**
-         * WFS Service.
-         * @property {string} service - The default wfs service.
-         */
-        service: "wfs",
-        /**
-         * WFS Version.
-         * @property {string} version - The default wfs version.
-         */
-        version: "1.1.0",
-        /**
-         * WFS request.
-         * @property {string} request - The default wfs request.
-         */
-        request: "GetFeature",
-        /**
-         * WFS Type name.
-         * @property {string} typeName - The default wfs typename.
-         */
-        typeName: "namespace:featuretype",
-        /**
-         * WFS Feature identifier.
-         * @property {string} featureID - The default wfs feature id.
-         */
-        featureID: null,
-        /**
-         * WFS count parameter.
-         * @property {string} count - The default wfs count parameter.
-         */
-        count: null,
-        /**
-         * WFS maxFeatures parameter.
-         * @property {string} maxFeatures - The default wfs max features parameter.
-         */
-        maxFeatures: null,
-        /**
-         * WFS sortBy parameter.
-         * @property {string} sortBy - The default wfs sort by parameter.
-         */
-        sortBy: null,
-        /**
-         * WFS propertyName parameter.
-         * @property {string} propertyName - The default wfs property nanem parameter.
-         */
-        propertyName: null,
-        /**
-         * WFS bbox parameter.
-         * @property {string} bbox - The default wfs bounding box parameter.
-         */
-        bbox: null,
-        /**
-         * WFS srsName parameter.
-         * @property {string} srsName - The default wfs coordinate reference system parameter.
-         */
-        srsName: "EPSG:4326",
-        /**
-         * WFS CQL Filter parameter.
-         * @property {string} cqlFilter - The default wfs cql filter parameter.
-         */
-        cqlFilter: null,
-        /**
-         * WFS outputFormat parameter.
-         * @property {string} outputFormat - The default wfs output format parameter.
-         */
-        outputFormat: "text/javascript",
-        /**
-         * WFS serverURL parameter.
-         * @property {string} serverURL - The wfs server url path parameter.
-         */
-        serverURL: null,
-        /**
-         * WFS format_options parameter.
-         * @property {string} format_options - The wfs format options parameter.
-         */
-        format_options: null
-    },
-    /**
-     * Initialize the object with the params
-     * @param {object} options - object with need parameters
-     */
-    initialize: function(options) {
-        L.Util.setOptions(this, options);
-    },
-    /**
-     * Send WFS request to get the features
-     * @returns {object} Deferred object from jQuery
-     */
-    doFeaturesLoading: function() {
-    	var jsonpRandom = this._makeid();
-    	this.options.format_options = "callback:" + jsonpRandom;
-        if (this.options.serverURL !== null) {
-            return $.ajax({
-                url: this.options.serverURL,
-                data: this.getParamsFromOptions(),
-                jsonpCallback: jsonpRandom,
-                type: "GET",
-                dataType: "jsonp",
-                jsonp: false
-            });
-        }
-        return $.Deferred();
-    },
+            if (this.options.serverURL !== null) {
+                var requestData = {
+                    url: this.options.serverURL,
+                    //data: this.getParamsFromOptions(),
+                    jsonpCallback: jsonpRandom,
+                    type: "GET",
+                    dataType: "jsonp",
+                    jsonp: false
+                };
+                if(bounds) {
 
-    /**
-     * Get params from options attributes
-     * @returns {object} Object with the wfs params to send
-     */
-    getParamsFromOptions: function() {
-        var params = {};
-        for (var option in this.options) {
-            if (this.options[option] !== null) {
-                params[option] = this.options[option];
+                    requestData.bbox =bounds[1]+','
+                        + bounds[0]+ ','
+                        + bounds[3]+ ','
+                        + bounds[2];
+                    this.options.bbox = requestData.bbox; 
+                   
+                }
+
+                requestData.data =  this.getParamsFromOptions();
+                return $.ajax(requestData);
             }
-        }
-        return params;
-    },
+            return $.Deferred();
+        },
 
-    _makeid: function(){
-    	var text = "";
-    	var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    	for( var i=0; i &lt; 5; i++ )
-	        text += possible.charAt(Math.floor(Math.random() * possible.length));
-    	return text;
-	}
-});
+        /**
+         * Get params from options attributes
+         * @returns {object} Object with the wfs params to send
+         */
+        getParamsFromOptions: function() {
+            var params = {};
+            for (var option in this.options) {
+                if (this.options[option] !== null) {
+                    params[option] = this.options[option];
+                }
+            }
+            return params;
+        },
+
+        /**
+         * Method to get an id
+         * @private
+         */
+        _makeid: function(){
+        	var text = "";
+        	var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        	for( var i=0; i &lt; 5; i++ )
+    	        text += possible.charAt(Math.floor(Math.random() * possible.length));
+        	return text;
+    	}
+    }
+);
 /**
  * API factory method for ease creation of wfs features providers.
- * @params {Object} options - Options for wfs the provider.
+ * @params {Object} options - Options to initialize the WFS provider
  */
 SMC.wfsProvider = function(options) {
     return new SMC.providers.WFSProvider(options);
@@ -179,13 +158,13 @@ SMC.wfsProvider = function(options) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="SMC.controls.layerTree.LayerTreeControl.html">LayerTreeControl</a></li><li><a href="SMC.controls.layerTree.LayerTreeFolder.html">LayerTreeFolder</a></li><li><a href="SMC.controls.layerTree.LayerTreeLeaf.html">LayerTreeLeaf</a></li><li><a href="SMC.controls.layerTree.LayerTreeNode.html">LayerTreeNode</a></li><li><a href="SMC.layers.aggregation.AggregatingLayer.html">AggregatingLayer</a></li><li><a href="SMC.layers.Folder.html">Folder</a></li><li><a href="SMC.layers.geometry.GeometryLayer.html">GeometryLayer</a></li><li><a href="SMC.layers.geometry.TiledGeometryLayer.html">TiledGeometryLayer</a></li><li><a href="SMC.layers.Layer.html">Layer</a></li><li><a href="SMC.layers.markers.AtmosphereRTMarkerLayer.html">AtmosphereRTMarkerLayer</a></li><li><a href="SMC.layers.markers.MarkerLayer.html">MarkerLayer</a></li><li><a href="SMC.layers.markers.WFSMarkerLayer.html">WFSMarkerLayer</a></li><li><a href="SMC.layers.reloaders.LayerReloader.html">LayerReloader</a></li><li><a href="SMC.layers.reloaders.ReloadTrigger.html">ReloadTrigger</a></li><li><a href="SMC.layers.reloaders.TimerReloadTrigger.html">TimerReloadTrigger</a></li><li><a href="SMC.layers.SingleLayer.html">SingleLayer</a></li><li><a href="SMC.layers.stylers.MapCssStyler.html">MapCssStyler</a></li><li><a href="SMC.layers.stylers.MarkerCssStyler.html">MarkerCssStyler</a></li><li><a href="SMC.layers.stylers.Styler.html">Styler</a></li><li><a href="SMC.layers.TileLayer.html">TileLayer</a></li><li><a href="SMC.layers.WMSLayer.html">WMSLayer</a></li><li><a href="SMC.Map.html">Map</a></li><li><a href="SMC.providers.AtmosphereRTFeatureProvider.html">AtmosphereRTFeatureProvider</a></li><li><a href="SMC.providers.FeatureHistory.html">FeatureHistory</a></li><li><a href="SMC.providers.FeatureHistoryProvider.html">FeatureHistoryProvider</a></li><li><a href="SMC.providers.FeaturesProvider.html">FeaturesProvider</a></li><li><a href="SMC.providers.RTFeatureProvider.html">RTFeatureProvider</a></li><li><a href="SMC.providers.URLFeatureProvider.html">URLFeatureProvider</a></li><li><a href="SMC.providers.WFSProvider.html">WFSProvider</a></li></ul><h3>Events</h3><ul><li><a href="SMC.layers.reloaders.ReloadTrigger.html#event:reloadTriggered">reloadTriggered</a></li><li><a href="SMC.layers.reloaders.TimerReloadTrigger.html#event:reloadTriggered">reloadTriggered</a></li><li><a href="SMC.providers.FeatureHistoryProvider.html#event:featureHistoryLoaded">featureHistoryLoaded</a></li><li><a href="SMC.providers.FeaturesProvider.html#event:featuresLoaded">featuresLoaded</a></li></ul><h3>Namespaces</h3><ul><li><a href="SMC.html">SMC</a></li><li><a href="SMC.controls.html">controls</a></li><li><a href="SMC.controls.layerTree.html">layerTree</a></li><li><a href="SMC.layers.html">layers</a></li><li><a href="SMC.layers.aggregation.html">aggregation</a></li><li><a href="SMC.layers.geometry.html">geometry</a></li><li><a href="SMC.layers.markers.html">markers</a></li><li><a href="SMC.layers.reloaders.html">reloaders</a></li><li><a href="SMC.layers.stylers.html">stylers</a></li><li><a href="SMC.providers.html">providers</a></li></ul><h3>Mixins</h3><ul><li><a href="SMC.LayerLoader.html">LayerLoader</a></li></ul><h3>Global</h3><ul><li><a href="global.html#createNodeHTML">createNodeHTML</a></li><li><a href="global.html#doFeaturesLoading">doFeaturesLoading</a></li><li><a href="global.html#getParamsFromOptions">getParamsFromOptions</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#onAdd">onAdd</a></li><li><a href="global.html#onRemove">onRemove</a></li><li><a href="global.html#setVisible">setVisible</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="SMC.controls.layerTree.LayerTreeControl.html">LayerTreeControl</a></li><li><a href="SMC.controls.layerTree.LayerTreeLeaf.html">LayerTreeLeaf</a></li><li><a href="SMC.controls.layerTree.LayerTreeNode.html">LayerTreeNode</a></li><li><a href="SMC.layers.aggregation.AggregatingLayer.html">AggregatingLayer</a></li><li><a href="SMC.layers.Folder.html">Folder</a></li><li><a href="SMC.layers.geometry.CanvasRenderer.html">CanvasRenderer</a></li><li><a href="SMC.layers.geometry.GeometryLayer.html">GeometryLayer</a></li><li><a href="SMC.layers.geometry.TiledGeometryLayer.html">TiledGeometryLayer</a></li><li><a href="SMC.layers.geometry.WFSGeometryLayer.html">WFSGeometryLayer</a></li><li><a href="SMC.layers.geometry.WFSTiledGeometryLayer.html">WFSTiledGeometryLayer</a></li><li><a href="SMC.layers.Layer.html">Layer</a></li><li><a href="SMC.layers.markers.AtmosphereRTMarkerLayer.html">AtmosphereRTMarkerLayer</a></li><li><a href="SMC.layers.markers.MarkerLayer.html">MarkerLayer</a></li><li><a href="SMC.layers.markers.WFSMarkerLayer.html">WFSMarkerLayer</a></li><li><a href="SMC.layers.reloaders.LayerReloader.html">LayerReloader</a></li><li><a href="SMC.layers.reloaders.ReloadTrigger.html">ReloadTrigger</a></li><li><a href="SMC.layers.reloaders.TimerReloadTrigger.html">TimerReloadTrigger</a></li><li><a href="SMC.layers.stylers.Styler.html">Styler</a></li><li><a href="SMC.layers.TileLayer.html">TileLayer</a></li><li><a href="SMC.layers.WMSLayer.html">WMSLayer</a></li><li><a href="SMC.Map.html">Map</a></li><li><a href="SMC.providers.AtmosphereRTFeatureProvider.html">AtmosphereRTFeatureProvider</a></li><li><a href="SMC.providers.FeatureHistory.html">FeatureHistory</a></li><li><a href="SMC.providers.FeatureHistoryProvider.html">FeatureHistoryProvider</a></li><li><a href="SMC.providers.FeaturesProvider.html">FeaturesProvider</a></li><li><a href="SMC.providers.RTFeatureProvider.html">RTFeatureProvider</a></li><li><a href="SMC.providers.URLFeatureProvider.html">URLFeatureProvider</a></li><li><a href="SMC.providers.WFSProvider.html">WFSProvider</a></li></ul><h3>Events</h3><ul><li><a href="SMC.layers.reloaders.ReloadTrigger.html#event:reloadTriggered">reloadTriggered</a></li><li><a href="SMC.layers.reloaders.TimerReloadTrigger.html#event:reloadTriggered">reloadTriggered</a></li><li><a href="SMC.providers.AtmosphereRTFeatureProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.FeatureHistoryProvider.html#event:featureHistoryLoaded">featureHistoryLoaded</a></li><li><a href="SMC.providers.FeaturesProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.RTFeatureProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.URLFeatureProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.WFSProvider.html#event:featuresLoaded">featuresLoaded</a></li></ul><h3>Namespaces</h3><ul><li><a href="SMC.html">SMC</a></li><li><a href="SMC.controls.html">controls</a></li><li><a href="SMC.controls.layerTree.html">layerTree</a></li><li><a href="SMC.layers.html">layers</a></li><li><a href="SMC.layers.aggregation.html">aggregation</a></li><li><a href="SMC.layers.geometry.html">geometry</a></li><li><a href="SMC.layers.markers.html">markers</a></li><li><a href="SMC.layers.reloaders.html">reloaders</a></li><li><a href="SMC.layers.stylers.html">stylers</a></li><li><a href="SMC.providers.html">providers</a></li></ul><h3>Mixins</h3><ul><li><a href="SMC.controls.layerTree.LayerTreeFolder.html">LayerTreeFolder</a></li><li><a href="SMC.LayerLoader.html">LayerLoader</a></li><li><a href="SMC.layers.SingleLayer.html">SingleLayer</a></li><li><a href="SMC.layers.stylers.MapCssStyler.html">MapCssStyler</a></li><li><a href="SMC.layers.stylers.MarkerCssStyler.html">MarkerCssStyler</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Mustache">Mustache</a></li><li><a href="global.html#paper">paper</a></li><li><a href="global.html#PEG">PEG</a></li><li><a href="global.html#rbush">rbush</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha8</a> on Mon Jun 23 2014 17:44:51 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha8</a> on Tue Jun 24 2014 17:40:38 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>

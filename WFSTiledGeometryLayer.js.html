@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: layers/geometry/geometry.js</title>
+    <title>JSDoc: Source: layers/geometry/WFSTiledGeometryLayer.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: layers/geometry/geometry.js</h1>
+    <h1 class="page-title">Source: layers/geometry/WFSTiledGeometryLayer.js</h1>
 
     
 
@@ -25,14 +25,60 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>require("../layers.js");
+            <pre class="prettyprint source linenums"><code>require("./TiledGeometryLayer.js");
+require("../../providers/WFSProvider.js");
 /**
- * Namespace of SMC.Viewer's layers displayed using client side geometry rendering .
- * @namespace
- * @memberof SMC.layers
+ * Base class for layers using a WFS provider to get the features
+ *
+ * @class
+ * @abstract
+ * @extends SMC.layers.geometry.TiledGeometryLayer
+ * @mixes SMC.providers.WFSProvider
+ * @param {SMC.layers.geometry.TiledGeometryLayer~options} options - The configuration for the class
+ *
  * @author Luis Román (lroman@emergya.com)
  */
-SMC.layers.geometry = {};</code></pre>
+SMC.layers.geometry.WFSTiledGeometryLayer = SMC.layers.geometry.TiledGeometryLayer.extend(
+    /** @lends SMC.layers.geometry.WFSTiledGeometryLayer# */
+    {
+
+        includes: SMC.Util.deepClassInclude([SMC.providers.WFSProvider]),
+
+        /**
+         * Initialize the object with the params
+         * @param {object} options - object with need parameters
+         */
+        initialize: function(options) {
+            SMC.layers.geometry.TiledGeometryLayer.prototype.initialize.call(this, options);
+            SMC.providers.WFSProvider.prototype.initialize.call(this, options);
+            L.Util.setOptions(this, options);
+        },
+
+        /**
+         * Method to load a tile on the map
+         * @param {Object} bbox - bounding box of the tile to load
+         */
+        loadTile: function(bbox){
+            return this.doFeaturesLoading(bbox);
+        },
+
+        /**
+         * Method to create an HTML node for the name of the layer.
+         * @returns {String} HTML code representing the code to be added to the layer's entry in the layer tree.
+         */
+        createNodeHTML: function() {
+            return this.options.label || this.options.typeName;
+        }
+    }
+);
+
+/**
+ * API factory method for easy creation of wfs tiled geometry layer.
+ * @params {Object} options - Options to initialize the WFS tiled 
+ */
+SMC.wfsTiledGeometryLayer = function(options) {
+    return new SMC.layers.geometry.WFSTiledGeometryLayer(options);
+};</code></pre>
         </article>
     </section>
 
