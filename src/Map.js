@@ -22,8 +22,8 @@ SMC.Map = L.Map.extend(
 /**
  * API factory method for creating SMCViewer's Maps.
  * @method
- * @param {(HTMLElement|String)} element The id of the element the map will be created in
- * @param {object} options Configuration for the map
+ * @param {(HTMLElement|String)} element - The id of the element the map will be created in
+ * @param {Object} options - Configuration for the map
  */
 SMC.map = function(element, options) {
     return new SMC.Map(element, options);

@@ -4,7 +4,9 @@ require("./providers.js");
  * Base class for layer data providers returning arrays of Features.
  * @class
  * @abstract
+ * @extends L.Class
  * @mixes L.Mixin.Events
+ * @param {SMC.providers.FeaturesProvider~options} options - The configuration for the class
  *
  * @author Luis Román (lroman@emergya.com)
  */
@@ -14,10 +16,17 @@ SMC.providers.FeaturesProvider = L.Class.extend(
 
         includes: L.Mixin.Events,
 
+        /**
+         * @typedef {Object} SMC.providers.FeaturesProvider~options
+         * @property {string} featureId="id" - The default id to the feature
+         */
         options: {
             featureId: "id"
         },
-
+        /** 
+         * Initialize the class 
+         * @param {string} options - The default options to the feature
+         */
         initialize: function(options) {
             L.setOptions(this, options);
         },
@@ -34,6 +43,7 @@ SMC.providers.FeaturesProvider = L.Class.extend(
                  * Features loaded event.
                  *
                  * @event SMC.providers.FeaturesProvider#featuresLoaded
+                 * @type {object}
                  * @property {object} features - The loaded features.
                  */
                 tis.fire("featuresLoaded", featureCollection.features);

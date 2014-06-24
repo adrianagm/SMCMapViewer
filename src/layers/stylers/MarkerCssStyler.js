@@ -1,23 +1,32 @@
 require("./Styler.js");
 require("../../../lib/LeafletHtmlIcon.js");
 var Mustache = require("../../../lib/mustache.js/mustache.js");
-
-
 /**
  * Parser of MarkerCSS, for user with SMC Viewer's marker layers.
  *
  * @class
  * @extends SMC.layers.stylers.Styler
+ * @mixin SMC.layers.stylers.MarkerCssStyler
  *
  * @author Luis Román (lroman@emergya.com)
  */
 SMC.layers.stylers.MarkerCssStyler = SMC.layers.stylers.Styler.extend(
     /** @lends SMC.layers.stylers.MarkerCssStyler# */
     {
+        /**
+         * Initialize the object with the params
+         * @param {object} options - default options
+         */
         initialize: function(options) {
             this._parser_url = "../../src/layers/stylers/parser.txt";
             SMC.layers.stylers.Styler.prototype.initialize.apply(this, arguments);
         },
+
+        /**
+         * Adds style properties to the received features, so the can be represented as intended by the style for the layer.
+         * @param {object} feature - An object that represents the geometry element being styled.
+         * @param {string} zoom - Number that represents the level zoom to apply the style.
+         */
         applyStyle: function(feature, zoom) {
             var properties = feature.properties;
             var style = this._createStyles(feature, zoom);
@@ -191,6 +200,11 @@ SMC.layers.stylers.MarkerCssStyler = SMC.layers.stylers.Styler.extend(
             return "<" + elementType + " " + attributesString + " style=\"position:absolute;" + stylesString + "\">" + content + "</" + elementType + ">";
         },
 
+        /**
+         * Adds style popup to the received features, so the can be represented as intended by the style for the layer.
+         * @param {object} marker - An object that represents the geometry element being styled.
+         * @param {string} zoom - Number that represents the level zoom to apply the style.
+         */
         addPopUp: function(marker, zoom) {
 
             if (marker.popup) {

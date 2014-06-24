@@ -5,7 +5,11 @@ require("../LayerLoader.js");
 /**
  * Base class for folder.
  * @class
- * @abstract
+ * @extends L.LayerGroup
+ * @mixes SMC.controls.layerTree.LayerTreeFolder
+ * @mixes SMC.LayerLoader
+ * 
+ * @author Moisés Arcos (marcos@emergya.com)
  */
 SMC.layers.Folder = L.LayerGroup.extend(
     /** @lends SMC.layers.Folder# */
@@ -13,6 +17,10 @@ SMC.layers.Folder = L.LayerGroup.extend(
 
         includes: SMC.Util.deepClassInclude([SMC.controls.layerTree.LayerTreeFolder, SMC.LayerLoader]),
 
+        /**
+         * Initialize the object with the params
+         * @param {object} options - default options
+         */
         initialize: function(options) {
             L.Util.setOptions(this, options);
             L.LayerGroup.prototype.initialize.call(this, options);
@@ -31,6 +39,10 @@ SMC.layers.Folder = L.LayerGroup.extend(
             }
         },
 
+        /**
+         * Method to create an HTML node for the name of the layer.
+         * @returns {String} HTML code representing the code to be added to the layer's entry in the layer tree.
+         */
         createNodeHTML: function() {
             var node = document.createElement("i");
             node.className = 'fa fa-folder-open';

@@ -3,13 +3,13 @@ require("../SingleLayer.js");
 require("./CanvasRenderer.js");
 require("../stylers/MapCssStyler.js");
 require("../../../lib/canvasLayer/leaflet_canvas_layer.js");
-
-
 /**
  * Base class for layers using client side rendering of geographical features in the SCM map viewer component.
  * @class
  * @abstract
- * @extends SMC.layers.SingleLayer
+ * @extends L.CanvasLayer
+ * @mixes SMC.layers.SingleLayer
+ * @mixes SMC.layers.geometry.CanvasRenderer
  *
  * @author Luis Román (lroman@emergya.com)
  */
@@ -18,15 +18,22 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 	{
 		includes: SMC.Util.deepClassInclude([SMC.layers.SingleLayer, SMC.layers.geometry.CanvasRenderer]),
 
-		features: [],
 
+		features: [],
+		/**
+         * Initialize the object with the params
+         * @param {object} options - object with need parameters
+         */
 		initialize: function(options) {
 			L.CanvasLayer.prototype.initialize.apply(this, arguments);
 			SMC.layers.geometry.CanvasRenderer.prototype.initialize.apply(this, arguments);
 			L.Util.setOptions(this, options);
 		
 		},
-
+		/**
+         * Method to load the control in the map
+         * @param {SMC.Map} map - Map to be added
+         */
 		onAdd: function(map) {
 			L.CanvasLayer.prototype.onAdd.call(this, map);
 			SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
@@ -59,7 +66,9 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 
 
 		},
-
+		/**
+         * Method to render a layer on the map
+         */
 		render: function() {
 			var canvas = this.getCanvas();
 			
@@ -71,6 +80,10 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 			}
 		},
 
+		/**
+         * Method to add geometries from features
+         * @param {object} features - Features to get its geometries
+         */
 		addGeometryFromFeatures: function(features) {
 
 			if (L.Util.isArray(features)) {
@@ -104,6 +117,10 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 			}
 		},
 
+		/**
+         * Method to update the style of a feature
+         * @param {object} feature - feature to be updated
+         */
 		updateFeature: function(feature){
 			for (var i = 0; i < this.features.length; i++){
 				if(this.features[i].id == feature.id){

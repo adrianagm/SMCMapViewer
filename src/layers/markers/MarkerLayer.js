@@ -11,6 +11,7 @@ require("../../../lib/LeafletHtmlIcon.js");
  * @class
  * @abstract
  * @mixes SMC.layers.SingleLayer
+ * @mixes SMC.layers.stylers.MarkerCssStyler
  */
 SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
     /** @lends SMC.layers.markers.MarkerLayer# */
@@ -19,6 +20,10 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
 
         _markersMap: {},
 
+        /**
+         * Initialize the class with options parameter
+         * @param {object} options - default options
+         */
         initialize: function(options) {
             this.clusterGroup = new L.MarkerClusterGroup({
                 polygonOptions: {
@@ -31,6 +36,10 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
             SMC.layers.stylers.MarkerCssStyler.prototype.initialize.apply(this, arguments);
         },
 
+        /**
+         * Method to remove a layer from the map
+         * @param {SMC.Layers.Layer} layer - default options
+         */
         removeLayer: function(layer) {
             if (this.clusterGroup.hasLayer(layer)) {
                 this.clusterGroup.removeLayer(layer);
@@ -40,7 +49,10 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
                 this._map.removeLayer(layer);
             }
         },
-
+        /**
+         * Method to load the control in the map
+         * @param {SMC.Map} map - Map to be added
+         */
         onAdd: function(map) {
             this.clusterGroup.addTo(map);
             this.noClusterGroup.addTo(map);
@@ -50,7 +62,10 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
                 map.on("zoomend", this._onViewChanged, this);
             }
         },
-
+        /**
+         * Method to remove the control in the map
+         * @param {SMC.Map} map - Map to be added
+         */
         onRemove: function(map) {
             this.clusterGroup.clearLayers();
             map.removeLayer(this.clusterGroup);
@@ -62,6 +77,10 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
             }
         },
 
+        /**
+         * Method to add layer on the map
+         * @param {SMC.layers.Layer} layer - layer to be added
+         */
         addLayer: function(layer) {
 
             if (layer instanceof L.Marker) {
@@ -86,6 +105,10 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
             });
         },
 
+        /**
+         * Method to load markers from fetaures on the map
+         * @param {object} features - features to be added
+         */
         addMarkerFromFeature: function(features) {
             if (L.Util.isArray(features)) {
                 this._sendFeatures(features);
@@ -122,6 +145,10 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
             this.addLayer(marker);
         },
 
+        /**
+         * Method to run wjen a feature has been clicked
+         * @param {object} feature - feature clicked
+         */
         onFeatureClicked: function(feature) {
             this.fireEvent("featureClick", feature);
             //alert(feature.properties.name);

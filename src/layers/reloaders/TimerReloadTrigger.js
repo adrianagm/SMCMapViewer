@@ -1,3 +1,12 @@
+/**
+ * Implementation of a SMC viewer's layer reload trigger using calls to JavaScript's setTimeout function.
+ *
+ * @class	 
+ * @extends SMC.layers.reloaders.ReloadTrigger
+ * @param {SMC.layers.reloaders.TimerReloadTrigger~options} options - The configuration for the class
+ *
+ * @author Luis Román (lroman@emergya.com)
+ */
 SMC.layers.reloaders.TimerReloadTrigger = SMC.layers.reloaders.ReloadTrigger.extend(
 /** @lends SMC.layers.reloaders.TimerReloadTrigger# */
 {
@@ -10,14 +19,9 @@ SMC.layers.reloaders.TimerReloadTrigger = SMC.layers.reloaders.ReloadTrigger.ext
 	},
 
 	/**
-	 * Implementation of a SMC viewer's layer reload trigger using calls to JavaScript's setTimeout function.
-	 *
-	 * @constructs	 
-	 * @extends SMC.layers.reloaders.ReloadTrigger
-	 * @param {SMC.layers.reloaders.TimerReloadTrigger~options} options - The configuration for the 
-	 *
-	 * @author Luis Román (lroman@emergya.com)
-	 */
+     * Initialize the object with the params
+     * @param {object} options - default options
+     */
 	initialize: function(options) {
 		L.Util.setOptions(this, options);
 	},
