@@ -1,18 +1,36 @@
-
 require("../stylers/MapCssStyler.js");
-
+/**
+ * Global variable that represents paper library functionality
+ * @property {paper} - paper variable
+ */
 var paper = require("../../../lib/paper/dist/paper-full.js").exports;
-
-SMC.layers.geometry.CanvasRenderer = L.Class.extend({
+/**
+ * Base class for layers using client side rendering of canvas renderer.
+ * @class
+ * @abstract
+ * @extends L.Class
+ * @mixes SMC.layers.stylers.MapCssStyler
+ * @param {SMC.layers.geometry.CanvasRenderer~options} options - The configuration for the class
+ *
+ * @author Luis Román (lroman@emergya.com)
+ */
+SMC.layers.geometry.CanvasRenderer = L.Class.extend(
+/** @lends SMC.layers.geometry.CanvasRenderer# */
+{
     includes: SMC.Util.deepClassInclude([SMC.layers.stylers.MapCssStyler]),
 
-    
-    
-
+    /**
+     * @typedef {Object} SMC.layers.geometry.CanvasRenderer~options
+     * @property {boolean} draggingUpdates=true - Default dragging updates value
+     */
     options: {
         draggingUpdates: true
     },
     
+    /**
+     * Initialize the object with the params
+     * @param {object} options - object with need parameters
+     */
     initialize: function(options) {
         L.Util.setOptions(this, options);
         this.fireEvent('layerLoad', {
@@ -21,6 +39,13 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend({
 
     },
 
+    /**
+     * Method to render a layer with canvas component
+     * @param {object} ctx - canvas context
+     * @param {object} features - object that represents a features set
+     * @param {SMC.Map} map - map where load the features
+     * @returns {SMC.layers.Layer} layer to show on the map
+     */
     renderCanvas: function(ctx, features, map) {
 
         this._init(ctx, map);

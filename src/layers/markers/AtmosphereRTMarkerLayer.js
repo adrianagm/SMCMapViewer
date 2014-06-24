@@ -7,9 +7,8 @@ require("../../providers/AtmosphereRTFeatureProvider.js");
  * Marker layer able to retrieve and update its markers from an Atmosphere
  * real time source.
  * @class
-
  * @extends SMC.layers.markers.MarkerLayer
- * @mixes SMC.providers.WFSFeatureProvider
+ * @mixes SMC.providers.AtmosphereRTFeatureProvider
  *
  * @author Luis Román (marcos@emergya.com)
  */
@@ -20,6 +19,10 @@ SMC.layers.markers.AtmosphereRTMarkerLayer = SMC.layers.markers.MarkerLayer.exte
 
         _markersMap: {},
 
+        /**
+         * Initialize the class with options parameter
+         * @param {object} options - default options
+         */
         initialize: function(options) {
             SMC.layers.markers.MarkerLayer.prototype.initialize.call(this, options);
             SMC.providers.AtmosphereRTFeatureProvider.prototype.initialize.call(this, options);
@@ -27,11 +30,16 @@ SMC.layers.markers.AtmosphereRTMarkerLayer = SMC.layers.markers.MarkerLayer.exte
 
         /**
          * Method to load the features into marker layer
+         * @param {object} features - features to be loaded
          */
         onFeaturesLoaded: function(features) {
             this.addMarkerFromFeature(features);
         },
 
+        /**
+         * Method to remove tje features from the map
+         * @param {object} features - features to be deleted
+         */
         onFeaturesDeleted: function(features) {
             for (var i = 0; i < features.length; i++) {
                 var feature = features[i];
@@ -43,11 +51,18 @@ SMC.layers.markers.AtmosphereRTMarkerLayer = SMC.layers.markers.MarkerLayer.exte
             }
         },
 
+        /**
+         * Method to set the features from the map
+         * @param {object} features - features to be updated
+         */
         onFeaturesModified: function(features) {
             this.onFeaturesDeleted(features);
             this.onFeaturesLoaded(features);
         },
 
+        /**
+         * Retrieves the features from its source.
+         */
         load: function() {
             this.loadFeatures();
         },
@@ -64,7 +79,7 @@ SMC.layers.markers.AtmosphereRTMarkerLayer = SMC.layers.markers.MarkerLayer.exte
     });
 /**
  * API factory method for ease creation of atmosphere powered realtime marker layers.
- * @params {Object} options - Options for the marker layer and Atmosphere provider.
+ * @param {Object} options - Options for the marker layer and Atmosphere provider.
  */
 SMC.atmosphereRTMarkerLayer = function(options) {
     return new SMC.layers.markers.AtmosphereRTMarkerLayer(options);

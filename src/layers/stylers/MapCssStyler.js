@@ -1,23 +1,41 @@
 require("./Styler.js");
+/**
+ * Global variable that represents mustache library functionality
+ * @property {mustache} - mustache variable
+ */
 var Mustache = require("../../../lib/mustache.js/mustache.js");
-
 /**
  * MapCSS styles parser, for user with SMC Viewer's geometry layers.
  *
  * @class
  * @extends SMC.layers.stylers.Styler
+ * @mixin SMC.layers.stylers.MapCssStyler
  *
  * @author Luis Román (lroman@emergya.com)
  */
 SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
-    /** @lends SMC.layers.stylers.MapCSSStyler# */
+    /** @lends SMC.layers.stylers.MapCssStyler# */
     {
+        /**
+         * @property {Array} labels - The labels array
+         * @default null
+         */
         labels: [],
+        /**
+         * Initialize the object with the params
+         * @param {object} options - default options
+         */
         initialize: function(options) {
             this._parser_url = "../../src/layers/stylers/parser.txt";
             SMC.layers.stylers.Styler.prototype.initialize.apply(this, arguments);
         },
 
+        /**
+         * Adds style properties to the received features, so the can be represented as intended by the style for the layer.
+         * @param {object} feature - An object that represents the geometry element being styled.
+         * @param {object} ctx - An object that represents the context function.
+         * @param {string} zoom - Number that represents the level zoom to apply the style.
+         */
         applyStyle: function(feature, ctx, zoom) {
 
             var style = this._createStyles(feature, zoom);
@@ -113,6 +131,11 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
             return feature._styles;
         },
 
+        /**
+         * Adds style label to the received features, so the can be represented as intended by the style for the layer.
+         * @param {object} feature - An object that represents the geometry element being styled.
+         * @param {string} zoom - Number that represents the level zoom to apply the style.
+         */
         addLabelStyle: function(feature, zoom) {
 
             var labelStyle = this._createLabel(feature, zoom);
@@ -169,6 +192,11 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
             };
         },
 
+        /**
+         * Adds style popup to the received features, so the can be represented as intended by the style for the layer.
+         * @param {object} feature - An object that represents the geometry element being styled.
+         * @param {string} zoom - Number that represents the level zoom to apply the style.
+         */
         addPopUp: function(feature, zoom) {
             var style = feature._style;
             var offsetLeft = style.offsetLeft || 0;

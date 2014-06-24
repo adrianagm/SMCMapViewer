@@ -22,6 +22,7 @@ SMC.layers.markers.WFSMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
 
         /**
          * Method to load the features into marker layer
+         * @param {Object} features - Features to be loaded
          */
         onFeaturesLoaded: function(features) {
             this.addMarkerFromFeature(features);
@@ -38,7 +39,7 @@ SMC.layers.markers.WFSMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
     });
 /**
  * API factory method for ease creation of wfs features providers.
- * @params {Object} options - Options for wfs the provider.
+ * @param {Object} options - Options for wfs the provider.
  */
 SMC.wfsMarkerLayer = function(options) {
     return new SMC.layers.markers.WFSMarkerLayer(options);

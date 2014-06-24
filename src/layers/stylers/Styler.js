@@ -1,11 +1,16 @@
 require("./stylers.js");
+/**
+ * Global variable that represents PEG library functionality to parser a style string
+ * @property {PEG} - PEG variable
+ */
 var PEG = require("../../../lib/pegjs/lib/peg.js");
-
 /**
  * Base class for feature layers' styles processors.
  *
  * @class
  * @abstract
+ * @extends L.Class
+ * @param {SMC.layers.stylers.Styler~options} options - The configuration for the class
  *
  * @author Luis Román (lroman@emergya.com)
  */
@@ -15,11 +20,20 @@ SMC.layers.stylers.Styler = L.Class.extend(
 
 		_grammar: null,
 		_parser_url: null,
+		/**
+		 * @typedef {Object} SMC.layers.stylers.Styler~options
+		 * @property {string} stylesheet=null - The style set to apply
+		 * @property {string} stylesheetURL=null - The style set url to apply
+		 */
 		options: {
 			stylesheet: null,
 			stylesheetURL: null
 		},
 
+		/**
+	     * Initialize the object with the params
+	     * @param {object} options - default options
+	     */
 		initialize: function(options) {
 			L.Util.setOptions(this, options);
 			var scope = this;
@@ -52,8 +66,9 @@ SMC.layers.stylers.Styler = L.Class.extend(
 		 * Create a style to pass to feature and depends on zoom
 		 *
 		 * @abstract
+		 * @private
 		 * @param {object} feature - An object that represents the geometry element.
-		 * @param {number} zoom - Number that represents the level zoom to apply the style.
+		 * @param {string} zoom - Number that represents the level zoom to apply the style.
 		 */
 		_createStyles: function(feature, zoom) {
 			throw new Error("SMC.layers.stylers.Styler::_createStyles: Error, no _createStyles styles was found, did you specify a parser with a derivate class?");
@@ -65,7 +80,7 @@ SMC.layers.stylers.Styler = L.Class.extend(
 		 * Must be implemented in derived classes.
 		 *
 		 * @abstract
-		 * @param {string} stylesheet - An string containing the stylesheet or an url to load the stylesheet from.
+		 * @param {string} stylesheet - A string containing the stylesheet or an url to load the stylesheet from.
 		 */
 		parse: function(stylesheet) {
 			var stylesFuncBody;
@@ -81,8 +96,8 @@ SMC.layers.stylers.Styler = L.Class.extend(
 
 		/**
 		 * Adds style properties to the received features, so the can be represented as intended by the style for the layer.
-		 * @param {feature} feature - An object that represents the geometry element being styled.
-		 * @param {zoom} zoom - Number that represents the level zoom to apply the style.
+		 * @param {object} feature - An object that represents the geometry element being styled.
+		 * @param {string} zoom - Number that represents the level zoom to apply the style.
 		 */
 		applyStyle: function(feature, zoom) {
 			throw new Error("SMC.layers.stylers.Styler::applyStyle: Derivate classes must implement this method.");
