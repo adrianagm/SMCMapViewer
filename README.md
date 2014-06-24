@@ -20,3 +20,8 @@ For develop the code always launch the buildAndWatch.sh program on background in
 <pre>
 ./buildAndWatch.sh &
 </pre>
+
+Documentation
+-------------
+
+All documentation of the API are on: http://emergya.github.io/SMCMapViewer/

@@ -199,7 +199,7 @@ function initMap() {
 
 	var geometry = new SMC.layers.geometry.WFSGeometryLayer({	
 			id: 'id',
-			//draggingUpdates: false,
+			draggingUpdates: true,
 			serverURL: 'http://demo.opengeo.org/geoserver/wfs',
 			//typeName: 'ne_10m_roads',
 			typeName: 'states'
@@ -500,8 +500,8 @@ function initMap() {
 		if(feature.selected){
 			return {
 		 		strokeWidth: 3,
-		 		fillColor: feature.properties.color,
-	 			strokeColor: 'black'
+		 		strokeColor: feature.properties.color,
+	 			//strokeColor: 'black'
 	 			//selectedColor: 'rgba(0,0,0,0)'	
 
 			};
@@ -509,8 +509,8 @@ function initMap() {
 		else{
 			return {
 		 		strokeWidth: 3,
-		 		fillColor: feature.properties.color,
-	 			strokeColor: 'black',
+		 		strokeColor: feature.properties.color,
+	 			//strokeColor: 'black',
 	 			opacity: 0.5	
 
 			};
@@ -570,9 +570,9 @@ function initMap() {
 
 		var updateInterval = parseInt($("#updateInterval").val());
 		$("#intervalLabel")[0].innerHTML = "Update interval ("+updateInterval+"ms)";
-		setTimeout(function() {
-			updateFeatures(features);
-		}, updateInterval);
+		// setTimeout(function() {
+		// 	updateFeatures(features);
+		// }, updateInterval);
 	};
 	
 

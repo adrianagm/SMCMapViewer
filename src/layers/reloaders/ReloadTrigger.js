@@ -3,6 +3,7 @@
  * 
  * @class 
  * @abstract
+ * @extends L.Class
  * @mixes L.Mixin.Events
  *
  * @author Luis Román (lroman@emergya.com)

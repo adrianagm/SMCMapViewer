@@ -3,7 +3,8 @@ require("./SMC.js");
  * Class able of creating SMC Viewer layer objects from configuration.
  * @class
  * @abstract
- * @mixin
+ * @mixin SMC.LayerLoader
+ * @extends L.Class
  *
  * @author Luis Román (lroman@emergya.com)
  */
@@ -16,8 +17,8 @@ SMC.LayerLoader = L.Class.extend(
         /**
          * Creates layers from a Javascript object (or its javascript reprsentantion) defining the type and options of the layers to be loaded.
          *
-         *
-         *  @param layersConfig Object | JSON
+         * @method
+         * @param {(Object|JSON)} layersConfig - Configuration to load a layer
          */
         loadLayers: function(layersConfig) {
             if (!layersConfig) {

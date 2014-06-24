@@ -11,45 +11,48 @@ require("../../../lib/LeafletHtmlIcon.js");
  * @class
  * @abstract
  * @mixes SMC.layers.SingleLayer
+ * @mixes SMC.layers.stylers.MarkerCssStyler
  */
 SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
     /** @lends SMC.layers.markers.MarkerLayer# */
     {
         includes: SMC.Util.deepClassInclude([SMC.layers.SingleLayer, SMC.layers.stylers.MarkerCssStyler]),
 
-        initialize: function(options){
+        _markersMap: {},
+
+        /**
+         * Initialize the class with options parameter
+         * @param {object} options - default options
+         */
+        initialize: function(options) {
             this.clusterGroup = new L.MarkerClusterGroup({
-            polygonOptions: {
-                fill: false,
-                stroke: false
-            }
-        });
+                polygonOptions: {
+                    fill: false,
+                    stroke: false
+                }
+            });
 
             this.noClusterGroup = new L.FeatureGroup();
             SMC.layers.stylers.MarkerCssStyler.prototype.initialize.apply(this, arguments);
         },
 
-
-        /*addTo: function(map) {
-			
-			L.LayerGroup.prototype.addTo.call(this, map);
-			if (map) {
-				map.on("zoomend", this._onViewChanged, this);
-
-			}
-
-		},*/
-
+        /**
+         * Method to remove a layer from the map
+         * @param {SMC.Layers.Layer} layer - default options
+         */
         removeLayer: function(layer) {
             if (this.clusterGroup.hasLayer(layer)) {
                 this.clusterGroup.removeLayer(layer);
             } else if (this.noClusterGroup.hasLayer(layer)) {
                 this.noClusterGroup.removeLayer(layer);
-            } else
+            } else {
                 this._map.removeLayer(layer);
+            }
         },
-
-
+        /**
+         * Method to load the control in the map
+         * @param {SMC.Map} map - Map to be added
+         */
         onAdd: function(map) {
             this.clusterGroup.addTo(map);
             this.noClusterGroup.addTo(map);
@@ -59,8 +62,11 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
                 map.on("zoomend", this._onViewChanged, this);
             }
         },
-
-        onRemove: function(map){
+        /**
+         * Method to remove the control in the map
+         * @param {SMC.Map} map - Map to be added
+         */
+        onRemove: function(map) {
             this.clusterGroup.clearLayers();
             map.removeLayer(this.clusterGroup);
             this.noClusterGroup.clearLayers();
@@ -71,6 +77,10 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
             }
         },
 
+        /**
+         * Method to add layer on the map
+         * @param {SMC.layers.Layer} layer - layer to be added
+         */
         addLayer: function(layer) {
 
             if (layer instanceof L.Marker) {
@@ -95,6 +105,10 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
             });
         },
 
+        /**
+         * Method to load markers from fetaures on the map
+         * @param {object} features - features to be added
+         */
         addMarkerFromFeature: function(features) {
             if (L.Util.isArray(features)) {
                 this._sendFeatures(features);
@@ -107,35 +121,47 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
 
         _addMarker: function(f) {
 
-            if (f.type != "Feature") {
+            if (!f.geometry || !f.geometry) {
                 console.debug("Received no Feature object");
                 return;
             }
 
             // For GeoJSON standar the first coordinate is the longitude
             // Documentation http://geojson.org/geojson-spec.html#positions
-            var markerLocation = new L.LatLng(f.geometry.coordinates[1], f.geometry.coordinates[0]);
+            var markerLocation;
+            if (L.Util.isArray(f.geometry.coordinates)) {
+                markerLocation = new L.LatLng(f.geometry.coordinates[1], f.geometry.coordinates[0]);
+            } else {
+                markerLocation = new L.LatLng(f.geometry.coordinates.latitude, f.geometry.coordinates.longitude);
+            }
 
             var marker = new L.Marker(markerLocation);
             // We store this here so is avalaible later, on restylings because of zoom changes.
-            marker.properties = f.properties;
+            marker.feature = f;
+
+            var featureId = f[this.options.featureId];
+            this._markersMap[featureId] = marker;
 
             this.addLayer(marker);
         },
 
+        /**
+         * Method to run wjen a feature has been clicked
+         * @param {object} feature - feature clicked
+         */
         onFeatureClicked: function(feature) {
             this.fireEvent("featureClick", feature);
             //alert(feature.properties.name);
         },
 
         _applyStyles: function(marker, inCluster) {
-            if (!marker.properties) {
+            if (!marker.feature) {
                 this.noClusterGroup.addLayer(marker);
                 return;
             }
 
             var zoom = this._map.getZoom();
-            var style = this.applyStyle(marker, zoom);
+            var style = this.applyStyle(marker.feature, zoom);
             if (style.icon) {
                 marker.setIcon(style.icon);
             }
@@ -164,22 +190,21 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
             console.debug(this._map.getZoom());
 
             // Recorrer cluster
-            for (var i = 0; i < markersCluster.length; i++) {
-                var marker = markersCluster[i];
-                if (this.clusterGroup)
+            var i, marker;
+            for (i = 0; i < markersCluster.length; i++) {
+                marker = markersCluster[i];
+                if (this.clusterGroup) {
                     this._applyStyles(marker, true);
-
+                }
             }
 
-            for (var i = 0; i < markersNoCluster.length; i++) {
-                var marker = markersNoCluster[i];
-                if (this.noClusterGroup)
+            for (i = 0; i < markersNoCluster.length; i++) {
+                marker = markersNoCluster[i];
+                if (this.noClusterGroup) {
                     this._applyStyles(marker, false);
+                }
 
             }
-
-
-
         }
 
 

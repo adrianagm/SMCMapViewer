@@ -4,13 +4,12 @@ require("../SingleLayer.js");
 require("./CanvasRenderer.js");
 require("../stylers/MapCssStyler.js");
 require("../../../lib/canvasLayer/leaflet_canvas_layer.js");
-
-
 // RBush inserts itself as NodeJs module so we must retrieve it this way.
+/**
+ * Global variable that represents RBush library functionality
+ * @property {rbush} - rbush variable
+ */
 var rbush = require("../../../lib/rbush.js");
-
-
-
 /**
  * Base class for layers using client side rendering of tiles containing geographical features in the SCM map viewer component.
  *
@@ -18,28 +17,57 @@ var rbush = require("../../../lib/rbush.js");
  *
  * @class
  * @abstract
+ * @extends L.TileLayer.Canvas
+ * @mixes SMC.layers.SingleLayer
+ * @mixes SMC.layers.geometry.CanvasRenderer
+ * @param {SMC.layers.geometry.TiledGeometryLayer~options} options - The configuration for the class
+ *
+ * @author Luis Román (lroman@emergya.com)
  */
 SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
     /** @lends SMC.layers.geometry.TiledGeometryLayer# */
-    
     {
+
+        includes: SMC.Util.deepClassInclude([SMC.layers.SingleLayer, SMC.layers.geometry.CanvasRenderer]),
+        /**
+         * @typedef {Object} SMC.layers.geometry.TiledGeometryLayer~options
+         * @property {number} tileSize=256 - Default tile size value
+         */
         options : {
             tileSize: 256,
         },
+        /**
+         * Global tree
+         * @property {string} globalTree - Default global tree
+         * @default null
+         */
+        globalTree: null,
+        /**
+         * Features array
+         * @property {object[]} features - Default features array
+         * @default []
+         */
+        features :[],
+        /**
+         * Tiles load variable
+         * @property {number} tilesLoad - Default tiles load variable
+         * @default 1
+         */
+        tilesLoad : 0,
+        /**
+         * Tiles to load
+         * @property {object} tilesToLoad - Default tiles to load
+         * @default null
+         */
+        tilesToLoad: null,
 
-        includes: SMC.Util.deepClassInclude([SMC.layers.SingleLayer, SMC.layers.geometry.CanvasRenderer]),
-
-       globalTree: null,
-       features :[],
-       tilesLoad : 1,
-       tilesToLoad: null,
-      
-        
-
+        /**
+         * Initialize the object with the params
+         * @param {object} options - object with need parameters
+         */
         initialize: function(options) {
             L.Util.setOptions(this, options);
             L.TileLayer.Canvas.prototype.initialize.call(this, options);
-            
 
            
             
@@ -73,21 +101,35 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
 
         },
 
+        /**
+         * Method to load the layer on the map
+         */
         load: function() {
  
         },
 
+        /**
+         * Method to load a tile on the map
+         * @abstract
+         */
         loadTile: function() {
              throw new Error("TiledGeometrylayer::loadTile must be implemented by derivate classes.");
         },
 
-
+        /**
+         * Method to load the control in the map
+         * @param {SMC.Map} map - Map to be added
+         */
         onAdd: function(map) {
             L.TileLayer.Canvas.prototype.onAdd.call(this, map);
             SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
 
            
            
+        },
+
+        getMap :function() {
+            return this._map;
         },
 
         _draw: function(ctx) {
@@ -113,6 +155,12 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
             });
         },
 
+        /**
+         * Method to add a tiled geometry from a features set
+         * @param {object} features - features set to get its geometries
+         * @param {object} ctx - function context
+         * @param {object} skipTree - variable to skip tree
+         */
         addTiledGeometryFromFeatures: function(features, ctx, skipTree) {
             var f;
             if (L.Util.isArray(features)) {
@@ -147,7 +195,7 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
             }
             this.tilesLoad++;
             if(this.tilesLoad == this.tilesToLoad){
-                 SMC.layers.geometry.CanvasRenderer.prototype.initialize.call(this, this.options); 
+                SMC.layers.geometry.CanvasRenderer.prototype.initialize.call(this, this.options); 
             }
 
 
@@ -275,6 +323,10 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
             return [nwCoord.lng, seCoord.lat, seCoord.lng, nwCoord.lat];
         },
 
+        /**
+         * Method to update the style of a feature
+         * @param {object} feature - feature to be updated
+         */
         updateFeature: function(feature) {
 
              for (var k = 0; k < this.features.length; k++){
@@ -353,6 +405,11 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
 
         },
 
+        /**
+         * Method to create a request to get features
+         * @param {object} bounds - bound limit to request
+         * @param {object} ctx - function context
+         */
         createRequest: function(bounds, ctx) {
             // override with your code
         }

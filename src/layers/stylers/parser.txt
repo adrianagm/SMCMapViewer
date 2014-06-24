@@ -122,7 +122,7 @@ hyphen_member
     }else{
       res = first.join("");
     }
-    
+
     return res;
   }
 
@@ -294,11 +294,12 @@ string "string"
   = quotation_mark chars:char* quotation_mark { return chars.join(""); }
 
 char
-  = unescaped
+  = "'" { return "\\'"}
+  / unescaped
   / escape
     sequence:(
         '"'
-      / "\\"
+      / "\\" { return "\\";}
       / "/"
       / "b" { return "\b"; }
       / "f" { return "\f"; }

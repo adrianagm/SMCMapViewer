@@ -21,41 +21,31 @@ function initMap() {
 
 
     map.loadLayers([{
-        type: "SMC.layers.markers.WFSMarkerLayer",
-        params: [{
-            serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
-            typeName: "OpenData:COMMUNITY_CENTRES"
-        }]
-    }, {
         id: "realTimeLayer",
         type: "SMC.layers.markers.AtmosphereRTMarkerLayer",
         params: [{
             url: "http://localhost:8080/chat-app/chat",
-            topic: "realTimeMarkers"
+            topic: "realTimeMarkers",
+            stylesheet: "* {popUpTemplate:\"<p><a href=\\\"javascript:deleteMarker({{$id}})\\\">Delete</a></p><p><a href=\\\"javascript:moveMarker({{$id}})\\\">Move</a></p>\";popUpOffsetTop:-30;}"
         }],
         listeners: {
             socketOpened: function(data) {
                 console.debug("RealTime Socket opened");
 
-                var socket = data.target.socket;
+                window.socket = data.target.socket;
                 map.on("click", function(e) {
                     socket.push(JSON.stringify({
                         author: "web browser",
-                        featureCollection: {
-                            "type": "FeatureCollection",
-                            "features": [{
-                                "type": "Feature",
-                                "geometry": {
-                                    "type": "Point",
-                                    "coordinates": [e.latlng.lng, e.latlng.lat]
-                                }
-                            }]
-                        }
+                        action: "ADD",
+                        latitude: e.latlng.lat,
+                        longitude: e.latlng.lng
                     }));
                 });
             }
         }
     }]);
+
+    window._markersLayer = map.loadedLayers.realTimeLayer;
 
     var baseLayer = {
         "Street Map": base,
@@ -69,8 +59,30 @@ function initMap() {
 
 }
 
+function deleteMarker(markerId) {
+    socket.push(JSON.stringify({
+        action: "DELETE",
+        featureId: markerId
+    }));
+}
 
+function moveMarker(featureId) {
+    var marker = window._markersLayer._markersMap[featureId];
+    marker.dragging.enable();
 
+    alert("Drag the marker to its new  position");
+    marker.closePopup();
+
+    marker.addOneTimeEventListener("dragend", function() {
+        marker.dragging.disable();
+        socket.push(JSON.stringify({
+            action: "MODIFY",
+            featureId: featureId,
+            latitude: marker._latlng.lat,
+            longitude: marker._latlng.lng
+        }));
+    });
+}
 
 L.Icon.Default.imagePath = "../../dist/images";
 

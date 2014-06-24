@@ -6,6 +6,7 @@ require("./reloaders.js");
  * Intended for being mixed in into a SMC.layer.SingleLayer.
  *
  * @class
+ * @extends L.Class
  *
  * @author Luis Román (lroman@emergya.com)
  */
@@ -23,7 +24,8 @@ SMC.layers.reloaders.LayerReloader = L.Class.extend(
         },
 
         /**
-         *
+         * Method to reload the trigger
+         * @param {object} tigger - trigger to reliad the control
          */
         addReloadTrigger: function(trigger) {
             this._triggers.push(trigger);

@@ -1,4 +1,8 @@
 require("./Styler.js");
+/**
+ * Global variable that represents mustache library functionality
+ * @property {mustache} - mustache variable
+ */
 var Mustache = require("../../../lib/mustache.js/mustache.js");
 
 /**
@@ -6,21 +10,41 @@ var Mustache = require("../../../lib/mustache.js/mustache.js");
  *
  * @class
  * @extends SMC.layers.stylers.Styler
+ * @mixin SMC.layers.stylers.MapCssStyler
  *
- * @author Luis RomÃ¡n (lroman@emergya.com)
+ * @author Luis Román (lroman@emergya.com)
  */
 SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
-    /** @lends SMC.layers.stylers.MapCSSStyler# */
+    /** @lends SMC.layers.stylers.MapCssStyler# */
     {
+        /**
+         * @property {Array} labels - The labels array
+         * @default null
+         */
         labels: [],
+        /**
+         * Initialize the object with the params
+         * @param {object} options - default options
+         */
+        initialize: function(options) {
+            this._parser_url = "../../src/layers/stylers/parser.txt";
+            SMC.layers.stylers.Styler.prototype.initialize.apply(this, arguments);
+        },
+
+        /**
+         * Adds style properties to the received features, so the can be represented as intended by the style for the layer.
+         * @param {object} feature - An object that represents the geometry element being styled.
+         * @param {object} ctx - An object that represents the context function.
+         * @param {string} zoom - Number that represents the level zoom to apply the style.
+         */
         applyStyle: function(feature, ctx, zoom) {
 
             var style = this._createStyles(feature, zoom);
             if (!style)
                 style = "";
 
+            var path;
             if (feature.geometry.type == 'Point' || feature.geometry.type == 'MultiPoint') {
-                var path;
                 switch (style.symbol) {
                     case 'Circle':
                         path = new ctx.canvas._paper.Path.Circle({
@@ -79,42 +103,38 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
                 shadowColor: style.shadowColor || 'black',
                 shadowBlur: style.shadowBlur || 0,
                 shadowOffset: style.shadowOffset || []
-            }
+            };
 
 
             if (feature.geometry.type == 'LineString' || feature.geometry.type == 'MultiLineString') {
                 pathStyle.strokeColor = style.strokeColor || "black";
                  pathStyle.fillColor = null;
             } else {
-                pathStyle.fillColor || 'rgba(0,0,0,0)'
+                pathStyle.fillColor = style.fillColor || 'rgba(0,0,0,0)'
             }
 
-           
             var opacity = style.opacity ? style.opacity : 1;
             var offset = style.offset ? style.offset : 0;
             var zIndex = style.zIndex ? style.zIndex : 0;
             var visible = !style.invisible ? true : false;
 
-            return {
+            feature._styles = {
+                popupStyle: popupStyle,
                 pathStyle: pathStyle,
                 opacity: opacity,
                 path: path,
                 offset: offset,
                 zIndex: zIndex,
                 visible: visible
-            }
-
-
-
-        },
-
-        _createStyles: function(feature, zoom) {
-            return {
-                style: null
             };
-
+            return feature._styles;
         },
 
+        /**
+         * Adds style label to the received features, so the can be represented as intended by the style for the layer.
+         * @param {object} feature - An object that represents the geometry element being styled.
+         * @param {string} zoom - Number that represents the level zoom to apply the style.
+         */
         addLabelStyle: function(feature, zoom) {
 
             var labelStyle = this._createLabel(feature, zoom);
@@ -124,7 +144,7 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
             if (labelStyle.content) {
                 if (labelStyle.uniqueLabel) {
 
-                    if (this.labels.length == 0) {
+                    if (!this.labels.length) {
                         this.labels.push(labelStyle.content);
                         content = labelStyle.content;
                     } else {
@@ -148,6 +168,7 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
             }
 
             var style = {
+                defaultPopUp: true,
                 fillColor: labelStyle.fillColor || 'black',
                 fontFamily: labelStyle.fontFamily || 'sans-serif',
                 fontWeight: labelStyle.fontWeight || 'normal',
@@ -156,9 +177,7 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
                 shadowColor: labelStyle.shadowColor || 'black',
                 shadowBlur: labelStyle.shadowBlur || 0,
                 shadowOffset: labelStyle.shadowOffset || []
-            }
-
-
+            };
 
             return {
                 content: content,
@@ -172,27 +191,21 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
             };
         },
 
+        /**
+         * Adds style popup to the received features, so the can be represented as intended by the style for the layer.
+         * @param {object} feature - An object that represents the geometry element being styled.
+         * @param {string} zoom - Number that represents the level zoom to apply the style.
+         */
         addPopUp: function(feature, zoom) {
-
-
-            var style = this._addContentPopUp(feature, zoom);
-             if (!style)
-                style = "";
+            var style = feature._style;
             var offsetLeft = style.offsetLeft || 0;
             var offsetTop = style.offsetTop || 0;
 
 
-            var content;
+            var content, propKey;
+            var data = {};
             if (style.popUpTemplate) {
-                var data = {};
-                for (var propKey in feature.properties) {
-                    data[propKey] = feature.properties[propKey];
-                }
-
-                content = Mustache.render(style.popUpTemplate, data);
-
-
-
+                content = this._contentFromTemplate(feature, style.popUpTemplate);
             } else if (style.popUpUrl) {
                 content = "<iframe src=" + style.popUpUrl + "/>";
 
@@ -200,40 +213,14 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
                 content = null;
 
             } else {
-                var data = {};
-                var template = "";
-                for (var propKey in feature.properties) {
-                    data[propKey] = feature.properties[propKey];
-                    template += propKey + ": <b>{{" + propKey + "}}</b><br>";
-                }
-
-                content = Mustache.render(template, data);
-
+                // Default template, one entry per field
+                content = this._contentFromTemplate(feature, "");
             }
-
-
-
             var offset = [offsetLeft, offsetTop];
 
-           
-            return {  
+            return {
                 content: content,
                 offset: offset
-            }
-            
-
-
-
-
-
-        },
-
-        _addContentPopUp: function(feature, zoom) {
-            // To be overriden in derivate classes.
-            return {
-                defaultPopUp: true
             };
         }
-
-
     });
