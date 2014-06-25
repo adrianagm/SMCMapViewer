@@ -4,7 +4,7 @@ task('docs', {async:true}, function() {
 
 
 	jake.rmRf('docs');
-	var cmd = './node_modules/.bin/jsdoc ./src -d docs -r';
+	var cmd = './node_modules/.bin/jsdoc ./README.md ./src -d docs -r';
 	jake.exec(cmd, {
 		printStdout: true,
 		printStderr: true
