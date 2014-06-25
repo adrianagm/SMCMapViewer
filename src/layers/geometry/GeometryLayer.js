@@ -106,7 +106,7 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 		},
 
 		_setProperties: function(feature){
-			var id = this.options.id;
+			var id = this.options.idField;
 			if (feature.hasOwnProperty(id))
 					feature.id = feature[id];
 			else{

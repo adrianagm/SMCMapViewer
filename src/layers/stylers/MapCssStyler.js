@@ -1,9 +1,5 @@
 require("./Styler.js");
-/**
- * Global variable that represents mustache library functionality
- * @property {mustache} - mustache variable
- */
-var Mustache = require("../../../lib/mustache.js/mustache.js");
+
 
 /**
  * MapCSS styles parser, for user with SMC Viewer's geometry layers.
@@ -27,7 +23,7 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
          * @param {object} options - default options
          */
         initialize: function(options) {
-            this._parser_url = "../../src/layers/stylers/parser.txt";
+            this._parser_url = SMC.BASE_URL + "/resources/parser.txt";
             SMC.layers.stylers.Styler.prototype.initialize.apply(this, arguments);
         },
 
@@ -103,6 +99,7 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
                 shadowColor: style.shadowColor || 'black',
                 shadowBlur: style.shadowBlur || 0,
                 shadowOffset: style.shadowOffset || []
+
             };
 
 
@@ -117,9 +114,16 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
             var offset = style.offset ? style.offset : 0;
             var zIndex = style.zIndex ? style.zIndex : 0;
             var visible = !style.invisible ? true : false;
+            var popUpStyle = {
+              popUpTemplate: style.popUpTemplate,
+              popUpUrl: style.popUpUrl,
+              noPopUp: style.noPopUp,
+              offsetLeft: style.popUpOffsetLeft,
+              offsetTop: style.popUpOffsetTop
+            }
 
             feature._styles = {
-                popupStyle: popupStyle,
+                popUpStyle: popUpStyle,
                 pathStyle: pathStyle,
                 opacity: opacity,
                 path: path,
@@ -197,7 +201,7 @@ SMC.layers.stylers.MapCssStyler = SMC.layers.stylers.Styler.extend(
          * @param {string} zoom - Number that represents the level zoom to apply the style.
          */
         addPopUp: function(feature, zoom) {
-            var style = feature._style;
+            var style = feature._styles.popUpStyle;
             var offsetLeft = style.offsetLeft || 0;
             var offsetTop = style.offsetTop || 0;
 

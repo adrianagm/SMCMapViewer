@@ -202,7 +202,7 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
         },
 
         _setProperties: function(feature){
-                var id = this.options.featureID;
+                var id = this.options.idField;
                 if (feature.hasOwnProperty(id)){
                     feature.id = feature[id];
                 }
