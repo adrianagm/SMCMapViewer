@@ -4,6 +4,7 @@ require("./stylers.js");
  * @property {PEG} - PEG variable
  */
 var PEG = require("../../../lib/pegjs/lib/peg.js");
+var Mustache = require("../../../lib/mustache.js/mustache.js");
 /**
  * Base class for feature layers' styles processors.
  *

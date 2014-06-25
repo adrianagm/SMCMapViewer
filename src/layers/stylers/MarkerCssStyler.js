@@ -18,7 +18,7 @@ SMC.layers.stylers.MarkerCssStyler = SMC.layers.stylers.Styler.extend(
          * @param {object} options - default options
          */
         initialize: function(options) {
-            this._parser_url = "../../src/layers/stylers/parser.txt";
+            this._parser_url = "../../dist/resources/parser.txt";
             SMC.layers.stylers.Styler.prototype.initialize.apply(this, arguments);
         },
 
