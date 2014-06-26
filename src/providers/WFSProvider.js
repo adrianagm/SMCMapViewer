@@ -12,40 +12,46 @@ require("./URLFeatureProvider.js");
 SMC.providers.WFSProvider = SMC.providers.URLFeatureProvider.extend(
     /** @lends SMC.providers.WFSProvider# */
     {
-        /**
-         * @typedef {Object} SMC.providers.WFSProvider~options
-         * @property {string} service="wfs" - Default wfs service
-         * @property {string} version="1.1.0" - Default wfs version
-         * @property {string} request="GetFeature" - Default wfs request
-         * @property {string} typeName="namespace:featuretype" - Default wfs typename
-         * @property {string} featureID=null - Default wfs feature id
-         * @property {string} count=null - Default wfs count parameter
-         * @property {string} maxFeatures=null - Default wfs max features parameter
-         * @property {string} sortBy=null - Default wfs sort by parameter
-         * @property {string} propertyName=null - Default wfs property nanem parameter
-         * @property {string} bbox=null - Default wfs bounding box parameter
-         * @property {string} srsName="EPSG:4326" - Default wfs coordinate reference system parameter
-         * @property {string} cqlFilter=null - Default wfs cql filter parameter
-         * @property {string} outputFormat="text/javascript" - Default wfs output format parameter
-         * @property {string} serverURL=null - The wfs server url path parameter
-         * @property {string} format_options=null - The wfs format options parameter
-         */
+       /**
+        * @typedef {Object} SMC.providers.WFSProvider~options
+        * @property {SMC.providers.WFSProvider~requestParams} requestParams - Default wfs request parameters
+        * @property {string} serverURL=null - The wfs server url path parameter
+        * @property {string} bbox=null - The bbox parameter
+        */
         options: {
-            service: "wfs",
-            version: "1.1.0",
-            request: "GetFeature",
-            typeName: "namespace:featuretype",
-            featureID: null,
-            count: null,
-            maxFeatures: null,
-            sortBy: null,
-            propertyName: null,
-            bbox: null,
-            srsName: "EPSG:4326",
-            cql_filter: null,
-            outputFormat: "text/javascript",
+            /** @typedef {Object} SMC.providers.WFSProvider~requestParams - Default wfs request parameters
+             * @property {string} service="wfs" - Default wfs service
+             * @property {string} version="1.1.0" - Default wfs version
+             * @property {string} request="GetFeature" - Default wfs request
+             * @property {string} typeName="namespace:featuretype" - Default wfs typename
+             * @property {string} featureID=null - Default wfs feature id
+             * @property {string} count=null - Default wfs count parameter
+             * @property {string} maxFeatures=null - Default wfs max features parameter
+             * @property {string} sortBy=null - Default wfs sort by parameter
+             * @property {string} propertyName=null - Default wfs property name parameter
+             * @property {string} srsName="EPSG:4326" - Default wfs coordinate reference system parameter
+             * @property {string} cqlFilter=null - Default wfs cql filter parameter
+             * @property {string} outputFormat="text/javascript" - Default wfs output format parameter
+             * @property {string} format_options=null - Default wfs format options parameter
+             */
+            requestParams:{
+                service: "wfs",
+                version: "1.1.0",
+                request: "GetFeature",
+                typeName: "namespace:featuretype",
+                featureID: null,
+                count: null,
+                maxFeatures: null,
+                sortBy: null,
+                propertyName: null,
+                srsName: "EPSG:4326",
+                cql_filter: null,
+                outputFormat: "text/javascript",
+                format_options: null
+            },
             serverURL: null,
-            format_options: null
+            bbox: null,
+            
         },
         /**
          * Initialize the class with options parameter
@@ -65,23 +71,34 @@ SMC.providers.WFSProvider = SMC.providers.URLFeatureProvider.extend(
             if (this.options.serverURL !== null) {
                 var requestData = {
                     url: this.options.serverURL,
-                    //data: this.getParamsFromOptions(),
+                    data: this.getParamsFromOptions(),
                     jsonpCallback: jsonpRandom,
                     type: "GET",
                     dataType: "jsonp",
                     jsonp: false
                 };
+
+                this.options.requestParams.cql_filter= requestData.data.cql_filter;
+
                 if(bounds) {
 
-                    requestData.bbox =bounds[1]+','
+                    this.options.bbox = 'bbox(the_geom,' 
+                        + bounds[1]+ ','
                         + bounds[0]+ ','
                         + bounds[3]+ ','
-                        + bounds[2];
-                    this.options.bbox = requestData.bbox; 
-                   
+                        + bounds[2]
+                        +')';
+                    if(requestData.data.cql_filter){
+                       requestData.data.cql_filter =  this.options.requestParams.cql_filter + ' AND ' + this.options.bbox;
+                    }
+                    else{
+                        requestData.data.cql_filter = this.options.bbox;
+                    }
+              
+                  
                 }
+               
 
-                requestData.data =  this.getParamsFromOptions();
                 return $.ajax(requestData);
             }
             return $.Deferred();
@@ -93,10 +110,16 @@ SMC.providers.WFSProvider = SMC.providers.URLFeatureProvider.extend(
          */
         getParamsFromOptions: function() {
             var params = {};
-            for (var option in this.options) {
-                if (this.options[option] !== null) {
-                    params[option] = this.options[option];
+            for (var option in this.options.requestParams) {
+            
+                if(this.options[option]){
+                     params[option] = this.options[option];
                 }
+                else if (this.options.requestParams[option] !== null){
+                    params[option] = this.options.requestParams[option];
+                }
+                
+
             }
             return params;
         },

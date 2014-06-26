@@ -199,7 +199,7 @@ function initMap() {
 
 	var geometry = new SMC.layers.geometry.WFSGeometryLayer({	
 			id: 'id',
-			//draggingUpdates: false,
+			draggingUpdates: true,
 			serverURL: 'http://demo.opengeo.org/geoserver/wfs',
 			//typeName: 'ne_10m_roads',
 			typeName: 'states'
@@ -382,17 +382,6 @@ function initMap() {
 
 
 
-	// geometry._addContentPopUp = function(feature, zoom) {
-
-	// 		var template = "Nombre: <b>{{name}}</b><br>Id: {{id}}<br>";
-
-	// 		return {
-	// 			popUpTemplate: template
-
-	// 		};
-
-
-	// };
 
 	// geometry._createLabel = function(feature) {
 	// 	var type = feature.geometry.type;
@@ -435,10 +424,12 @@ function initMap() {
 	// });
 
 	var tileLayer = new SMC.layers.geometry.WFSTiledGeometryLayer({
-		id: 'id',
+		idField: 'id',
 		serverURL: 'http://demo.opengeo.org/geoserver/wfs',
-		//typeName: 'states',
-		typeName: 'ne_10m_roads',
+		typeName: 'states',
+		cql_filter: "STATE_NAME LIKE 'N%'",
+		// typeName: 'ne_10m_roads',
+		// cql_filter:"sov_a3 ='USA' AND type = 'Major Highway'",
 		zoomOffset : 0,
 		tileSize: 256,
 		draggingUpdates: true
@@ -500,35 +491,23 @@ function initMap() {
 		if(feature.selected){
 			return {
 		 		strokeWidth: 3,
-		 		fillColor: feature.properties.color,
-	 			strokeColor: 'black'
-	 			//selectedColor: 'rgba(0,0,0,0)'	
+		 		strokeColor: feature.properties.color,
+	
 
 			};
 		}
 		else{
 			return {
 		 		strokeWidth: 3,
-		 		fillColor: feature.properties.color,
-	 			strokeColor: 'black',
-	 			opacity: 0.5	
+		 		strokeColor: feature.properties.color,
+	 			opacity: 0.5,
+	 			noPopUp: true	
 
 			};
 		}
 	}
 
 
-	tileLayer._addContentPopUp = function(feature, zoom){
-		if(!feature.selected){
-			return{
-				noPopUp: true
-			}
-		}
-		
-
-	},
-
-	
 
 	tileLayer.on("featureClick", function(event) {
 		var select = false;
