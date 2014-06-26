@@ -9,10 +9,10 @@ Quick Start Guide
 This step-by-step guide will quickly get you started on SMCMapViewer basics, including setting up a SMCMapViewer map, working with markers, wfs and wms layers, and adding custom style to objects.
 
 <pre>
-<iframe src="../test/doc_examples/index_doc.html" style="width: 100%;height: 300px;"></iframe>
+<iframe src="http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/index_doc.html" style="width: 100%;height: 300px;"></iframe>
 </pre>
 
-[View example on a separate page →](http://emergya.github.io/SMCMapViewer/test/doc_examples/index_doc.html)
+[View example on a separate page →](http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/index_doc.html)
 
 ### Preparing your page
 
@@ -64,10 +64,10 @@ Make sure all the code is called after the div and smc.viewer-bundle.js inclusio
 ### Add WMS Layer to map
 
 <pre>
-<iframe src="../test/doc_examples/add_wms_layer.html" style="width: 100%;height: 300px;"></iframe>
+<iframe src="http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_wms_layer.html" style="width: 100%;height: 300px;"></iframe>
 </pre>
 
-[View example on a separate page →](http://emergya.github.io/SMCMapViewer/test/doc_examples/add_wms_layer.html)
+[View example on a separate page →](http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_wms_layer.html)
 
 To add a wms layer to the map we're going to need first of all create the layer. To do that we need the url of the service and the name of the layer that it'll be load.
 
@@ -86,20 +86,20 @@ To add a wms layer to the map we're going to need first of all create the layer.
 ### Add Marker Layer
 
 <pre>
-<iframe src="../test/doc_examples/add_marker_layer.html" style="width: 100%;height: 300px;"></iframe>
+<iframe src="http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_marker_layer.html" style="width: 100%;height: 300px;"></iframe>
 </pre>
 
-[View example on a separate page →](http://emergya.github.io/SMCMapViewer/test/doc_examples/add_marker_layer.html)
+[View example on a separate page →](http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_marker_layer.html)
 
 Let's create a marker layer to add to map. 
 
 ### Add WFS Marker Layer to map
 
 <pre>
-<iframe src="../test/doc_examples/add_wfs_marker_layer.html" style="width: 100%;height: 300px;"></iframe>
+<iframe src="http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_wfs_marker_layer.html" style="width: 100%;height: 300px;"></iframe>
 </pre>
 
-[View example on a separate page →](http://emergya.github.io/SMCMapViewer/test/doc_examples/add_wfs_marker_layer.html)
+[View example on a separate page →](http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_wfs_marker_layer.html)
 
 Let's create a wfs marker layer to add to map. To do this we have to know the url service and the typename to get. We also can add a label with the layer name to add to layer tree panel.
 
@@ -116,10 +116,10 @@ Let's create a wfs marker layer to add to map. To do this we have to know the ur
 ### Add Layer Tree to map
 
 <pre>
-<iframe src="../test/doc_examples/add_layer_tree.html" style="width: 100%;height: 300px;"></iframe>
+<iframe src="http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_layer_tree.html" style="width: 100%;height: 300px;"></iframe>
 </pre>
 
-[View example on a separate page →](http://emergya.github.io/SMCMapViewer/test/doc_examples/add_layer_tree.html)
+[View example on a separate page →](http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_layer_tree.html)
 
 Let's create a map with a layer tree where we could load a serie of layers. First, as we have been before, create a map and after that we are going to create two base layers. 
 
@@ -160,10 +160,10 @@ Next we'll add the layer tree to the map. To do that we need to create a layer t
 ### Add Layer to Layer Tree Dinamically
 
 <pre>
-<iframe src="../test/doc_examples/add_layer_to_layer_tree.html" style="width: 100%;height: 300px;"></iframe>
+<iframe src="http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_layer_to_layer_tree.html" style="width: 100%;height: 300px;"></iframe>
 </pre>
 
-[View example on a separate page →](http://emergya.github.io/SMCMapViewer/test/doc_examples/add_layer_to_layer_tree.html)
+[View example on a separate page →](http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_layer_to_layer_tree.html)
 
 Once we have added the layer tree panel to the map, we have the possibility to add new layers dinamically to the layer tree. On this way when we add a new layer to map automatically we can see on the layer tree. Simply add a parameter which name is label. We use this one to add a name on the layer tree panel.
 
