@@ -14,6 +14,7 @@ var rbush = require("../../../lib/rbush.js");
  * Base class for layers using client side rendering of tiles containing geographical features in the SCM map viewer component.
  *
  * The tiles contents will be retrieved using a data provided supporting tiling as needed to cover the viewing area.
+ *
  * @class
  * @abstract
  * @extends L.TileLayer.Canvas
@@ -52,7 +53,7 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
          * @property {number} tilesLoad - Default tiles load variable
          * @default 1
          */
-        tilesLoad : 1,
+        tilesLoad : 0,
         /**
          * Tiles to load
          * @property {object} tilesToLoad - Default tiles to load
@@ -67,7 +68,6 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
         initialize: function(options) {
             L.Util.setOptions(this, options);
             L.TileLayer.Canvas.prototype.initialize.call(this, options);
-            
 
            
             
@@ -123,6 +123,13 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
         onAdd: function(map) {
             L.TileLayer.Canvas.prototype.onAdd.call(this, map);
             SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
+
+           
+           
+        },
+
+        getMap :function() {
+            return this._map;
         },
 
         _draw: function(ctx) {
@@ -188,14 +195,14 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
             }
             this.tilesLoad++;
             if(this.tilesLoad == this.tilesToLoad){
-                 SMC.layers.geometry.CanvasRenderer.prototype.initialize.call(this, this.options); 
+                SMC.layers.geometry.CanvasRenderer.prototype.initialize.call(this, this.options); 
             }
 
 
         },
 
         _setProperties: function(feature){
-                var id = this.options.featureID;
+                var id = this.options.idField;
                 if (feature.hasOwnProperty(id)){
                     feature.id = feature[id];
                 }

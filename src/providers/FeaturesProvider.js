@@ -21,7 +21,7 @@ SMC.providers.FeaturesProvider = L.Class.extend(
          * @property {string} featureId="id" - The default id to the feature
          */
         options: {
-            featureId: "id"
+            idField: "id"
         },
         /** 
          * Initialize the class 

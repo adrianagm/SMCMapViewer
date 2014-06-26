@@ -4,6 +4,8 @@ require("../stylers/MapCssStyler.js");
  * @property {paper} - paper variable
  */
 var paper = require("../../../lib/paper/dist/paper-full.js").exports;
+var rbush = require("../../../lib/rbush.js");
+
 /**
  * Base class for layers using client side rendering of canvas renderer.
  * @class
@@ -18,6 +20,8 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
 /** @lends SMC.layers.geometry.CanvasRenderer# */
 {
     includes: SMC.Util.deepClassInclude([SMC.layers.stylers.MapCssStyler]),
+
+    canvasTree: null,
 
     /**
      * @typedef {Object} SMC.layers.geometry.CanvasRenderer~options
@@ -37,7 +41,43 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             features: this.features
         });
 
+        var map = this.getMap();
+
+        map.on("click", function(event) {
+            var canvasBbox = this.searchCanvas(event);
+            for(var i = 0; i < canvasBbox.length; i++){          
+                 var ctx = canvasBbox[i].ctx;
+                 this._onMouseClick(ctx, event);
+            }
+        }, this);
+
+
+       
+        map.on("mousemove", this._onMouseMoveAux, this);
+
+         map.on("dragstart", function() {
+            this.dragging = true;
+            this.canvasTree.clear();
+            console.debug("moving disabled!");
+            map.off("mousemove",  this._onMouseMoveAux, this);
+        }, this);
+
+        map.on("moveend", function(){
+            this.canvasTree.clear();
+            map.fireEvent("dragend");
+        }, this);
+
+       
     },
+
+    _onMouseMoveAux: function(event) {           
+            var canvasBbox = this.searchCanvas(event);
+            for(var i = 0; i < canvasBbox.length; i++){          
+                    var ctx = canvasBbox[i].ctx;
+                    this._onMouseMove(ctx, event);
+
+            }
+        },
 
     /**
      * Method to render a layer with canvas component
@@ -190,38 +230,33 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
 
         ctx.canvas._initialized = true;
 
+        var zoom = map.getZoom();
+        if (this.canvasTree === null || this.lastZoom != zoom) {
+            this.canvasTree = rbush(9, ['.minx', '.miny', '.maxx', '.maxy']);
+            this.lastZoom = zoom;
+        };
+        
+        var treeNode = this._createTreeNode(ctx);
+        this.canvasTree.insert(treeNode);
+    
+
         ctx.canvas.zBuffer = [];
 
-        var onMouseMove = function(event) {
-            console.debug("moving!");
-            this._onMouseMove(ctx, event);
-        };
-
-        map.on("click", function(event) {
-            this._onMouseClick(ctx, event);
-        }, this);
-
-
-        console.debug("enabling move");
-        map.on("mousemove", onMouseMove, this);
 
         map.on("zoomend", function() {
             this._onViewChanged(ctx);
         }, this);
 
 
-        // We suspend the mouseMove listenter when dragging, as this makes a dramatic performance improvement.
-        map.on("dragstart", function() {
-            this.dragging = true;
-            console.debug("moving disabled!");
-            map.off("mousemove", onMouseMove, this);
-        }, this);
 
         map.on("dragend", function() {
             this.dragging = false;
-           // this._onViewChanged(ctx);
+            
             console.debug("moving renabled!");
-            map.on("mousemove", onMouseMove, this);
+            map.on("mousemove", this._onMouseMoveAux, this);
+
+            var treeNode = this._createTreeNode(ctx);
+            this.canvasTree.insert(treeNode);
 
             if (!this.options.draggingUpdates) {
                 this.renderCanvas(ctx, ctx.features, ctx.canvas._map);
@@ -231,6 +266,28 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
 
        
 
+    },
+
+    _createTreeNode: function(ctx) {
+        var points = ctx.canvas.getBoundingClientRect();
+        var bbox = L.bounds([points.top, points.left], [points.bottom, points.right]);
+
+
+        return {
+            ctx: ctx,
+            minx: bbox.min.x,
+            maxx: bbox.max.x,
+            miny: bbox.min.y,
+            maxy: bbox.max.y,
+            tilePoint: ctx.tile
+        };
+
+    },
+
+    searchCanvas: function(event){
+        var bbox = L.bounds([event.containerPoint.y, event.containerPoint.x],[event.containerPoint.y, event.containerPoint.x]);
+        var canvas = this.canvasTree.search([bbox.min.x, bbox.min.y, bbox.max.x, bbox.max.y]);
+        return canvas;
     },
 
 
@@ -244,10 +301,11 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
         var styles = elem.style;
 
         var geom = feature.geometry.coordinates;
+        if(geom[0]){
+            while (L.Util.isArray(geom[0][0])) {
+                geom = geom[0];
 
-        while (L.Util.isArray(geom[0][0])) {
-            geom = geom[0];
-
+            }
         }
 
         var labels = this._addLabels(feature, ctx);
@@ -444,9 +502,9 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
 
     _hitTest: function(ctx, event) {
 
-        if (event._hit) {
-            return;
-        }
+        // if (event._hit) {
+        //     return;
+        // }
 
         console.time("hitTest");
         var cPoint = this._canvasPoint([event.latlng.lng, event.latlng.lat], ctx);
@@ -466,7 +524,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
 
         var options = {
             tolerance: 5,
-            fill: false,
+            fill: true,
             stroke:true
         }
        
@@ -481,6 +539,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
         for (var i = 0; i < ctx.features.length; i++) {
             var f = ctx.features[i];
             f._clean = false;
+            this.canvasTree.clear();
         }
     },
 

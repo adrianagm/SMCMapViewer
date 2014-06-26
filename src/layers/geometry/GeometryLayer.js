@@ -18,7 +18,6 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 	{
 		includes: SMC.Util.deepClassInclude([SMC.layers.SingleLayer, SMC.layers.geometry.CanvasRenderer]),
 
-
 		features: [],
 		/**
          * Initialize the object with the params
@@ -26,7 +25,7 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
          */
 		initialize: function(options) {
 			L.CanvasLayer.prototype.initialize.apply(this, arguments);
-			SMC.layers.geometry.CanvasRenderer.prototype.initialize.apply(this, arguments);
+			
 			L.Util.setOptions(this, options);
 		
 		},
@@ -66,6 +65,11 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 
 
 		},
+
+		getMap :function() {
+            return this._map;
+        },
+
 		/**
          * Method to render a layer on the map
          */
@@ -85,7 +89,6 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
          * @param {object} features - Features to get its geometries
          */
 		addGeometryFromFeatures: function(features) {
-
 			if (L.Util.isArray(features)) {
 				this.features = features;
 			} else if (arguments.length > 1) {
@@ -103,7 +106,7 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 		},
 
 		_setProperties: function(feature){
-			var id = this.options.id;
+			var id = this.options.idField;
 			if (feature.hasOwnProperty(id))
 					feature.id = feature[id];
 			else{
