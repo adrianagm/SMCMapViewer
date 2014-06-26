@@ -40,6 +40,161 @@
 
 
 
+    <section>
+        <article><h1>SMCMapViewer</h1><p>SMCMapViewer is a Map Viewer Component based on Leaflet that allow us to create a map viewer of an easily way. Using this tool you can add layers with different data providers like WMS, WFS and markers layers. This tool allows us to add a customer style to all over elements on a layer, from a style description in mapCSS format.</p>
+<h2>Quick Start Guide</h2><p>This step-by-step guide will quickly get you started on SMCMapViewer basics, including setting up a SMCMapViewer map, working with markers, wfs and wms layers, and adding custom style to objects.</p>
+<pre>
+<iframe src="../test/doc_examples/index_doc.html" style="width: 100%;height: 300px;"></iframe>
+</pre>
+
+<p><a href="http://emergya.github.io/SMCMapViewer/test/doc_examples/index_doc.html">View example on a separate page →</a></p>
+<h3>Preparing your page</h3><p>Before writing any code for the map, you need to do the following preparation steps on your page:</p>
+<ul>
+<li>Include Leaflet CSS file in the head section of your document:</li>
+</ul>
+<blockquote>
+<p><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;path_to_SMCMapViewer/css/leaflet.css&quot; /&gt;</code></p>
+</blockquote>
+<ul>
+<li>Include jQuery JavaScript file:</li>
+</ul>
+<blockquote>
+<p><code>&lt;script src=&quot;path_to_jquery&quot;&gt;&lt;/script&gt;</code></p>
+</blockquote>
+<ul>
+<li>Include SMCViewerMap Javascript file:</li>
+</ul>
+<blockquote>
+<p><code>&lt;script src=&quot;path_to_SMCMapViewer/smc.viewer-bundle.js&quot;&gt;&lt;/script&gt;</code></p>
+</blockquote>
+<ul>
+<li>Put a <em>div</em> element with a certain id where you want your map to be:</li>
+</ul>
+<blockquote>
+<p><code>&lt;div id=&quot;map&quot;&gt;&lt;/div&gt;</code></p>
+</blockquote>
+<ul>
+<li>Make sure the map container has a defined height, for example by setting it in CSS:</li>
+</ul>
+<blockquote>
+<p><code>#map { height: 180px; }</code></p>
+</blockquote>
+<p>Now you’re ready to initialize the map and do some stuff with it.</p>
+<h3>Setting up the map</h3><p>Let’s create a map of the center of London with pretty Cloudmade tiles. First we’ll initialize the map and set its view to our chosen geographical coordinates and a zoom level:</p>
+<blockquote>
+<p><code>var map = SMC.map('map').setView([37.383333, -5.983333], 11);</code></p>
+</blockquote>
+<p>By default (as we didn’t pass any options when creating the map instance), all mouse and touch interactions on the map are enabled, and it has zoom and attribution controls.</p>
+<p>Next we’ll add a tile layer to add to our map, in this case it’s a Cloudmade tile layer. Creating a tile layer usually involves setting the URL template for the tile images, the attribution text and the maximum zoom level of the layer:</p>
+<pre>
+    <code>
+    var base = SMC.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+        maxZoom: 18
+    }).addTo(map);
+    </code>
+</pre>
+
+<p>Make sure all the code is called after the div and smc.viewer-bundle.js inclusion. That’s it! You have a working SMCViewerMap map now.</p>
+<h3>Add WMS Layer to map</h3><pre>
+<iframe src="../test/doc_examples/add_wms_layer.html" style="width: 100%;height: 300px;"></iframe>
+</pre>
+
+<p><a href="http://emergya.github.io/SMCMapViewer/test/doc_examples/add_wms_layer.html">View example on a separate page →</a></p>
+<p>To add a wms layer to the map we're going to need first of all create the layer. To do that we need the url of the service and the name of the layer that it'll be load.</p>
+<pre>
+    <code>
+        var satelite = SMC.wmsLayer("http://www.idee.es/wms/PNOA/PNOA", {
+            layers: "PNOA",
+            format: 'image/png',
+            transparent: true,
+            crs: L.CRS.EPSG4326,
+            attribution: "Map data © Instituto Geográfico Nacional de España"
+        }).addTo(map);
+    </code>
+</pre>
+
+<h3>Add Marker Layer</h3><pre>
+<iframe src="../test/doc_examples/add_marker_layer.html" style="width: 100%;height: 300px;"></iframe>
+</pre>
+
+<p><a href="http://emergya.github.io/SMCMapViewer/test/doc_examples/add_marker_layer.html">View example on a separate page →</a></p>
+<p>Let's create a marker layer to add to map. </p>
+<h3>Add WFS Marker Layer to map</h3><pre>
+<iframe src="../test/doc_examples/add_wfs_marker_layer.html" style="width: 100%;height: 300px;"></iframe>
+</pre>
+
+<p><a href="http://emergya.github.io/SMCMapViewer/test/doc_examples/add_wfs_marker_layer.html">View example on a separate page →</a></p>
+<p>Let's create a wfs marker layer to add to map. To do this we have to know the url service and the typename to get. We also can add a label with the layer name to add to layer tree panel.</p>
+<pre>
+    <code>
+        var wfsMarkerLayer = SMC.wfsMarkerLayer({
+            serverURL: "http://www.juntadeandalucia.es/medioambiente/mapwms/REDIAM_WFS_SP_Infraestructuras_Hidraulicas",
+            typeName: "edar",
+            label: "Prueba WFS"
+        }).addTo(map);
+    </code>
+</pre>
+
+<h3>Add Layer Tree to map</h3><pre>
+<iframe src="../test/doc_examples/add_layer_tree.html" style="width: 100%;height: 300px;"></iframe>
+</pre>
+
+<p><a href="http://emergya.github.io/SMCMapViewer/test/doc_examples/add_layer_tree.html">View example on a separate page →</a></p>
+<p>Let's create a map with a layer tree where we could load a serie of layers. First, as we have been before, create a map and after that we are going to create two base layers. </p>
+<pre>
+    <code>
+        var map = SMC.map('map').setView([37.383333, -5.983333], 11);
+
+        var base = SMC.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+            maxZoom: 18
+        }).addTo(map);
+
+        var satelite = SMC.wmsLayer("http://www.idee.es/wms/PNOA/PNOA", {
+            layers: "PNOA",
+            format: 'image/png',
+            transparent: true,
+            crs: L.CRS.EPSG4326,
+            attribution: "Map data © Instituto Geográfico Nacional de España"
+        }).addTo(map);
+    </code>
+</pre> 
+
+<p>Next we'll add the layer tree to the map. To do that we need to create a layer tree control and add it the base layers create before.</p>
+<pre>
+    <code>
+        var baseLayer = {
+            "Street Map": base,
+            "Satelite": satelite
+        };
+
+        var leyenda = SMC.layerTreeControl(baseLayer, {
+            collapsed: false
+        }).addTo(map);
+    </code>
+</pre>
+
+<h3>Add Layer to Layer Tree Dinamically</h3><pre>
+<iframe src="../test/doc_examples/add_layer_to_layer_tree.html" style="width: 100%;height: 300px;"></iframe>
+</pre>
+
+<p><a href="http://emergya.github.io/SMCMapViewer/test/doc_examples/add_layer_to_layer_tree.html">View example on a separate page →</a></p>
+<p>Once we have added the layer tree panel to the map, we have the possibility to add new layers dinamically to the layer tree. On this way when we add a new layer to map automatically we can see on the layer tree. Simply add a parameter which name is label. We use this one to add a name on the layer tree panel.</p>
+<pre>
+    <code>
+        var satelite = SMC.wmsLayer("http://www.idee.es/wms/PNOA/PNOA", {
+            layers: "PNOA",
+            format: 'image/png',
+            transparent: true,
+            crs: L.CRS.EPSG4326,
+            label: "PNOA",
+            attribution: "Map data © Instituto Geográfico Nacional de España"
+        }).addTo(map);
+    </code>
+</pre></article>
+    </section>
+
 
 
 
@@ -54,7 +209,7 @@
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha8</a> on Tue Jun 24 2014 17:40:38 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha8</a> on Thu Jun 26 2014 09:02:11 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
