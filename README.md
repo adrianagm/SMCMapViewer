@@ -20,15 +20,15 @@ Before writing any code for the map, you need to do the following preparation st
 
 * Include Leaflet CSS file in the head section of your document:
 
-> `<link rel="stylesheet" href="path_to_SMCMapViewer/css/leaflet.css" />`
+> `<link rel="stylesheet" href="http://rawgit.com/Emergya/SMCMapViewer-dist/master/css/leaflet.css" />`
 
 * Include jQuery JavaScript file:
 
-> `<script src="path_to_jquery"></script>`
+> `<script src="http://code.jquery.com/jquery-1.11.1.js"></script>`
 
 * Include SMCViewerMap Javascript file:
 
-> `<script src="path_to_SMCMapViewer/smc.viewer-bundle.js"></script>`
+> `<script src="http://rawgit.com/Emergya/SMCMapViewer-dist/master/smc.viewer-bundle.js"></script>`
 
 * Put a *div* element with a certain id where you want your map to be:
 
@@ -42,7 +42,7 @@ Now you’re ready to initialize the map and do some stuff with it.
 
 ### Setting up the map
 
-Let’s create a map of the center of London with pretty Cloudmade tiles. First we’ll initialize the map and set its view to our chosen geographical coordinates and a zoom level:
+Let’s create a map of the center of Seville with pretty Cloudmade tiles. First we’ll initialize the map and set its view to our chosen geographical coordinates and a zoom level:
 
 > `var map = SMC.map('map').setView([37.383333, -5.983333], 11);`
 
