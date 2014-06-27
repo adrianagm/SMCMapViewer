@@ -62,6 +62,7 @@ SMC.LayerLoader = L.Class.extend(
             }
 
             var params = [];
+            var url = "";
 
             if (type === "folder") {
                 // Folders are a special case in which we allow a shortcut to ease configuration.
@@ -80,6 +81,9 @@ SMC.LayerLoader = L.Class.extend(
             } else {
                 if (layerConfig.params) {
                     params = layerConfig.params;
+                }
+                if(layerConfig.url){
+                    url = layerConfig.url;
                 }
 
                 if (typeof params == "string") {
@@ -106,17 +110,31 @@ SMC.LayerLoader = L.Class.extend(
 
             // Class instantiation code from http://stackoverflow.com/questions/1606797/use-of-apply-with-new-operator-is-this-possible
             var createClass = (function() {
-                function F(args) {
-                    return layerClass.apply(this, args);
+                function F(arguments) {
+                    if(arguments.length > 1){
+                        return layerClass.apply(this, arguments);
+                    }else{
+                        return layerClass.apply(this, arguments[0]);
+                    }
+                    
                 }
                 F.prototype = layerClass.prototype;
 
                 return function(args) {
-                    return new F(args);
+                    return new F(arguments);
                 };
             })();
 
-            layer = createClass(params);
+            if(url != ""){
+                if(Array.isArray(params)){
+                    layer = createClass(url, params[0]);
+                }else{
+                    layer = createClass(url, params);
+                }
+            }else{
+                layer = createClass(params);
+            }
+            
 
             if (layerConfig.listeners) {
                 for (var eventName in layerConfig.listeners) {

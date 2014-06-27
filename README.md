@@ -179,3 +179,74 @@ Once we have added the layer tree panel to the map, we have the possibility to a
 	    }).addTo(map);
 	</code>
 </pre>
+
+### Add Tree Config to Layer Tree from JSON
+
+<pre>
+<iframe src="http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_tree_to_layer_tree.html" style="width: 100%;height: 500px;"></iframe>
+</pre>
+
+[View example on a separate page →](http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_tree_to_layer_tree.html)
+ 
+Before to add a tree config we need define into html file the next:
+
+* Include LayerTree CSS file in the head section of your document:
+
+> `<link rel="stylesheet" href="http://rawgit.com/Emergya/SMCMapViewer-dist/master/css/layerTree.css" />`
+
+* Include Font Awesome CSS file in the head section of your document:
+
+> `<link href="http://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">`
+
+To add a structure of a folder and layer set we need to define a variable with the tree config content. This tree config have a specific format that it's composed by folders and layers. To define a folder we need to declare an object with a property type which value was folder. To define a layer we need to declare an object with a property type which value was the layer type, for example if the layer was a WMS layer the type will be SMC.layers.WMSLayer.
+
+Next we'll nedd to define a label to add the name of the layer or folder with a property label which value was the folder or layer name. In the same case for a url layer, if it's a WMS layer we need to add the url property which value will be the url where the layer is.
+
+The rest of parameters that we're going to need, we'll add it to the params property that it'll be an objects array.
+
+An example with the format specified is:
+
+<pre>
+	<code>
+		var tree = [{
+        	type: "folder",
+        	label: 'REDIAM',
+        	layers: [{
+            	type: "folder",
+            	label: "Paisajes",
+            	layers: [{
+	                type: "SMC.layers.WMSLayer",
+	                url: "http://www.juntadeandalucia.es/medioambiente/mapwms/REDIAM_mapa_paisaje_andalucia",
+	                params: [{
+	                    layers: "categ_paisaj",
+	                    format: 'image/png',
+	                    transparent: true,
+	                    crs: L.CRS.EPSG4326,
+	                    attribution: "Map data &copy; REDIAM",
+	                    label: "Categorias paisajisticas"
+	                }] 
+            	},{
+			        type: "folder",
+			        label: "Capas WFS",
+			        layers: [{
+			            type: "SMC.layers.markers.WFSMarkerLayer",
+			            params: [{
+			                serverURL: "http://www.ideandalucia.es/dea100/wfs",
+			                typeName: "ideandalucia:it03_aeropuerto_pun",
+			                label: "Prueba WFS",
+			                outputFormat: "json"
+			            }]
+			        }]
+		    	}]
+        	}]
+    	}];
+	</code>
+</pre>
+
+To add this configuration to the tree panel it's necessary define before a map and a layer tree panel. Once both are defined we'll add this configuration variable to the map, like this:
+
+<pre>
+	<code>
+		map.loadLayers(tree);
+	</code>
+</pre>
