@@ -1,6 +1,6 @@
 require("./Styler.js");
 require("../../../lib/LeafletHtmlIcon.js");
-
+var Mustache = require("../../../lib/mustache.js/mustache.js");
 /**
  * Parser of MarkerCSS, for user with SMC Viewer's marker layers.
  *
