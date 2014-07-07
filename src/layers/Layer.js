@@ -11,6 +11,7 @@ require("../controls/layerTree/LayerTreeLeaf.js");
 SMC.layers.Layer = L.Class.extend(
     /** @lends SMC.layers.Layer# */
     {
+        visible: true,
 
         includes: SMC.Util.deepClassInclude([SMC.controls.layerTree.LayerTreeLeaf]),
 
@@ -35,6 +36,6 @@ SMC.layers.Layer = L.Class.extend(
          * @param {Boolean} visible - Boolean param to set visibilty true or false.
          */
         setVisible: function(visible) {
-
+             visible = visible;
         }
     });

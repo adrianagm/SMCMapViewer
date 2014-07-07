@@ -78,6 +78,7 @@ SMC.LayerLoader = L.Class.extend(
                     label: layerConfig.label
                 }];
 
+
             } else {
                 if (layerConfig.params) {
                     params = layerConfig.params;
@@ -92,6 +93,13 @@ SMC.LayerLoader = L.Class.extend(
 
                 if (!layerConfig.params && layerConfig.label) {
                     params = [{
+                        label: layerConfig.label
+                    }];
+                }
+
+                 if (!layerConfig.params && layerConfig.label && layerConfig.layers ) {
+                    params = [{
+                        layersConfig: layerConfig.layers,
                         label: layerConfig.label
                     }];
                 }
@@ -143,7 +151,10 @@ SMC.LayerLoader = L.Class.extend(
             }
 
             // The layer loader is mixed in into a map (or Folder) so we can add layers to that.
+        
             layer.addTo(this);
+        
+
 
             // The loader (that is, the map or Folder) is the layer's parent
             layer.parent = this;

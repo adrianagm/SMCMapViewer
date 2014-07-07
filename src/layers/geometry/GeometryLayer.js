@@ -25,8 +25,9 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
          */
 		initialize: function(options) {
 			L.CanvasLayer.prototype.initialize.apply(this, arguments);
-			
+			SMC.layers.stylers.MapCssStyler.prototype.initialize.apply(this, arguments);
 			L.Util.setOptions(this, options);
+			
 		
 		},
 		/**
@@ -34,6 +35,7 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
          * @param {SMC.Map} map - Map to be added
          */
 		onAdd: function(map) {
+
 			L.CanvasLayer.prototype.onAdd.call(this, map);
 			SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
 			//this.render();
@@ -45,7 +47,6 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 			 		map._autopan = false;
 			 	}
 
-
 			 }, this);
 
 		
@@ -55,12 +56,21 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 			}, this);
 
 			
-			 map.on("resize", function(event){
+			map.on("resize", function(event){
                 var d = event.target.dragging._draggable._element._leaflet_pos;
                 if(d){
 			 		L.DomUtil.setPosition(this._canvas, { x: -d.x, y: -d.y });
 			 	}
             }, this);
+
+			  map.on("slidermove", function(event){
+                var d = event.target.dragging._draggable._element._leaflet_pos;
+                if(d){
+			 		L.DomUtil.setPosition(this._canvas, { x: -d.x, y: -d.y });
+			 	}
+            }, this);
+
+
 
 
 

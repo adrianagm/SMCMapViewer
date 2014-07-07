@@ -33,7 +33,7 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
          * @typedef {Object} SMC.layers.geometry.TiledGeometryLayer~options
          * @property {number} tileSize=256 - Default tile size value
          */
-        options : {
+        options: {
             tileSize: 256,
         },
         /**
@@ -47,13 +47,13 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
          * @property {object[]} features - Default features array
          * @default []
          */
-        features :[],
+        features: [],
         /**
          * Tiles load variable
          * @property {number} tilesLoad - Default tiles load variable
          * @default 1
          */
-        tilesLoad : 0,
+        tilesLoad: 0,
         /**
          * Tiles to load
          * @property {object} tilesToLoad - Default tiles to load
@@ -68,9 +68,10 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
         initialize: function(options) {
             L.Util.setOptions(this, options);
             L.TileLayer.Canvas.prototype.initialize.call(this, options);
+            SMC.layers.stylers.MapCssStyler.prototype.initialize.apply(this, arguments);
 
-           
-            
+
+
             this.drawTile = function(canvas, tilePoint, zoom) {
                 var ctx = {
                     canvas: canvas,
@@ -81,7 +82,7 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
                 if (this.globalTree === null || this.lastZoom != zoom) {
                     this.globalTree = rbush(9, ['.minx', '.miny', '.maxx', '.maxy']);
                     this.lastZoom = zoom;
-                   
+
                 }
 
                 ctx.canvas.tree = null;
@@ -92,12 +93,12 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
                 }
 
                 this._draw(ctx);
-                if(this.tilesToLoad == null){
+                if (this.tilesToLoad == null) {
                     this.tilesToLoad = this._tilesToLoad;
                 }
             };
 
-          
+
 
         },
 
@@ -105,7 +106,7 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
          * Method to load the layer on the map
          */
         load: function() {
- 
+
         },
 
         /**
@@ -113,7 +114,7 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
          * @abstract
          */
         loadTile: function() {
-             throw new Error("TiledGeometrylayer::loadTile must be implemented by derivate classes.");
+            throw new Error("TiledGeometrylayer::loadTile must be implemented by derivate classes.");
         },
 
         /**
@@ -124,11 +125,15 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
             L.TileLayer.Canvas.prototype.onAdd.call(this, map);
             SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
 
-           
-           
         },
 
-        getMap :function() {
+         onRemove: function(map) {
+            L.TileLayer.Canvas.prototype.onRemove.call(this, map);
+            //SMC.layers.SingleLayer.prototype.onRemove.call(this, map);
+
+        },
+
+        getMap: function() {
             return this._map;
         },
 
@@ -140,7 +145,7 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
 
             // var request = this.createRequest(bounds, ctx);
             // var loader = $.ajax;
-             var self = this;
+            var self = this;
             // loader($.extend(request, {
             //     success: function(response) {
             //         console.log(response.features);
@@ -150,8 +155,8 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
             // }, this.options.request));
 
             this.loadTile(bounds).then(function(featuresCollection) {
-                 console.log(featuresCollection.features);
-                 self.addTiledGeometryFromFeatures(featuresCollection.features, ctx);
+                console.log(featuresCollection.features);
+                self.addTiledGeometryFromFeatures(featuresCollection.features, ctx);
             });
         },
 
@@ -175,16 +180,16 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
 
             for (i = 0; i < f.length; i++) {
                 var feature = f[i];
-                this. _setProperties(feature);
-               
-                
+                this._setProperties(feature);
+
+
 
                 //We store the retrieved features in a search tree.
                 if (!skipTree) {
                     var treeNode = this._createTreeData(feature, ctx.tile);
                     ctx.canvas.tree.insert(treeNode);
                     this.globalTree.insert(treeNode);
-                    
+
                 }
             }
 
@@ -194,55 +199,53 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
                 this.renderCanvas(ctx, f, this._map);
             }
             this.tilesLoad++;
-            if(this.tilesLoad == this.tilesToLoad){
-                SMC.layers.geometry.CanvasRenderer.prototype.initialize.call(this, this.options); 
+            if (this.tilesLoad == this.tilesToLoad) {
+                SMC.layers.geometry.CanvasRenderer.prototype.initialize.call(this, this.options);
             }
 
 
         },
 
-        _setProperties: function(feature){
-                var id = this.options.idField;
-                if (feature.hasOwnProperty(id)){
-                    feature.id = feature[id];
-                }
-                else{
+        _setProperties: function(feature) {
+            var id = this.options.idField;
+            if (feature.hasOwnProperty(id)) {
+                feature.id = feature[id];
+            } else {
 
-                    for (var propKey in feature) {  
-                       if (feature[propKey].hasOwnProperty(id)){
-                            feature.id = feature[propKey][id];
-                       }
-                    } 
-                        
+                for (var propKey in feature) {
+                    if (feature[propKey].hasOwnProperty(id)) {
+                        feature.id = feature[propKey][id];
+                    }
                 }
 
+            }
 
-                if(this.features.length == 0){  
+
+            if (this.features.length == 0) {
+                this.features.push(feature);
+
+            } else {
+                var sameFeature = false;
+                for (var j = 0; j < this.features.length; j++) {
+                    if (feature.id == this.features[j].id) {
+                        feature.id = this.features[j].id;
+                        feature.selected = this.features[j].selected;
+                        feature.properties = this.features[j].properties;
+                        sameFeature = true;
+                        break;
+                    }
+
+                }
+
+                if (!sameFeature) {
                     this.features.push(feature);
-                   
                 }
-                else{
-                    var sameFeature = false;
-                    for(var j = 0; j < this.features.length; j++){
-                        if(feature.id  == this.features[j].id){
-                             feature.id = this.features[j].id;
-                             feature.selected = this.features[j].selected;
-                             feature.properties = this.features[j].properties;
-                             sameFeature = true;
-                             break; 
-                        }
+            }
 
-                    }
 
-                    if(!sameFeature){
-                        this.features.push(feature);
-                    }
-                }
+        },
 
-            
-         },
 
-       
 
         _createTreeData: function(feature, tilePoint) {
 
@@ -329,13 +332,13 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
          */
         updateFeature: function(feature) {
 
-             for (var k = 0; k < this.features.length; k++){
-                if(feature.id == this.features[k].id){
-                    if(feature.selected !== undefined){
-                         this.features[k].selected = feature.selected;
+            for (var k = 0; k < this.features.length; k++) {
+                if (feature.id == this.features[k].id) {
+                    if (feature.selected !== undefined) {
+                        this.features[k].selected = feature.selected;
                     }
-                     this.features[k].properties = feature.properties;
-                     break;
+                    this.features[k].properties = feature.properties;
+                    break;
                 }
             }
 
@@ -346,11 +349,11 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
 
             // we determine the tiles to be redrawn from the features.
             var readdedTileKeys = [];
-            
+
             for (var i = 0; i < intersectingFeatureNodes.length; i++) {
                 var featureTilePoint = intersectingFeatureNodes[i].tilePoint;
-               
-            
+
+
                 var key = featureTilePoint.x + ":" + featureTilePoint.y;
 
                 if (readdedTileKeys.indexOf(key) < 0) {
@@ -370,16 +373,16 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
                         var tileFeatures = ctx.canvas.tree.search(this._tileBounds(ctx));
 
                         var updatedFeatures = [];
-                        
+
                         for (var j = 0; j < tileFeatures.length; j++) {
                             var existingFeature = tileFeatures[j].feature;
-                            
+
 
                             if (existingFeature.id == feature.id) {
                                 // We update the data!!!!
 
                                 existingFeature.properties = feature.properties;
-                                if(feature.selected != undefined){
+                                if (feature.selected != undefined) {
                                     existingFeature.selected = feature.selected;
                                 }
                                 existingFeature._clean = false;
@@ -394,8 +397,8 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
                         }
 
 
-                       this.renderCanvas(ctx, updatedFeatures, this._map); 
-                       
+                        this.renderCanvas(ctx, updatedFeatures, this._map);
+
 
                     }
 

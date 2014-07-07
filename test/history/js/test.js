@@ -6,7 +6,7 @@ function initMap() {
 
     var base = SMC.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
-        maxZoom: 18
+        maxZoom: 18,
     }).addTo(map);
 
     // Add satelite layer
@@ -25,6 +25,8 @@ function initMap() {
     var leyenda = SMC.layerTreeControl(baseLayer, {
         collapsed: false
     }).addTo(map);
+
+
     // Add tree to map
     var tree = [{
         type: "folder",
@@ -34,84 +36,202 @@ function initMap() {
             label: 'Folder 1.1',
             layers: [{
                 type: "SMC.layers.history.AggregatingHistoryLayer",
+                label: 'History Markers',
                 layers: [{
                     type: "SMC.layers.markers.WFSMarkerLayer",
                     params: [{
                         serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
-                        typeName: "OpenData:COMMUNITY_CENTRES"
+                        typeName: "OpenData:COMMUNITY_CENTRES",
+                        date:"2",
+                        label: 'Community Centres'
                     }]
                 }, {
                     type: "SMC.layers.markers.WFSMarkerLayer",
                     params: [{
                         serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
-                        typeName: "OpenData:COMMUNITY_CENTRES"
+                        typeName: "OpenData:Parks",
+                        date:"1",
+                        label: 'Parks'
                     }]
                 }, {
                     type: "SMC.layers.markers.WFSMarkerLayer",
                     params: [{
                         serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
-                        typeName: "OpenData:COMMUNITY_CENTRES"
+                        typeName: "OpenData:V_SURE_START_CENTRES",
+                        date:"3",
+                        label: "Children's Centres"
                     }]
                 }]
 
+            }, {
+
+                type: "SMC.layers.history.AggregatingHistoryLayer",
+                label: 'History Roads',
+                layers: [{
+                    type: 'SMC.layers.geometry.WFSTiledGeometryLayer',
+                    params: [{
+                        serverURL: 'http://demo.opengeo.org/geoserver/wfs',
+                        typeName: 'ne_10m_roads',
+                        label: 'Roads 1',
+                        date: '2013',
+                        zoomOffset: 0,
+                        tileSize: 256,
+                        draggingUpdates: true,
+                        stylesheet: '* {strokeColor: "blue";}',
+
+
+                    }]
+
+                },{
+                    type: 'SMC.layers.geometry.WFSTiledGeometryLayer',
+                    params: [{
+                        serverURL: 'http://demo.opengeo.org/geoserver/wfs',
+                        typeName: 'ne_10m_roads',
+                        label: 'Roads 2',
+                        date: '2011',
+                        zoomOffset: 0,
+                        tileSize: 256,
+                        draggingUpdates: true,
+                        stylesheet: '* {strokeColor: "green";}',
+
+
+                    }]
+
+                }, {
+                    type: 'SMC.layers.geometry.WFSTiledGeometryLayer',
+                    params: [{
+                        serverURL: 'http://demo.opengeo.org/geoserver/wfs',
+                        typeName: 'ne_10m_roads',
+                        cql_filter: "type = 'Major Highway'",
+                        label: 'Roads 3',
+                        date: '2012',
+                        zoomOffset: 0,
+                        tileSize: 256,
+                        draggingUpdates: true,
+                        stylesheet: '* {strokeColor: "red";}',
+
+                    }]
+                }, {
+                    type: 'SMC.layers.geometry.WFSTiledGeometryLayer',
+                    params: [{
+                        serverURL: 'http://demo.opengeo.org/geoserver/wfs',
+                        typeName: 'ne_10m_roads',
+                        cql_filter: "type = 'Secondary Highway'",
+                        label: 'Roads 4',
+                        date: '2014',
+                        zoomOffset: 0,
+                        tileSize: 256,
+                        draggingUpdates: true,
+                        stylesheet: '* {strokeColor: "yellow";}',
+
+                    }]
+                }]
+           
+
+           // }
+            // ,{
+            //     type: "SMC.layers.history.AggregatingHistoryLayer",
+            //     label: 'History States',
+            //     layers: [{
+            //         type: 'SMC.layers.geometry.WFSGeometryLayer',
+            //         params: [{
+            //             serverURL: 'http://demo.opengeo.org/geoserver/wfs',
+            //             typeName: 'states',
+            //             label: 'States 1',
+            //             date: '1',
+            //             zoomOffset: 0,
+            //             draggingUpdates: true,
+            //             stylesheet: '* {fillColor: "rgba(0, 0, 255, 0.5)";}',   
+
+            //         }]
+
+            //     }, {
+            //         type: 'SMC.layers.geometry.WFSGeometryLayer',
+            //         params: [{
+            //             serverURL: 'http://demo.opengeo.org/geoserver/wfs',
+            //             typeName: 'states',
+            //             label: 'States 2',
+            //             date: '2',
+            //             zoomOffset: 0,
+            //             draggingUpdates: true,
+            //             stylesheet: '* {fillColor: "rgba(255, 0, 0, 0.5)";}',
+
+            //         }]
+            //     }, {
+            //         type: 'SMC.layers.geometry.WFSGeometryLayer',
+            //         params: [{
+            //             serverURL: 'http://demo.opengeo.org/geoserver/wfs',
+            //             typeName: 'states',
+            //             label: 'States 3',
+            //             date: '3',
+            //             zoomOffset: 0,
+            //             draggingUpdates: true,
+            //             stylesheet: '* {fillColor: "rgba(0, 255, 0, 0.5)";}',
+
+            //         }]
+             //   }]
+
+
             }]
         }]
+
     }];
 
     map.loadLayers(tree);
-    var wfsMarkerLayer = SMC.wfsMarkerLayer({
-        serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
-        typeName: "OpenData:COMMUNITY_CENTRES",
-        label: "Prueba WFS"
-    }).addTo(map);
+    // var wfsMarkerLayer = SMC.wfsMarkerLayer({
+    //     serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+    //     typeName: "OpenData:COMMUNITY_CENTRES",
+    //     label: "Prueba WFS",
+    // }).addTo(map);
 
 
 
-    var tileLayer = new SMC.layers.geometry.WFSTiledGeometryLayer({
-        idField: 'id',
-        serverURL: 'http://demo.opengeo.org/geoserver/wfs',
-        typeName: 'ne_10m_roads',
-        // cql_filter:"sov_a3 ='USA' AND type = 'Major Highway'",
-        zoomOffset: 0,
-        tileSize: 256,
-        draggingUpdates: true
+    // var tileLayer = SMC.wfsTiledGeometryLayer({
+    //     idField: 'id',
+    //     serverURL: 'http://demo.opengeo.org/geoserver/wfs',
+    //     typeName: 'ne_10m_roads',
+    //     label: 'Roads',
+    //     // cql_filter:"sov_a3 ='USA' AND type = 'Major Highway'",
+    //     zoomOffset: 0,
+    //     tileSize: 256,
+    //     draggingUpdates: true
 
-    });
-
-
-    tileLayer._createStyles = function(feature) {
-        fillColor: 'rgba(0, 200, 0, 0.5)'
-    };
-
-    tileLayer.addTo(map);
-    tileLayer.setZIndex(1000);
+    // }).addTo(map);
 
 
+    // tileLayer._createStyles = function(feature) {
+    //     strokeColor: 'blue'
+    // };
 
-    tileLayer.on("featureClick", function(event) {
-        var select = false;
+    // // tileLayer.addTo(map);
+    //  tileLayer.setZIndex(1000);
 
 
-        for (var i = 0; i < this.features.length; i++) {
-            if (event.feature.id == this.features[i].id) {
-                if (this.features[i].selected) {
-                    select = true;
-                }
 
-            }
-            if (this.features[i].selected) {
-                this.features[i].selected = false;
-                this.updateFeature(this.features[i]);
-            }
+    // tileLayer.on("featureClick", function(event) {
+    //     var select = false;
 
-        }
 
-        if (!select) {
-            event.feature.selected = true;
+    //     for (var i = 0; i < this.features.length; i++) {
+    //         if (event.feature.id == this.features[i].id) {
+    //             if (this.features[i].selected) {
+    //                 select = true;
+    //             }
 
-        }
+    //         }
+    //         if (this.features[i].selected) {
+    //             this.features[i].selected = false;
+    //             this.updateFeature(this.features[i]);
+    //         }
 
-    });
+    //     }
+
+    //     if (!select) {
+    //         event.feature.selected = true;
+
+    //     }
+
+    // });
 }
 
 L.Icon.Default.imagePath = "../../dist/images";

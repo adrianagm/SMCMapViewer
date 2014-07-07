@@ -25,6 +25,7 @@ SMC.layers.geometry.WFSTiledGeometryLayer = SMC.layers.geometry.TiledGeometryLay
             SMC.layers.geometry.TiledGeometryLayer.prototype.initialize.call(this, options);
             SMC.providers.WFSProvider.prototype.initialize.call(this, options);
             L.Util.setOptions(this, options);
+            this.setZIndex(1000);
         },
 
         /**

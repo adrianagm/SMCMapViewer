@@ -11,5 +11,5 @@ SMC = {
      * @property {string} BASE_URL - The default url value.
      * @default ../dist/
      */
-	BASE_URL: "../dist/"
+	BASE_URL: "../../dist/"
 };
