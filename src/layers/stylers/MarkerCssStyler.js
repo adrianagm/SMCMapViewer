@@ -46,6 +46,13 @@ SMC.layers.stylers.MarkerCssStyler = SMC.layers.stylers.Styler.extend(
             anchorTop = style.anchorTop || 0;
 
             var disableClustering = !!style.disableClustering;
+            var opacity = style.opacity ? style.opacity : 1;
+            //var visible = !style.invisible ? true : false;
+            // var visible;
+            // if(style.invisible == 'false'){
+            //     visible = true;
+            // }else
+            // visible = false;
 
             if (style.iconUrl) {
                 // Load normal marker icon with the specified url.
@@ -160,7 +167,8 @@ SMC.layers.stylers.MarkerCssStyler = SMC.layers.stylers.Styler.extend(
 
             return {
                 icon: icon,
-                disableClustering: disableClustering
+                disableClustering: disableClustering,
+                opacity: opacity
             };
 
         },

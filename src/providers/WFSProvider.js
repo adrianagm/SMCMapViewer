@@ -78,10 +78,10 @@ SMC.providers.WFSProvider = SMC.providers.URLFeatureProvider.extend(
                     jsonp: false
                 };
 
-                this.options.requestParams.cql_filter= requestData.data.cql_filter;
+                
 
                 if(bounds) {
-
+                    this.options.requestParams.cql_filter = requestData.data.cql_filter;
                     this.options.bbox = 'bbox(the_geom,' 
                         + bounds[1]+ ','
                         + bounds[0]+ ','
@@ -111,11 +111,11 @@ SMC.providers.WFSProvider = SMC.providers.URLFeatureProvider.extend(
         getParamsFromOptions: function() {
             var params = {};
             for (var option in this.options.requestParams) {
-            
+                
                 if(this.options[option]){
                      params[option] = this.options[option];
                 }
-                else if (this.options.requestParams[option] !== null){
+                else if (this.options.requestParams[option] !== null && option != 'cql_filter'){
                     params[option] = this.options.requestParams[option];
                 }
                 

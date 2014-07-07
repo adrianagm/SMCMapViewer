@@ -25,6 +25,7 @@ SMC.layers.geometry.WFSGeometryLayer = SMC.layers.geometry.GeometryLayer.extend(
             SMC.layers.geometry.GeometryLayer.prototype.initialize.call(this, options);
             SMC.providers.WFSProvider.prototype.initialize.call(this, options);
             L.Util.setOptions(this, options);
+            this.setZIndex(1000);
         },
 
         /**

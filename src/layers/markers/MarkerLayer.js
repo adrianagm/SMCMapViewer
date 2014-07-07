@@ -139,7 +139,7 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
             // We store this here so is avalaible later, on restylings because of zoom changes.
             marker.feature = f;
 
-            var featureId = f[this.options.featureId];
+            var featureId = f[this.options.idField];
             this._markersMap[featureId] = marker;
 
             this.addLayer(marker);
@@ -165,6 +165,9 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
             if (style.icon) {
                 marker.setIcon(style.icon);
             }
+             if (style.opacity) {
+                marker.setOpacity(style.opacity);
+            }
 
             if (inCluster) {
                 this.clusterGroup.removeLayer(marker);
@@ -172,12 +175,14 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
                 this.noClusterGroup.removeLayer(marker);
             }
 
+           
 
             if (style.disableClustering) {
                 this.noClusterGroup.addLayer(marker);
             } else {
                 this.clusterGroup.addLayer(marker);
             }
+        
 
             this.addPopUp(marker, zoom);
         },
@@ -187,7 +192,7 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
             var markersNoCluster = this.noClusterGroup.getLayers();
 
 
-            console.debug(this._map.getZoom());
+            //console.debug(this._map.getZoom());
 
             // Recorrer cluster
             var i, marker;
