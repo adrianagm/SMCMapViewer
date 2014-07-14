@@ -9,5 +9,12 @@ require("../src/providers/WFSProvider.js");
 require("../src/layers/markers/WFSMarkerLayer.js");
 require("../src/layers/geometry/WFSGeometryLayer.js");
 require("../src/layers/geometry/WFSTiledGeometryLayer.js");
-
 require("../src/layers/markers/AtmosphereRTMarkerLayer.js");
+require("../src/layers/markers/AtmosphereRTMarkerLayer.js");
+
+
+require("../src/layers/aggregation/AggregatingLayer.js");
+require("../src/layers/history/AggregatingHistoryLayer.js");
+require("../src/layers/history/DataHistoryLayer.js");
+
+require("../src/layers/aggregation/MultiModeLayer.js");
