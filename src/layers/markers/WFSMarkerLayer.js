@@ -1,6 +1,6 @@
 require("./MarkerLayer.js");
 require("../../providers/WFSProvider.js");
-
+require("../EditableLayer.js");
 
 /**
  * Layer for all SMC map viewer's WFS layers rendered using markers.
