@@ -32,14 +32,16 @@ SMC.layers.history.AggregatingHistoryLayer = SMC.layers.aggregation.AggregatingL
 			
 		},
 
-		onAdd: function(map) {
-			
+
+		onAdd: function(map) {	
+			SMC.layers.history.DataHistoryLayer.prototype.onAdd.call(this, map);
             SMC.layers.aggregation.AggregatingLayer.prototype.onAdd.call(this, map);
-          
+                     
         },
 
         onRemove: function(map){
-        	 SMC.layers.aggregation.AggregatingLayer.prototype.onRemove.call(this, map);
+        	SMC.layers.history.DataHistoryLayer.prototype.onRemove.call(this, map);
+        	SMC.layers.aggregation.AggregatingLayer.prototype.onRemove.call(this, map);
         }
 
 	});

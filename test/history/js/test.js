@@ -42,7 +42,7 @@ function initMap() {
                     params: [{
                         serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
                         typeName: "OpenData:COMMUNITY_CENTRES",
-                        date:"2",
+                        date: "2",
                         label: 'Community Centres'
                     }]
                 }, {
@@ -50,7 +50,7 @@ function initMap() {
                     params: [{
                         serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
                         typeName: "OpenData:Parks",
-                        date:"1",
+                        date: "1",
                         label: 'Parks'
                     }]
                 }, {
@@ -58,7 +58,7 @@ function initMap() {
                     params: [{
                         serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
                         typeName: "OpenData:V_SURE_START_CENTRES",
-                        date:"3",
+                        date: "3",
                         label: "Children's Centres"
                     }]
                 }]
@@ -66,7 +66,7 @@ function initMap() {
             }, {
 
                 type: "SMC.layers.history.AggregatingHistoryLayer",
-                label: 'History Roads',
+                label: 'History Geometry Tiles',
                 layers: [{
                     type: 'SMC.layers.geometry.WFSTiledGeometryLayer',
                     params: [{
@@ -82,12 +82,12 @@ function initMap() {
 
                     }]
 
-                },{
+                }, {
                     type: 'SMC.layers.geometry.WFSTiledGeometryLayer',
                     params: [{
                         serverURL: 'http://demo.opengeo.org/geoserver/wfs',
                         typeName: 'ne_10m_roads',
-                        label: 'Roads 2',
+                        label: 'Roads 3',
                         date: '2011',
                         zoomOffset: 0,
                         tileSize: 256,
@@ -95,7 +95,7 @@ function initMap() {
                         stylesheet: '* {strokeColor: "green";}',
 
 
-                    }]
+                    }],
 
                 }, {
                     type: 'SMC.layers.geometry.WFSTiledGeometryLayer',
@@ -126,50 +126,50 @@ function initMap() {
 
                     }]
                 }]
-           
 
-           // }
-            // ,{
-            //     type: "SMC.layers.history.AggregatingHistoryLayer",
-            //     label: 'History States',
-            //     layers: [{
-            //         type: 'SMC.layers.geometry.WFSGeometryLayer',
-            //         params: [{
-            //             serverURL: 'http://demo.opengeo.org/geoserver/wfs',
-            //             typeName: 'states',
-            //             label: 'States 1',
-            //             date: '1',
-            //             zoomOffset: 0,
-            //             draggingUpdates: true,
-            //             stylesheet: '* {fillColor: "rgba(0, 0, 255, 0.5)";}',   
 
-            //         }]
+                }
+                ,{
+                    type: "SMC.layers.history.AggregatingHistoryLayer",
+                    label: 'History Geometry',
+                    layers: [{
+                        type: 'SMC.layers.geometry.WFSGeometryLayer',
+                        params: [{
+                            serverURL: 'http://www.salford.gov.uk/geoserver/OpenData/wfs',
+                            typeName: 'OpenData:Parks',
+                            label: 'Parks 1',
+                            date: '1',
+                            zoomOffset: 0,
+                            draggingUpdates: true,
+                            stylesheet: '* {fillColor: "rgba(0, 0, 255, 0.5)";}',   
 
-            //     }, {
-            //         type: 'SMC.layers.geometry.WFSGeometryLayer',
-            //         params: [{
-            //             serverURL: 'http://demo.opengeo.org/geoserver/wfs',
-            //             typeName: 'states',
-            //             label: 'States 2',
-            //             date: '2',
-            //             zoomOffset: 0,
-            //             draggingUpdates: true,
-            //             stylesheet: '* {fillColor: "rgba(255, 0, 0, 0.5)";}',
+                        }]
 
-            //         }]
-            //     }, {
-            //         type: 'SMC.layers.geometry.WFSGeometryLayer',
-            //         params: [{
-            //             serverURL: 'http://demo.opengeo.org/geoserver/wfs',
-            //             typeName: 'states',
-            //             label: 'States 3',
-            //             date: '3',
-            //             zoomOffset: 0,
-            //             draggingUpdates: true,
-            //             stylesheet: '* {fillColor: "rgba(0, 255, 0, 0.5)";}',
+                    }, {
+                        type: 'SMC.layers.geometry.WFSGeometryLayer',
+                        params: [{
+                            serverURL: 'http://www.salford.gov.uk/geoserver/OpenData/wfs',
+                            typeName: 'OpenData:Parks',
+                            label: 'Parks 2',
+                            date: '2',
+                            zoomOffset: 0,
+                            draggingUpdates: true,
+                            stylesheet: '* {fillColor: "rgba(255, 0, 0, 0.5)";}',
 
-            //         }]
-             //   }]
+                        }]
+                    }, {
+                        type: 'SMC.layers.geometry.WFSGeometryLayer',
+                        params: [{
+                            serverURL: 'http://www.salford.gov.uk/geoserver/OpenData/wfs',
+                            typeName: 'OpenData:Parks',
+                            label: 'Parks 3',
+                            date: '3',
+                            zoomOffset: 0,
+                            draggingUpdates: true,
+                            stylesheet: '* {fillColor: "rgba(0, 255, 0, 0.5)";}',
+
+                        }]
+                  }]
 
 
             }]
@@ -178,6 +178,8 @@ function initMap() {
     }];
 
     map.loadLayers(tree);
+   
+   
     // var wfsMarkerLayer = SMC.wfsMarkerLayer({
     //     serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
     //     typeName: "OpenData:COMMUNITY_CENTRES",

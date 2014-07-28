@@ -1,7 +1,7 @@
 require("./AggregatingHistoryLayer.js");
 require("../layers.js");
 require("../../LayerLoader.js");
-require("../../../lib/jquery/dist/jquery.js");
+
 /**
  * Class formed by the aggregation of several history layers.
  *
@@ -15,14 +15,13 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 	{
 		_historyLayers: {},
 		_timer: null,
+		_node: null,
 
-		includes: SMC.Util.deepClassInclude([SMC.controls.layerTree.LayerTreeNode, SMC.layers.SingleLayer, SMC.LayerLoader]),
+
 
 		initialize: function(options) {
 			L.Util.setOptions(this, options);
 			L.LayerGroup.prototype.initialize.call(this, options);
-			SMC.layers.SingleLayer.prototype.initialize.apply(this, options);
-
 
 		},
 
@@ -35,7 +34,7 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 			var label = document.createElement("i");
 			label.className = 'fa fa-check-square-o';
 			label.style.cursor = "pointer";
-			label.innerHTML = (this.options.label || this.options.typeName);
+			label.innerHTML = " " + (this.options.label || this.options.typeName);
 
 
 			var sliderControl = document.createElement("div");
@@ -43,10 +42,8 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 			sliderControl.style.marginTop = '5px';
 
 
-
 			var sliderControlLabel = document.createElement("span");
 			sliderControlLabel.style.float = 'left';
-			//sliderControl.innerHTML += '<label for="interval_' + this._leaflet_id + '" id="intervalLabel_' + this._leaflet_id + '"> ' + this.options.label + '</label>';
 			sliderControl.innerHTML += '<input id="interval_' + this._leaflet_id + '" name="interval_' + this._leaflet_id + '" min="0" max="' + (this.options.layersConfig.length - 1) + '" type="range" step="0.1" value="0"/>';
 			sliderControl.className = 'leaflet-bar leaflet-update-interval ';
 
@@ -68,7 +65,6 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 				time = sliderControl.children[0].value;
 				self.showTimeData(time);
 				self._showLabel(sliderControlLabel);
-				map.fire("slidermove");
 				L.DomEvent.stopPropagation;
 			});
 			L.DomEvent.addListener(sliderControl, 'touchstart', L.DomEvent.stopPropagation);
@@ -84,6 +80,7 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 			play_pause.onclick = function() {
 				self._onPlayPause(node, time);
 			};
+			this._node = node;
 			return node;
 
 		},
@@ -127,10 +124,6 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 		},
 
 
-		addTo: function(map) {
-			SMC.layers.aggregation.AggregatingLayer.prototype.addTo.call(this, map);
-		},
-
 		showTimeData: function(time) {
 			var i = 0;
 			var data = this._historyLayers;
@@ -147,6 +140,7 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 
 				if (i == time) {
 					if (!this._historyLayers[d].actual) {
+						this._historyLayers[d]._slidermove = true;
 						this._historyLayers[d].onAdd(map);
 						this._historyLayers[d].actual = true;
 					}
@@ -155,17 +149,20 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 				i++;
 
 			}
+			map.fire("slidermove");
 		},
 
 		_addTimeData: function(time) {
 			var i = 0;
 			var data = this._historyLayers;
 			for (var d in data) {
+
 				if (i == time) {
 					map.addLayer(data[d]);
 					this._historyLayers[d].actual = true;
 				}
 				i++;
+
 			}
 
 		},
@@ -180,11 +177,15 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 		},
 
 		_clickOnLayer: function(node) {
-
+			var pause = node.getElementsByClassName('fa fa-pause')[0];
+			if (pause) {
+				this._onPlayPause(node);
+			}
 			var data = this._historyLayers;
 			if (node.children[1].style.display != 'none') {
 				node.children[1].style.display = 'none';
 				node.children[0].className = 'fa fa-square-o';
+
 				for (var d in data) {
 					if (data[d].actual) {
 						data[d].onRemove(map);
@@ -193,6 +194,7 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 			} else {
 				node.children[1].style.display = 'block';
 				node.children[0].className = 'fa fa-check-square-o';
+
 				for (var d in data) {
 					if (data[d].actual) {
 						data[d].onAdd(map);
@@ -204,16 +206,16 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 
 		_onPlayPause: function(node, time) {
 			var data = this._historyLayers;
-			
+
 			var maxValue = node.children[1].children[0].max;
 			var sliderControlLabel = node.children[1].children[1];
-			
+
 			if (node.children[1].children[2].className == 'fa fa-play') {
-				node.children[1].children[2].className = 'fa fa-pause';	
-				if(node.children[1].children[0].value == maxValue){
+				node.children[1].children[2].className = 'fa fa-pause';
+				if (node.children[1].children[0].value == maxValue) {
 					node.children[1].children[0].value = 0;
 				}
-				
+
 
 				var i = parseFloat(node.children[1].children[0].value);
 				var self = this;
@@ -221,24 +223,45 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 					self.showTimeData(i);
 					self._showLabel(sliderControlLabel);
 					if (i < maxValue) {
-						node.children[1].children[0].value = i;	
-						
-					}
-					else {
+						node.children[1].children[0].value = i;
+
+					} else {
 						clearInterval(self._timer);
 						node.children[1].children[2].className = 'fa fa-play';
 						node.children[1].children[0].value = maxValue;
-						
+
 					}
 					i += parseFloat(node.children[1].children[0].step);
 				}, 300);
 
 			} else {
-				
+
 				node.children[1].children[2].className = 'fa fa-play';
 				clearInterval(this._timer);
 			}
 		},
+
+		onRemove: function(map) {
+			var data = this._historyLayers;
+			for (var d in data) {
+				if (this._historyLayers[d].actual) {
+					this._historyLayers[d].onRemove(map);
+					this._historyLayers[d].actual = false;
+				}
+
+			}
+
+		},
+
+		onAdd: function(map) {
+			var value;
+			if (this._node != null) {
+				value = this._node.children[1].children[0].value;
+			} else
+				value = 0;
+			this.showTimeData(value);
+
+		}
 
 
 

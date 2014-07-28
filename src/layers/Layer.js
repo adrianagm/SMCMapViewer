@@ -36,6 +36,6 @@ SMC.layers.Layer = L.Class.extend(
          * @param {Boolean} visible - Boolean param to set visibilty true or false.
          */
         setVisible: function(visible) {
-             visible = visible;
+             this.visible = visible;
         }
     });

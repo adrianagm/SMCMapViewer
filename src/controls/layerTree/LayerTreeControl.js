@@ -39,6 +39,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             for (var i in baseLayers) {
                 this._addLayer(baseLayers[i], i);
             }
+
         },
 
         /**
@@ -52,6 +53,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             map
                 .on('layeradd', this._onLayerChange, this)
                 .on('layerremove', this._onLayerChange, this);
+
 
             return this._container;
         },
@@ -184,33 +186,35 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             this._separator.style.display = overlaysPresent && baseLayersPresent ? '' : 'none';
         },
 
-        _methodRecursive: function(layer){
+        _methodRecursive: function(layer) {
             var id = L.Util.stamp(layer);
             var name = "";
-            if(layer.createNodeHTML){
+            if (layer.createNodeHTML) {
                 name = layer.createNodeHTML();
-            }else{
+            } else {
                 name = layer.options.label;
             }
-            if(!this._layers[id]){
+            if (!this._layers[id]) {
                 var element = {
                     name: name,
                     layer: layer,
                     overlay: true,
                     parent: null
                 };
-                if(layer.loadLayers){
+                if (layer.loadLayers) {
                     this._parents[id] = element;
-                }else{
+                } else {
                     this._layers[id] = element;
                 }
-                if(layer.parent){
+
+                if (layer.parent) {
                     element.parent = L.Util.stamp(layer.parent);
                     this._methodRecursive(layer.parent);
-                }else if(layer.options.parent){
+                } else if (layer.options.parent) {
                     element.parent = layer.options.parent;
                     this._methodRecursive(this._parents[element.parent].layer);
                 }
+
             }
             if (this.options.autoZIndex && layer.setZIndex) {
                 this._lastZIndex++;
@@ -219,11 +223,27 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
         },
 
         _onLayerChange: function(e) {
+            if (e.layer instanceof L.MarkerClusterGroup) {
+                e.layer.off('clustermouseover', e.layer._showCoverage);
+            }
+
+            if (e.layer instanceof L.Marker && e.layer.__parent) {
+                return;
+            }
+
+            if (e.layer._slidermove) {
+                return;
+            }
+
+
+            if (e.layer instanceof L.Popup) {
+                return;
+            }
             var obj = this._layers[L.Util.stamp(e.layer)];
 
-            if(e.layer._map){
+            if (e.layer._map) {
                 if (!obj) {
-                    if(e.layer.options && e.layer.options.label){
+                    if (e.layer.options && e.layer.options.label) {
                         this._methodRecursive(e.layer);
                         this._update();
                     }
@@ -239,8 +259,8 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
                 if (!this._handlingClick) {
                     this._update();
                 }
-            }else{
-                if(!this._handlingClick){
+            } else {
+                if (!this._handlingClick) {
                     delete this._layers[L.Util.stamp(e.layer)];
                     this._update();
                 }
@@ -262,7 +282,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             return radioFragment.firstChild;
         },
 
-        _getLabel: function(obj){
+        _getLabel: function(obj) {
             var label = document.createElement('label'),
                 input,
                 checked = this._map.hasLayer(obj.layer);
@@ -295,7 +315,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             return label;
         },
 
-        _getGroupContainer: function(obj){
+        _getGroupContainer: function(obj) {
             var groupContainer = document.createElement('div');
             groupContainer.className = 'leaflet-control-layers-group';
             groupContainer.id = 'leaflet-control-layers-group-' + L.Util.stamp(obj.layer);
@@ -307,7 +327,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             return groupContainer;
         },
 
-        _getGroupLabel: function(obj){
+        _getGroupLabel: function(obj) {
             var groupLabel = document.createElement('span');
             groupLabel.className = 'leaflet-control-layers-group-name';
             groupLabel.appendChild(obj.name);
@@ -315,46 +335,46 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             return groupLabel;
         },
 
-        _getGroupContent: function(obj){
+        _getGroupContent: function(obj) {
             var groupContent = document.createElement('div');
             groupContent.className = 'leaflet-control-layers-group-content';
-            if(obj.name.className.indexOf("open") == -1){
+            if (obj.name.className.indexOf("open") == -1) {
                 groupContent.style.display = 'none';
             }
-            
+
             return groupContent;
         },
 
-        _addItemRecursively: function(obj){
-            if(obj.parent){
+        _addItemRecursively: function(obj) {
+            if (obj.parent) {
                 var parent = this._parents[obj.parent];
                 this._addItemRecursively(parent);
-                if(obj.layer.loadedLayers){
+                if (obj.layer.loadedLayers) {
                     var folderId = L.Util.stamp(obj.layer);
-                    if(!this._domGroups[folderId]){
+                    if (!this._domGroups[folderId]) {
                         var parentDom = this._getParentDom(obj.parent);
                         var parentContent = parentDom.getElementsByClassName("leaflet-control-layers-group-content")[0];
                         this._addFolderToOverlays(obj, parentContent);
                     }
-                }else{
+                } else {
                     // It's a layer
                     this._addLayerToOverlays(obj);
                 }
-            }else{
-                if(obj.layer.loadedLayers){
+            } else {
+                if (obj.layer.loadedLayers) {
                     // It's a folder
                     var folderId = L.Util.stamp(obj.layer);
-                    if(!this._domGroups[folderId]){
+                    if (!this._domGroups[folderId]) {
                         this._addFolderToOverlays(obj);
                     }
-                }else{
+                } else {
                     // It's a layer
                     this._addLayerToOverlays(obj);
                 }
             }
         },
 
-        _addFolderToOverlays: function(obj, parent){
+        _addFolderToOverlays: function(obj, parent) {
             // Create group container div
             var groupContainer = this._getGroupContainer(obj);
             // Create group content div
@@ -362,33 +382,33 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             // Add group content to group container
             groupContainer.appendChild(groupContent);
             // Add group container to container
-            if(parent){
+            if (parent) {
                 parent.appendChild(groupContainer);
-            }else{
+            } else {
                 container.appendChild(groupContainer);
             }
             // Add group container to domGroups
             this._domGroups[L.Util.stamp(obj.layer)] = groupContainer;
         },
 
-        _getParentDom: function(id){
+        _getParentDom: function(id) {
             var parent = null;
-            for(el in this._domGroups){
+            for (el in this._domGroups) {
                 var groupId = this._domGroups[el].id.split("-")[4];
-                if(groupId == id){
+                if (groupId == id) {
                     parent = this._domGroups[el];
                 }
             }
             return parent;
         },
 
-        _addLayerToOverlays: function(obj){
+        _addLayerToOverlays: function(obj) {
             var label = this._getLabel(obj);
-            if(obj.parent){
+            if (obj.parent) {
                 var parent = this._getParentDom(obj.parent);
                 var parentContent = parent.getElementsByClassName("leaflet-control-layers-group-content")[0];
                 parentContent.appendChild(label);
-            }else{
+            } else {
                 container.appendChild(label);
             }
         },

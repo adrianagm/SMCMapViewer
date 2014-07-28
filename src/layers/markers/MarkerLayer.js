@@ -2,7 +2,7 @@ require("./markers.js");
 require("../SingleLayer.js");
 require("../stylers/MarkerCssStyler.js");
 
-require("../../../lib/leaflet.markercluster/dist/leaflet.markercluster.js");
+require("../../../lib/leaflet.markercluster/dist/leaflet.markercluster-src.js");
 require("../../../lib/LeafletHtmlIcon.js");
 
 
@@ -34,6 +34,8 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
 
             this.noClusterGroup = new L.FeatureGroup();
             SMC.layers.stylers.MarkerCssStyler.prototype.initialize.apply(this, arguments);
+
+
         },
 
         /**
@@ -48,16 +50,23 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
             } else {
                 this._map.removeLayer(layer);
             }
+
         },
         /**
          * Method to load the control in the map
          * @param {SMC.Map} map - Map to be added
          */
         onAdd: function(map) {
-            this.clusterGroup.addTo(map);
-            this.noClusterGroup.addTo(map);
-            L.LayerGroup.prototype.onAdd.call(this, map);
+            this.onRemove(map);
             SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
+            L.FeatureGroup.prototype.onAdd.call(this, map);
+            if (this._slidermove) {
+                this.noClusterGroup._slidermove = true;
+                this.clusterGroup._slidermove = true;
+            }
+            map.addLayer(this.noClusterGroup);
+            map.addLayer(this.clusterGroup);
+
             if (map) {
                 map.on("zoomend", this._onViewChanged, this);
             }
@@ -67,14 +76,29 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
          * @param {SMC.Map} map - Map to be added
          */
         onRemove: function(map) {
+            var self = this;
+
+            var clusterGroup = this.clusterGroup.getLayers();
+            $.each(clusterGroup, function(index, marker) {
+                marker.parent = self;
+            });
             this.clusterGroup.clearLayers();
             map.removeLayer(this.clusterGroup);
+
+
+            var noClusterGroup = this.noClusterGroup.getLayers();
+            $.each(noClusterGroup, function(index, marker) {
+                marker.parent = self;
+            });
             this.noClusterGroup.clearLayers();
             map.removeLayer(this.noClusterGroup);
-            L.LayerGroup.prototype.onRemove.call(this, map);
+
+            L.FeatureGroup.prototype.onRemove.call(this, map);
+
             if (map) {
                 map.off("zoomend", this._onViewChanged, this);
             }
+
         },
 
         /**
@@ -160,12 +184,12 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
                 return;
             }
 
-            var zoom = this._map.getZoom();
+            var zoom = map.getZoom();
             var style = this.applyStyle(marker.feature, zoom);
             if (style.icon) {
                 marker.setIcon(style.icon);
             }
-             if (style.opacity) {
+            if (style.opacity) {
                 marker.setOpacity(style.opacity);
             }
 
@@ -175,14 +199,14 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
                 this.noClusterGroup.removeLayer(marker);
             }
 
-           
+
 
             if (style.disableClustering) {
                 this.noClusterGroup.addLayer(marker);
             } else {
                 this.clusterGroup.addLayer(marker);
             }
-        
+
 
             this.addPopUp(marker, zoom);
         },
@@ -191,14 +215,14 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
             var markersCluster = this.clusterGroup.getLayers();
             var markersNoCluster = this.noClusterGroup.getLayers();
 
-
-            //console.debug(this._map.getZoom());
-
             // Recorrer cluster
             var i, marker;
             for (i = 0; i < markersCluster.length; i++) {
                 marker = markersCluster[i];
                 if (this.clusterGroup) {
+                    if (this._slidermove) {
+                        marker._slidermove = true;
+                    }
                     this._applyStyles(marker, true);
                 }
             }
@@ -206,6 +230,9 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
             for (i = 0; i < markersNoCluster.length; i++) {
                 marker = markersNoCluster[i];
                 if (this.noClusterGroup) {
+                    if (this._slidermove) {
+                        marker._slidermove = true;
+                    }
                     this._applyStyles(marker, false);
                 }
 

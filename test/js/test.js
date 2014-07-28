@@ -242,7 +242,7 @@ function initMap() {
 
 	
 	//geometry.addGeometryFromFeatures(geometry_geojson);
-	//geometry.addTo(map);
+	geometry.addTo(map);
 
 	// $.ajax({
 
@@ -450,7 +450,7 @@ function initMap() {
 	// 	};
 	// };
 
-	tileLayer.addTo(map);
+	//tileLayer.addTo(map);
 	tileLayer.setZIndex(1000);
 	
 	
