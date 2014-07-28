@@ -19,8 +19,9 @@ SMC.layers.aggregation.AggregatingLayer = L.LayerGroup.extend(
 		_aggregatingLayers: {},
 
 		initialize: function(options) {
-			L.LayerGroup.prototype.initialize.apply(this, options);
-			this._aggregatingLayers= {};
+			L.Util.setOptions(this, options);
+			this._aggregatingLayers = {};
+			
 		},
 
 		/**
@@ -33,21 +34,28 @@ SMC.layers.aggregation.AggregatingLayer = L.LayerGroup.extend(
 			if (layerId.layersConfig) {
 				// We use the LayerLoader functionality.
 				this.loadLayers(layerId.layersConfig);
+
+
 			} else if (typeof layerId === "object") {
-				console.log(layerId.options.typeName);
+				console.log(layerId.options.typeName || layerId.options.label);
 				this._aggregatingLayers[layerId.options.label || layerId.options.typeName] = layerId;
 				
 			}
 
 		},
 
-		onAdd: function(map) {
-			L.LayerGroup.prototype.onAdd.call(this, map);
-		},
+		// onAdd: function(map) {
+		// 	L.LayerGroup.prototype.onAdd.call(this, map);
+			 
+		// },
 
-		onRemove: function(map){
-			L.LayerGroup.prototype.onRemove.call(this, map);
-		},
+		// onRemove: function(map){
+		// 	L.LayerGroup.prototype.onRemove.call(this, map);
+		// },
+
+		// addTo: function(map){
+		// 	L.LayerGroup.prototype.addTo.call(this, map);
+		// }
 
 		
 

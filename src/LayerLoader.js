@@ -49,6 +49,7 @@ SMC.LayerLoader = L.Class.extend(
             for (var i = 0; i < layersConfig.length; i++) {
                 var layerConfig = layersConfig[i];
                 this._loadLayerConfig(layerConfig, i + 1);
+
             }
         },
 
@@ -83,7 +84,7 @@ SMC.LayerLoader = L.Class.extend(
                 if (layerConfig.params) {
                     params = layerConfig.params;
                 }
-                if(layerConfig.url){
+                if (layerConfig.url) {
                     url = layerConfig.url;
                 }
 
@@ -97,10 +98,11 @@ SMC.LayerLoader = L.Class.extend(
                     }];
                 }
 
-                 if (!layerConfig.params && layerConfig.label && layerConfig.layers ) {
+                if (!layerConfig.params && layerConfig.label && layerConfig.layers) {
                     params = [{
                         layersConfig: layerConfig.layers,
-                        label: layerConfig.label
+                        label: layerConfig.label,
+                        active: layerConfig.active
                     }];
                 }
 
@@ -114,17 +116,18 @@ SMC.LayerLoader = L.Class.extend(
                 if (!layerClass.prototype) {
                     throw new Error("SMC.layers.LayerLoader::_loadLayerConfig: layer config in position " + idx + " defined type '" + type + "' is not a valid class");
                 }
+
             }
 
             // Class instantiation code from http://stackoverflow.com/questions/1606797/use-of-apply-with-new-operator-is-this-possible
             var createClass = (function() {
                 function F(arguments) {
-                    if(arguments.length > 1){
+                    if (arguments.length > 1) {
                         return layerClass.apply(this, arguments);
-                    }else{
+                    } else {
                         return layerClass.apply(this, arguments[0]);
                     }
-                    
+
                 }
                 F.prototype = layerClass.prototype;
 
@@ -133,16 +136,16 @@ SMC.LayerLoader = L.Class.extend(
                 };
             })();
 
-            if(url != ""){
-                if(Array.isArray(params)){
+            if (url != "") {
+                if (Array.isArray(params)) {
                     layer = createClass(url, params[0]);
-                }else{
+                } else {
                     layer = createClass(url, params);
                 }
-            }else{
+            } else {
                 layer = createClass(params);
             }
-            
+
 
             if (layerConfig.listeners) {
                 for (var eventName in layerConfig.listeners) {
@@ -151,9 +154,11 @@ SMC.LayerLoader = L.Class.extend(
             }
 
             // The layer loader is mixed in into a map (or Folder) so we can add layers to that.
-        
+
+            layer._map = this;
+
             layer.addTo(this);
-        
+
 
 
             // The loader (that is, the map or Folder) is the layer's parent
@@ -167,5 +172,18 @@ SMC.LayerLoader = L.Class.extend(
             }
 
             this.loadedLayers[id] = layer;
+
+            //add node active multimode layer
+            if (layer.parent == map) {
+                for (var l in map._layers) {
+                    if (map._layers[l] instanceof SMC.layers.aggregation.MultiModeLayer) {
+                        var layer = map._layers[l];
+                        layer._initializeTree();
+                    }
+                }
+
+            }
+
+
         }
     });

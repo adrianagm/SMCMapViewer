@@ -42,6 +42,13 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             });
 
             var map = this.getMap();
+            if (!map && this.parent) {
+                if (this.parent._map) {
+                    map = this.parent._map;
+                } else if (this.parent.parent) {
+                    map = this.parent.parent._map;
+                }
+            }
 
             map.on("click", function(event) {
 
@@ -57,9 +64,9 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
 
 
 
-            map.on("mousemove", function() {
+            map.on("mousemove", function(event) {
                 if (this.canvasTree != null)
-                    this._onMouseMoveAux;
+                    this._onMouseMoveAux(event);
             }, this);
 
             map.on("dragstart", function() {
@@ -101,7 +108,13 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
          * @returns {SMC.layers.Layer} layer to show on the map
          */
         renderCanvas: function(ctx, features, map) {
-
+            if (!map && this.parent) {
+                if (this.parent._map) {
+                    map = this.parent._map;
+                } else if (this.parent.parent) {
+                    map = this.parent.parent._map;
+                }
+            }
             this._init(ctx, map);
             ctx.canvas.zBuffer = [];
 
@@ -244,6 +257,13 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
 
             ctx.canvas._initialized = true;
 
+            if (!map && this.parent) {
+                if (this.parent._map) {
+                    map = this.parent._map;
+                } else if (this.parent.parent) {
+                    map = this.parent.parent._map;
+                }
+            }
             var zoom = map.getZoom();
             if (this.canvasTree === null || this.lastZoom != zoom) {
                 this.canvasTree = rbush(9, ['.minx', '.miny', '.maxx', '.maxy']);
@@ -256,6 +276,9 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
 
             ctx.canvas.zBuffer = [];
 
+            map.on('zoomstart', function() {
+                ctx.canvas._initialized = false;
+            }, this);
 
             map.on("zoomend", function() {
                 this._onViewChanged(ctx);
@@ -551,6 +574,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
         },
 
         _onViewChanged: function(ctx) {
+
             for (var i = 0; i < ctx.features.length; i++) {
                 var f = ctx.features[i];
                 f._clean = false;

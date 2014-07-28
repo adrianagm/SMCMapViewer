@@ -123,13 +123,14 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
          */
         onAdd: function(map) {
             L.TileLayer.Canvas.prototype.onAdd.call(this, map);
-            SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
+            map.fire('layeradd',{
+                layer: this
+            });
 
         },
 
-         onRemove: function(map) {
+        onRemove: function(map) {
             L.TileLayer.Canvas.prototype.onRemove.call(this, map);
-            //SMC.layers.SingleLayer.prototype.onRemove.call(this, map);
 
         },
 
