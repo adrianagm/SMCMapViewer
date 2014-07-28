@@ -271,6 +271,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
                 input = document.createElement('input');
                 input.type = 'checkbox';
                 input.className = 'leaflet-control-layers-selector';
+                input.id = obj.layer._leaflet_id;
                 input.defaultChecked = checked;
             } else {
                 input = this._createRadioElement('leaflet-base-layers', checked);
@@ -281,7 +282,12 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             L.DomEvent.on(input, 'click', this._onInputClick, this);
 
             var name = document.createElement('span');
-            name.innerHTML = ' ' + obj.name;
+            //name.innerHTML = ' ' + obj.name;
+            if(typeof obj.name == 'string'){
+                name.innerHTML = ' ' + obj.name;
+            }else{
+                name.appendChild(obj.name);
+            }
 
             label.appendChild(input);
             label.appendChild(name);
@@ -402,7 +408,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
 
         _onInputClick: function() {
             var i, input, obj,
-                inputs = this._form.getElementsByTagName('input'),
+                inputs = $('input[type=checkbox]', this._from),
                 inputsLen = inputs.length;
 
             this._handlingClick = true;
@@ -410,12 +416,24 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             for (i = 0; i < inputsLen; i++) {
                 input = inputs[i];
                 obj = this._layers[input.layerId];
+                var buttons = $("input[type=button]", obj.name);
 
                 if (input.checked && !this._map.hasLayer(obj.layer)) {
                     this._map.addLayer(obj.layer);
-
+                    // Enable the buttons
+                    for(i=0; i<buttons.length; i++){
+                        if(buttons[i].disabled){
+                            buttons[i].disabled = false;
+                        }
+                    }
                 } else if (!input.checked && this._map.hasLayer(obj.layer)) {
                     this._map.removeLayer(obj.layer);
+                    // Disable the buttons
+                    for(i=0; i<buttons.length; i++){
+                        if(!buttons[i].disabled){
+                            buttons[i].disabled = true;
+                        }
+                    }
                 }
             }
             this._handlingClick = false;

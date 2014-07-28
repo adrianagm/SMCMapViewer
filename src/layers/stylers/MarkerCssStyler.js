@@ -218,11 +218,12 @@ SMC.layers.stylers.MarkerCssStyler = SMC.layers.stylers.Styler.extend(
             if (marker.popup) {
                 marker.unbindPopup();
             }
-
-
-            var style = marker.feature._style;
-            if (!style)
+            var style = null;
+            if(marker.feature && marker.feature._style){
+                style = marker.feature._style;
+            }else{
                 style = "";
+            }
             var offsetLeft = style.popUpOffsetLeft || 0;
             var offsetTop = style.popUpOffsetTop || 0;
 
