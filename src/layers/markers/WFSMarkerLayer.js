@@ -6,7 +6,7 @@ require("../EditableLayer.js");
  * Layer for all SMC map viewer's WFS layers rendered using markers.
  * @class
  * @extends SMC.layers.markers.MarkerLayer
- * @mixes SMC.providers.WFSFeatureProvider
+ * @mixes SMC.providers.WFSProvider
  *
  * @author Moisés Arcos (marcos@emergya.com)
  */
@@ -28,10 +28,17 @@ SMC.layers.markers.WFSMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
             this.addMarkerFromFeature(features);
         },
 
+        /**
+         * Retrieves the features from its source.
+         */
         load: function() {
             this.loadFeatures();
         },
 
+        /**
+         * Method to create an HTML node for the name of the layer.
+         * @returns {String} HTML code representing the code to be added to the layer's entry in the layer tree.
+         */
         createNodeHTML: function() {
             return this.options.label || this.options.typeName;
         }

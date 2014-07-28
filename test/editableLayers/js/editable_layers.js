@@ -64,8 +64,8 @@ function initMap() {
         layers: [{
             type: "SMC.layers.markers.WFSTMarkerLayer",
             params: [{
-                serverURL: "http://www.ideandalucia.es/dea100/wfs",
-                typeName: "ideandalucia:it03_aeropuerto_pun",
+                serverURL: "http://localhost/geoserver/SmartCity/wfs",
+                typeName: "SmartCity:aeropuertos",
                 label: "Aeropuertos",
                 outputFormat: "json"
             }]

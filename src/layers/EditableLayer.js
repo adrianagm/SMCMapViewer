@@ -20,6 +20,7 @@ SMC.layers.EditableLayer = SMC.layers.SingleLayer.extend(
         /**
          * Method to add edit control to map
          * @private
+         * @param {Object} options - Event to handler
          */
         _startEditControl: function(options){
         	throw new Error("SMC.layers.EditableLayer::_addEditControl: must be implemented in derivate classes.");
@@ -27,6 +28,7 @@ SMC.layers.EditableLayer = SMC.layers.SingleLayer.extend(
         /**
          * Method to add edit control to map
          * @private
+         * @param {Object} options - Event to handler
          */
         _finishEditControl: function(options){
             throw new Error("SMC.layers.EditableLayer::_addEditControl: must be implemented in derivate classes.");
@@ -35,7 +37,7 @@ SMC.layers.EditableLayer = SMC.layers.SingleLayer.extend(
          * Method to add edit button to layer tree panel
          * @private
          */
-        _addEditButton: function(options){
+        _addEditButton: function(){
             var node = document.createElement("div");
             node.id = this.options.label;
             node.style.display = "inherit";

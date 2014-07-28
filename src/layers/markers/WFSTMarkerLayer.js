@@ -6,8 +6,9 @@ var editable_layers = [];
 /**
  * Layer for all SMC map viewer's WFS-T layers rendered using markers.
  * @class
- * @extends SMC.layers.markers.WFSTMarkerLayer
+ * @extends SMC.layers.markers.MarkerLayer
  * @mixes SMC.providers.WFSTProvider
+ * @mixes SMC.layers.EditableLayer
  *
  * @author Moisés Arcos (marcos@emergya.com)
  */
@@ -33,10 +34,17 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
             this.addMarkerFromFeature(features);
         },
 
+        /**
+         * Retrieves the features from its source.
+         */
         load: function() {
             this.loadFeatures();
         },
 
+        /**
+         * Method to create an HTML node for the name of the layer.
+         * @returns {String} HTML code representing the code to be added to the layer's entry in the layer tree.
+         */
         createNodeHTML: function() {
             var node = this._addEditButton();
             if(node == null){
@@ -68,6 +76,7 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
         /**
          * Method to add edit control to map
          * @private
+         * @param {Object} options - Event to handler
          */
         _startEditControl: function(options){
             if(this._map && !this._drawControl){
@@ -102,22 +111,20 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
                 this._map.on('draw:created', function (e) {
                     var layer = e.layer;
                     self.addLayer(layer);
-                    layer.bindPopup('Elemento nuevo');
                     // Update the added features
+                    self._insert(layer);
                 });
                 // Marker edited
                 this._map.on('draw:edited', function (e) {
                     var layers = e.layers;
-                    layers.eachLayer(function (layer) {
-                        // Update the edited features
-                    });
+                    // Update the edited features
+                    self._update(layers);
                 });
                 // Marker removed
                 this._map.on('draw:deleted', function (e) {
                     var layers = e.layers;
-                    layers.eachLayer(function (layer) {
-                        // Remove the deleted features
-                    });
+                    // Remove the deleted features
+                    self._delete(layers);
                 }); 
             }
         },
@@ -125,6 +132,7 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
         /**
          * Method to add edit control to map
          * @private
+         * @param {Object} options - Event to handler
          */
         _finishEditControl: function(options){
             if(this._drawControl){
