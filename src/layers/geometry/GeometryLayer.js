@@ -16,7 +16,7 @@ require("../../../lib/canvasLayer/leaflet_canvas_layer.js");
 SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 	/** @lends SMC.layers.geometry.GeometryLayer# */
 	{
-		includes: SMC.Util.deepClassInclude([SMC.layers.SingleLayer, SMC.layers.geometry.CanvasRenderer, SMC.layers.SingleLayer]),
+		includes: SMC.Util.deepClassInclude([SMC.layers.SingleLayer, SMC.layers.geometry.CanvasRenderer]),
 
 		features: [],
 		/**
@@ -28,8 +28,6 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 			SMC.layers.stylers.MapCssStyler.prototype.initialize.apply(this, arguments);
 			SMC.layers.SingleLayer.prototype.initialize.apply(this, arguments);
 			L.Util.setOptions(this, options);
-
-
 		},
 		/**
 		 * Method to load the control in the map
@@ -54,8 +52,6 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 				}
 
 			}, this);
-
-
 
 			map.on("autopanstart", function() {
 				map._autopan = true;
@@ -82,12 +78,11 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 				}
 			}, this);
 
-
-
 		},
 
-		onRemove: function(map) {
-			L.CanvasLayer.prototype.onRemove.call(this, map);
+		onRemove: function() {
+			SMC.layers.geometry.CanvasRenderer.prototype.onRemove.call(this);
+			L.CanvasLayer.prototype.onRemove.apply(this, arguments);
 		},
 
 		getMap: function() {
@@ -100,7 +95,6 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 		render: function() {
 			var canvas = this.getCanvas();
 
-
 			if (this.features.length !== 0) {
 				this.renderCanvas({
 					canvas: canvas
@@ -109,9 +103,9 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 		},
 
 		/**
-		 * Method to add geometries from features
-		 * @param {object} features - Features to get its geometries
-		 */
+         * Method to add geometries from features
+         * @param {object} features - Features to get its geometries
+         */
 		addGeometryFromFeatures: function(features) {
 			if (L.Util.isArray(features)) {
 				this.features = features;

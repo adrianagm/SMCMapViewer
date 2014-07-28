@@ -17,11 +17,11 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 		_timer: null,
 		_node: null,
 
-
-
 		initialize: function(options) {
 			L.Util.setOptions(this, options);
 			L.LayerGroup.prototype.initialize.call(this, options);
+			SMC.layers.SingleLayer.prototype.initialize.apply(this, options);
+
 
 		},
 
@@ -109,7 +109,8 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 
 				layersArray.sort(function(a, b) {
 					return (a.options.date - b.options.date)
-				})
+				});
+
 				for (var i = 0; i < layersArray.length; i++) {
 					if (!layersObj[layersArray[i].options.date]) {
 						layersObj[layersArray[i].options.date] = layersArray[i];
@@ -124,15 +125,21 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 		},
 
 
+		addTo: function(map) {
+			SMC.layers.aggregation.AggregatingLayer.prototype.addTo.call(this, map);
+		},
+
 		showTimeData: function(time) {
 			var i = 0;
 			var data = this._historyLayers;
-			if (time % 1 != 0) {
+			if (time % 1 !== 0) {
 				time = time - (time % 1);
 			}
 			for (var d in data) {
-				if (i == time && data[d].actual)
+				if (i == time && data[d].actual) {
 					break;
+				}
+
 				if (this._historyLayers[d].actual) {
 					this._historyLayers[d].onRemove(map);
 					this._historyLayers[d].actual = false;
@@ -185,7 +192,6 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 			if (node.children[1].style.display != 'none') {
 				node.children[1].style.display = 'none';
 				node.children[0].className = 'fa fa-square-o';
-
 				for (var d in data) {
 					if (data[d].actual) {
 						data[d].onRemove(map);
@@ -194,7 +200,6 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 			} else {
 				node.children[1].style.display = 'block';
 				node.children[0].className = 'fa fa-check-square-o';
-
 				for (var d in data) {
 					if (data[d].actual) {
 						data[d].onAdd(map);

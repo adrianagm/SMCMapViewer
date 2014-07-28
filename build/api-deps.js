@@ -12,12 +12,11 @@ require("../src/layers/geometry/WFSTiledGeometryLayer.js");
 require("../src/layers/markers/AtmosphereRTMarkerLayer.js");
 require("../src/layers/markers/AtmosphereRTMarkerLayer.js");
 
-
 require("../src/layers/aggregation/AggregatingLayer.js");
 require("../src/layers/history/AggregatingHistoryLayer.js");
 require("../src/layers/history/DataHistoryLayer.js");
 
-//require("../src/layers/aggregation/MultiModeLayer.js");
+require("../src/layers/aggregation/MultiModeLayer.js");
 
 require("../src/providers/WFSTProvider.js");
 require("../src/layers/EditableLayer.js");
