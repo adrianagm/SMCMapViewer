@@ -66,7 +66,7 @@ function initMap() {
             }, {
 
                 type: "SMC.layers.history.AggregatingHistoryLayer",
-                label: 'History Geometry Tiles',
+                label: 'History Roads',
                 layers: [{
                     type: 'SMC.layers.geometry.WFSTiledGeometryLayer',
                     params: [{
@@ -87,7 +87,7 @@ function initMap() {
                     params: [{
                         serverURL: 'http://demo.opengeo.org/geoserver/wfs',
                         typeName: 'ne_10m_roads',
-                        label: 'Roads 3',
+                        label: 'Roads 2',
                         date: '2011',
                         zoomOffset: 0,
                         tileSize: 256,
@@ -95,7 +95,7 @@ function initMap() {
                         stylesheet: '* {strokeColor: "green";}',
 
 
-                    }],
+                    }]
 
                 }, {
                     type: 'SMC.layers.geometry.WFSTiledGeometryLayer',
@@ -178,8 +178,6 @@ function initMap() {
     }];
 
     map.loadLayers(tree);
-   
-   
     // var wfsMarkerLayer = SMC.wfsMarkerLayer({
     //     serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
     //     typeName: "OpenData:COMMUNITY_CENTRES",

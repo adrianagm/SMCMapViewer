@@ -23,6 +23,10 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
 
         canvasTree: null,
 
+        // This map will be used to store ctx related events, of which exist one per canvas,
+        // so we are able of removing them to avoid performance regressions.
+        _ctxEvents: null,
+
         /**
          * @typedef {Object} SMC.layers.geometry.CanvasRenderer~options
          * @property {boolean} draggingUpdates=true - Default dragging updates value
@@ -36,62 +40,52 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
          * @param {object} options - object with need parameters
          */
         initialize: function(options) {
+            SMC.layers.stylers.MapCssStyler.prototype.initialize.apply(this, arguments);
+
             L.Util.setOptions(this, options);
             this.fireEvent('layerLoad', {
                 features: this.features
             });
+        },
 
-            var map = this.getMap();
-            if (!map && this.parent) {
-                if (this.parent._map) {
-                    map = this.parent._map;
-                } else if (this.parent.parent) {
-                    map = this.parent.parent._map;
+        _onMapClicked: function(event) {
+
+            if (this.canvasTree) {
+
+                var canvasBbox = this._searchCanvas(event);
+                for (var i = 0; i < canvasBbox.length; i++) {
+                    var ctx = canvasBbox[i].ctx;
+                    this._onMouseClick(ctx, event);
                 }
             }
+        },
 
-            map.on("click", function(event) {
+        _onMapMoveEnded: function() {
+            if (this.canvasTree) {
+                this.canvasTree.clear();
+            }
+            map.fireEvent("dragend");
+        },
 
-                if (this.canvasTree != null) {
+        _onMapDragStarted: function() {
+            this.dragging = true;
+            if (this.canvasTree) {
+                this.canvasTree.clear();
+            }
 
-                    var canvasBbox = this.searchCanvas(event);
-                    for (var i = 0; i < canvasBbox.length; i++) {
-                        var ctx = canvasBbox[i].ctx;
-                        this._onMouseClick(ctx, event);
-                    }
-                }
-            }, this);
+            console.debug("moving disabled!");
+            map.off("mousemove", this._onMapMouseMoved, this);
+        },
 
-
-
-            map.on("mousemove", function(event) {
-                if (this.canvasTree != null)
-                    this._onMouseMoveAux(event);
-            }, this);
-
-            map.on("dragstart", function() {
-                this.dragging = true;
-                if (this.canvasTree != null)
-                    this.canvasTree.clear();
-                console.debug("moving disabled!");
-                map.off("mousemove", function() {
-                    if (this.canvasTree != null)
-                        this._onMouseMoveAux;
-                }, this);
-            }, this);
-
-            map.on("moveend", function() {
-                if (this.canvasTree != null) {
-                    this.canvasTree.clear();
-                }
-                map.fireEvent("dragend");
-            }, this);
-
-
+        _onMapMouseMoved: function() {
+            if (this.canvasTree) {
+                this._onMouseMoveAux;
+            }
         },
 
         _onMouseMoveAux: function(event) {
-            var canvasBbox = this.searchCanvas(event);
+            var canvasBbox = this._searchCanvas(event);
+            console.debug("Mouse move canvases searched: " + canvasBbox.length);
             for (var i = 0; i < canvasBbox.length; i++) {
                 var ctx = canvasBbox[i].ctx;
                 this._onMouseMove(ctx, event);
@@ -115,7 +109,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
                     map = this.parent.parent._map;
                 }
             }
-            this._init(ctx, map);
+            this._initCtx(ctx, map);
             ctx.canvas.zBuffer = [];
 
             if (!this.options.draggingUpdates && this.dragging) {
@@ -212,17 +206,11 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             console.time("translate " + canvasLabel);
 
             layer.applyMatrix = false;
-            //layer.transform(new paper.Matrix(1,0,0,1,-ctx.canvas._s.x, -ctx.canvas._s.y));
             layer.translate(new paper.Point(-ctx.canvas._s.x, -ctx.canvas._s.y));
-
-
-            //canvas._lastTransform = ctx;
 
             console.timeEnd("translate " + canvasLabel);
 
             console.time("draw " + canvasLabel);
-
-
 
             // Visual debug info:
             var text = new mypaper.PointText({
@@ -240,15 +228,12 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             mypaper.view.draw();
 
             console.timeEnd("draw " + canvasLabel);
-
             console.timeEnd("render " + canvasLabel);
 
-
             return layer;
-
         },
 
-        _init: function(ctx, map) {
+        _initCtx: function(ctx, map) {
 
             if (ctx.canvas._initialized) {
                 console.debug("skiped init");
@@ -268,7 +253,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             if (this.canvasTree === null || this.lastZoom != zoom) {
                 this.canvasTree = rbush(9, ['.minx', '.miny', '.maxx', '.maxy']);
                 this.lastZoom = zoom;
-            };
+            }
 
             var treeNode = this._createTreeNode(ctx);
             this.canvasTree.insert(treeNode);
@@ -276,17 +261,11 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
 
             ctx.canvas.zBuffer = [];
 
-            map.on('zoomstart', function() {
-                ctx.canvas._initialized = false;
-            }, this);
-
-            map.on("zoomend", function() {
+            this._registerCtxEvent("zoomend", function() {
                 this._onViewChanged(ctx);
-            }, this);
+            });
 
-
-
-            map.on("dragend", function() {
+            this._registerCtxEvent("dragend", function() {
                 this.dragging = false;
 
                 console.debug("moving renabled!");
@@ -298,11 +277,30 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
                 if (!this.options.draggingUpdates) {
                     this.renderCanvas(ctx, ctx.features, ctx.canvas._map);
                 }
+            });
+        },
 
-            }, this);
+        _registerCtxEvent: function(eventName, fn) {
+            if (!this._ctxEvents) {
+                this._ctxEvents = {};
+            }
 
+            if (!this._ctxEvents[eventName]) {
+                this._ctxEvents[eventName] = [];
+            }
 
+            this._ctxEvents[eventName].push(fn);
 
+			var map = this.getMap();
+			if (!map && this.parent) {
+                if (this.parent._map) {
+                    map = this.parent._map;
+                } else if (this.parent.parent) {
+                    map = this.parent.parent._map;
+                }
+            }
+
+            map.on(eventName, fn, this);
         },
 
         _createTreeNode: function(ctx) {
@@ -321,10 +319,15 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
 
         },
 
-        searchCanvas: function(event) {
+        _searchCanvas: function(event) {
             var bbox = L.bounds([event.containerPoint.y, event.containerPoint.x], [event.containerPoint.y, event.containerPoint.x]);
-            if (this.canvasTree != null)
-                var canvas = this.canvasTree.search([bbox.min.x, bbox.min.y, bbox.max.x, bbox.max.y]);
+
+
+            var canvas = [];
+            if (this.canvasTree) {
+                canvas = this.canvasTree.search([bbox.min.x, bbox.min.y, bbox.max.x, bbox.max.y]);
+            }
+
             return canvas;
         },
 
@@ -342,7 +345,6 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             if (geom[0]) {
                 while (L.Util.isArray(geom[0][0])) {
                     geom = geom[0];
-
                 }
             }
 
@@ -415,8 +417,6 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             } else {
                 p = coords._projCoords = ctx.canvas._map.project(new L.LatLng(coords[1], coords[0]), zoom);
             }
-
-
 
             return {
                 x: p.x,
@@ -520,8 +520,6 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
                         .setContent(stylePopup.content)
                         .openOn(ctx.canvas._map);
                 }
-
-
             }
 
         },
@@ -540,10 +538,6 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
 
         _hitTest: function(ctx, event) {
 
-            // if (event._hit) {
-            //     return;
-            // }
-
             //console.time("hitTest");
             var cPoint = this._canvasPoint([event.latlng.lng, event.latlng.lat], ctx);
 
@@ -553,18 +547,12 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             cPoint.x -= ctx.canvas._s.x;
             cPoint.y -= ctx.canvas._s.y;
             var fill = true;
-            // for(var i = 0; i < ctx.features.length; i++){
-            //     if(ctx.features[i].geometry.type == 'LineString' || ctx.features[i].geometry.type == 'MultiLineString'){
-            //         fill = false;
-            //         break;
-            //     }
-            // }
 
             var options = {
                 tolerance: 5,
                 fill: true,
                 stroke: true
-            }
+            };
 
 
             var hitResult = ctx.canvas._paper.project.hitTest(cPoint, options);
@@ -574,7 +562,6 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
         },
 
         _onViewChanged: function(ctx) {
-
             for (var i = 0; i < ctx.features.length; i++) {
                 var f = ctx.features[i];
                 f._clean = false;
@@ -666,5 +653,34 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
 
         },
 
+        onAdd: function() {
+            this._ctxEvents = {};
+            var map = this.getMap();
+            map.on("click", this._onMapClicked, this);
+            map.on("mousemove", this._onMapMouseMoved, this);
+            map.on("dragstart", this._onMapDragStarted, this);
+            map.on("moveend", this._onMapMoveEnded, this);
+        },
+
+        onRemove: function() {
+            if (this.canvasTree) {
+                this.canvasTree.clear();
+            }
+
+            // We need to remove all events associated with the layer, or performance will be sorely affected.
+
+            var map = this.getMap();
+            map.off("click", this._onMapClicked, this);
+            map.off("mousemove", this._onMapMouseMoved, this);
+            map.off("dragstart", this._onMapDragStarted, this);
+            map.off("moveend", this._onMapMoveEnded, this);
+
+            for (var eventName in this._ctxEvents) {
+                var eventHandlers = this._ctxEvents[eventName];
+                for (var i = 0; i < eventHandlers.length; i++) {
+                    map.off(eventName, eventHandlers[i], this);
+                }
+            }
+        }
 
     });

@@ -68,6 +68,7 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
         initialize: function(options) {
             L.Util.setOptions(this, options);
             L.TileLayer.Canvas.prototype.initialize.call(this, options);
+            SMC.layers.geometry.CanvasRenderer.prototype.initialize.call(this, options);
             SMC.layers.stylers.MapCssStyler.prototype.initialize.apply(this, arguments);
 
 
@@ -93,7 +94,7 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
                 }
 
                 this._draw(ctx);
-                if (this.tilesToLoad == null) {
+                if (!this.tilesToLoad) {
                     this.tilesToLoad = this._tilesToLoad;
                 }
             };
@@ -123,6 +124,8 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
          */
         onAdd: function(map) {
             L.TileLayer.Canvas.prototype.onAdd.call(this, map);
+            SMC.layers.geometry.CanvasRenderer.prototype.onAdd.apply(this, arguments);
+            SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
             map.fire('layeradd',{
                 layer: this
             });
@@ -130,7 +133,9 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
         },
 
         onRemove: function(map) {
+            SMC.layers.geometry.CanvasRenderer.prototype.onRemove.call(this);
             L.TileLayer.Canvas.prototype.onRemove.call(this, map);
+            //SMC.layers.SingleLayer.prototype.onRemove.call(this, map);
 
         },
 
