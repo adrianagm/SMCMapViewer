@@ -56,7 +56,9 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
                      +  '   </wfs:Insert>\n'
                      +  '</wfs:Transaction>\n';
 
-                    self._sendRequest(self.options.serverURL, postData);
+                    self._sendRequest("POST", self.options.serverURL, postData, function(xml){
+                        self._getLastFeature();
+                    });
                 }
             });
         },
@@ -81,7 +83,7 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
              +  wfs_elements
              +  '</wfs:Transaction>\n';
 
-            this._sendRequest(this.options.serverURL, postData);
+            this._sendRequest("POST", this.options.serverURL, postData);
         },
         /**
          * Method to prepare WFS-T request payload to delete a geometry
@@ -105,7 +107,7 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
              +  wfs_elements
              +  '</wfs:Transaction>\n';
 
-            this._sendRequest(this.options.serverURL, postData);
+            this._sendRequest("POST", this.options.serverURL, postData);
         },
         /**
          * Method to send WFS-T request
@@ -113,16 +115,14 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
          * @param {strin} url - url server where send request
          * @param {string} data - request payload
          */
-        _sendRequest: function(url, data){
+        _sendRequest: function(type, url, data, method){
         	$.ajax({
-                type: "POST",
+                type: type,
                 url: url,
                 dataType: "xml",
                 contentType: "text/xml",
                 data: data,
-                success: function(xml) {    
-                    console.log(xml);
-                }
+                success: method
             });
         },
         /**
