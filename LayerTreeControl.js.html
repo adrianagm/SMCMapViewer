@@ -66,6 +66,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             for (var i in baseLayers) {
                 this._addLayer(baseLayers[i], i);
             }
+
         },
 
         /**
@@ -79,6 +80,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             map
                 .on('layeradd', this._onLayerChange, this)
                 .on('layerremove', this._onLayerChange, this);
+
 
             return this._container;
         },
@@ -211,33 +213,35 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             this._separator.style.display = overlaysPresent &amp;&amp; baseLayersPresent ? '' : 'none';
         },
 
-        _methodRecursive: function(layer){
+        _methodRecursive: function(layer) {
             var id = L.Util.stamp(layer);
             var name = "";
-            if(layer.createNodeHTML){
+            if (layer.createNodeHTML) {
                 name = layer.createNodeHTML();
-            }else{
+            } else {
                 name = layer.options.label;
             }
-            if(!this._layers[id]){
+            if (!this._layers[id]) {
                 var element = {
                     name: name,
                     layer: layer,
                     overlay: true,
                     parent: null
                 };
-                if(layer.loadLayers){
+                if (layer.loadLayers) {
                     this._parents[id] = element;
-                }else{
+                } else {
                     this._layers[id] = element;
                 }
-                if(layer.parent){
+
+                if (layer.parent) {
                     element.parent = L.Util.stamp(layer.parent);
                     this._methodRecursive(layer.parent);
-                }else if(layer.options.parent){
+                } else if (layer.options.parent) {
                     element.parent = layer.options.parent;
                     this._methodRecursive(this._parents[element.parent].layer);
                 }
+
             }
             if (this.options.autoZIndex &amp;&amp; layer.setZIndex) {
                 this._lastZIndex++;
@@ -246,11 +250,27 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
         },
 
         _onLayerChange: function(e) {
+            if (e.layer instanceof L.MarkerClusterGroup) {
+                e.layer.off('clustermouseover', e.layer._showCoverage);
+            }
+
+            if (e.layer instanceof L.Marker &amp;&amp; e.layer.__parent) {
+                return;
+            }
+
+            if (e.layer._slidermove) {
+                return;
+            }
+
+
+            if (e.layer instanceof L.Popup) {
+                return;
+            }
             var obj = this._layers[L.Util.stamp(e.layer)];
 
-            if(e.layer._map){
+            if (e.layer._map) {
                 if (!obj) {
-                    if(e.layer.options &amp;&amp; e.layer.options.label){
+                    if (e.layer.options &amp;&amp; e.layer.options.label) {
                         this._methodRecursive(e.layer);
                         this._update();
                     }
@@ -266,8 +286,8 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
                 if (!this._handlingClick) {
                     this._update();
                 }
-            }else{
-                if(!this._handlingClick){
+            } else {
+                if (!this._handlingClick) {
                     delete this._layers[L.Util.stamp(e.layer)];
                     this._update();
                 }
@@ -289,7 +309,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             return radioFragment.firstChild;
         },
 
-        _getLabel: function(obj){
+        _getLabel: function(obj) {
             var label = document.createElement('label'),
                 input,
                 checked = this._map.hasLayer(obj.layer);
@@ -298,6 +318,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
                 input = document.createElement('input');
                 input.type = 'checkbox';
                 input.className = 'leaflet-control-layers-selector';
+                input.id = obj.layer._leaflet_id;
                 input.defaultChecked = checked;
             } else {
                 input = this._createRadioElement('leaflet-base-layers', checked);
@@ -308,7 +329,12 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             L.DomEvent.on(input, 'click', this._onInputClick, this);
 
             var name = document.createElement('span');
-            name.innerHTML = ' ' + obj.name;
+            //name.innerHTML = ' ' + obj.name;
+            if(typeof obj.name == 'string'){
+                name.innerHTML = ' ' + obj.name;
+            }else{
+                name.appendChild(obj.name);
+            }
 
             label.appendChild(input);
             label.appendChild(name);
@@ -316,7 +342,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             return label;
         },
 
-        _getGroupContainer: function(obj){
+        _getGroupContainer: function(obj) {
             var groupContainer = document.createElement('div');
             groupContainer.className = 'leaflet-control-layers-group';
             groupContainer.id = 'leaflet-control-layers-group-' + L.Util.stamp(obj.layer);
@@ -328,7 +354,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             return groupContainer;
         },
 
-        _getGroupLabel: function(obj){
+        _getGroupLabel: function(obj) {
             var groupLabel = document.createElement('span');
             groupLabel.className = 'leaflet-control-layers-group-name';
             groupLabel.appendChild(obj.name);
@@ -336,46 +362,46 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             return groupLabel;
         },
 
-        _getGroupContent: function(obj){
+        _getGroupContent: function(obj) {
             var groupContent = document.createElement('div');
             groupContent.className = 'leaflet-control-layers-group-content';
-            if(obj.name.className.indexOf("open") == -1){
+            if (obj.name.className.indexOf("open") == -1) {
                 groupContent.style.display = 'none';
             }
-            
+
             return groupContent;
         },
 
-        _addItemRecursively: function(obj){
-            if(obj.parent){
+        _addItemRecursively: function(obj) {
+            if (obj.parent) {
                 var parent = this._parents[obj.parent];
                 this._addItemRecursively(parent);
-                if(obj.layer.loadedLayers){
+                if (obj.layer.loadedLayers) {
                     var folderId = L.Util.stamp(obj.layer);
-                    if(!this._domGroups[folderId]){
+                    if (!this._domGroups[folderId]) {
                         var parentDom = this._getParentDom(obj.parent);
                         var parentContent = parentDom.getElementsByClassName("leaflet-control-layers-group-content")[0];
                         this._addFolderToOverlays(obj, parentContent);
                     }
-                }else{
+                } else {
                     // It's a layer
                     this._addLayerToOverlays(obj);
                 }
-            }else{
-                if(obj.layer.loadedLayers){
+            } else {
+                if (obj.layer.loadedLayers) {
                     // It's a folder
                     var folderId = L.Util.stamp(obj.layer);
-                    if(!this._domGroups[folderId]){
+                    if (!this._domGroups[folderId]) {
                         this._addFolderToOverlays(obj);
                     }
-                }else{
+                } else {
                     // It's a layer
                     this._addLayerToOverlays(obj);
                 }
             }
         },
 
-        _addFolderToOverlays: function(obj, parent){
+        _addFolderToOverlays: function(obj, parent) {
             // Create group container div
             var groupContainer = this._getGroupContainer(obj);
             // Create group content div
@@ -383,33 +409,33 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             // Add group content to group container
             groupContainer.appendChild(groupContent);
             // Add group container to container
-            if(parent){
+            if (parent) {
                 parent.appendChild(groupContainer);
-            }else{
+            } else {
                 container.appendChild(groupContainer);
             }
             // Add group container to domGroups
             this._domGroups[L.Util.stamp(obj.layer)] = groupContainer;
         },
 
-        _getParentDom: function(id){
+        _getParentDom: function(id) {
             var parent = null;
-            for(el in this._domGroups){
+            for (el in this._domGroups) {
                 var groupId = this._domGroups[el].id.split("-")[4];
-                if(groupId == id){
+                if (groupId == id) {
                     parent = this._domGroups[el];
                 }
             }
             return parent;
         },
 
-        _addLayerToOverlays: function(obj){
+        _addLayerToOverlays: function(obj) {
             var label = this._getLabel(obj);
-            if(obj.parent){
+            if (obj.parent) {
                 var parent = this._getParentDom(obj.parent);
                 var parentContent = parent.getElementsByClassName("leaflet-control-layers-group-content")[0];
                 parentContent.appendChild(label);
-            }else{
+            } else {
                 container.appendChild(label);
             }
         },
@@ -429,7 +455,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
 
         _onInputClick: function() {
             var i, input, obj,
-                inputs = this._form.getElementsByTagName('input'),
+                inputs = $('input[type=checkbox]', this._from),
                 inputsLen = inputs.length;
 
             this._handlingClick = true;
@@ -437,12 +463,24 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             for (i = 0; i &lt; inputsLen; i++) {
                 input = inputs[i];
                 obj = this._layers[input.layerId];
+                var buttons = $("input[type=button]", obj.name);
 
                 if (input.checked &amp;&amp; !this._map.hasLayer(obj.layer)) {
                     this._map.addLayer(obj.layer);
-
+                    // Enable the buttons
+                    for(i=0; i&lt;buttons.length; i++){
+                        if(buttons[i].disabled){
+                            buttons[i].disabled = false;
+                        }
+                    }
                 } else if (!input.checked &amp;&amp; this._map.hasLayer(obj.layer)) {
                     this._map.removeLayer(obj.layer);
+                    // Disable the buttons
+                    for(i=0; i&lt;buttons.length; i++){
+                        if(!buttons[i].disabled){
+                            buttons[i].disabled = true;
+                        }
+                    }
                 }
             }
             this._handlingClick = false;
@@ -475,13 +513,13 @@ SMC.layerTreeControl = function(baseLayers, overlays, options) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="SMC.controls.layerTree.LayerTreeControl.html">LayerTreeControl</a></li><li><a href="SMC.controls.layerTree.LayerTreeLeaf.html">LayerTreeLeaf</a></li><li><a href="SMC.controls.layerTree.LayerTreeNode.html">LayerTreeNode</a></li><li><a href="SMC.layers.aggregation.AggregatingLayer.html">AggregatingLayer</a></li><li><a href="SMC.layers.Folder.html">Folder</a></li><li><a href="SMC.layers.geometry.CanvasRenderer.html">CanvasRenderer</a></li><li><a href="SMC.layers.geometry.GeometryLayer.html">GeometryLayer</a></li><li><a href="SMC.layers.geometry.TiledGeometryLayer.html">TiledGeometryLayer</a></li><li><a href="SMC.layers.geometry.WFSGeometryLayer.html">WFSGeometryLayer</a></li><li><a href="SMC.layers.geometry.WFSTiledGeometryLayer.html">WFSTiledGeometryLayer</a></li><li><a href="SMC.layers.Layer.html">Layer</a></li><li><a href="SMC.layers.markers.AtmosphereRTMarkerLayer.html">AtmosphereRTMarkerLayer</a></li><li><a href="SMC.layers.markers.MarkerLayer.html">MarkerLayer</a></li><li><a href="SMC.layers.markers.WFSMarkerLayer.html">WFSMarkerLayer</a></li><li><a href="SMC.layers.reloaders.LayerReloader.html">LayerReloader</a></li><li><a href="SMC.layers.reloaders.ReloadTrigger.html">ReloadTrigger</a></li><li><a href="SMC.layers.reloaders.TimerReloadTrigger.html">TimerReloadTrigger</a></li><li><a href="SMC.layers.stylers.Styler.html">Styler</a></li><li><a href="SMC.layers.TileLayer.html">TileLayer</a></li><li><a href="SMC.layers.WMSLayer.html">WMSLayer</a></li><li><a href="SMC.Map.html">Map</a></li><li><a href="SMC.providers.AtmosphereRTFeatureProvider.html">AtmosphereRTFeatureProvider</a></li><li><a href="SMC.providers.FeatureHistory.html">FeatureHistory</a></li><li><a href="SMC.providers.FeatureHistoryProvider.html">FeatureHistoryProvider</a></li><li><a href="SMC.providers.FeaturesProvider.html">FeaturesProvider</a></li><li><a href="SMC.providers.RTFeatureProvider.html">RTFeatureProvider</a></li><li><a href="SMC.providers.URLFeatureProvider.html">URLFeatureProvider</a></li><li><a href="SMC.providers.WFSProvider.html">WFSProvider</a></li></ul><h3>Events</h3><ul><li><a href="SMC.layers.reloaders.ReloadTrigger.html#event:reloadTriggered">reloadTriggered</a></li><li><a href="SMC.layers.reloaders.TimerReloadTrigger.html#event:reloadTriggered">reloadTriggered</a></li><li><a href="SMC.providers.AtmosphereRTFeatureProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.FeatureHistoryProvider.html#event:featureHistoryLoaded">featureHistoryLoaded</a></li><li><a href="SMC.providers.FeaturesProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.RTFeatureProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.URLFeatureProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.WFSProvider.html#event:featuresLoaded">featuresLoaded</a></li></ul><h3>Namespaces</h3><ul><li><a href="SMC.html">SMC</a></li><li><a href="SMC.controls.html">controls</a></li><li><a href="SMC.controls.layerTree.html">layerTree</a></li><li><a href="SMC.layers.html">layers</a></li><li><a href="SMC.layers.aggregation.html">aggregation</a></li><li><a href="SMC.layers.geometry.html">geometry</a></li><li><a href="SMC.layers.markers.html">markers</a></li><li><a href="SMC.layers.reloaders.html">reloaders</a></li><li><a href="SMC.layers.stylers.html">stylers</a></li><li><a href="SMC.providers.html">providers</a></li></ul><h3>Mixins</h3><ul><li><a href="SMC.controls.layerTree.LayerTreeFolder.html">LayerTreeFolder</a></li><li><a href="SMC.LayerLoader.html">LayerLoader</a></li><li><a href="SMC.layers.SingleLayer.html">SingleLayer</a></li><li><a href="SMC.layers.stylers.MapCssStyler.html">MapCssStyler</a></li><li><a href="SMC.layers.stylers.MarkerCssStyler.html">MarkerCssStyler</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Mustache">Mustache</a></li><li><a href="global.html#paper">paper</a></li><li><a href="global.html#PEG">PEG</a></li><li><a href="global.html#rbush">rbush</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="SMC.controls.layerTree.LayerTreeControl.html">LayerTreeControl</a></li><li><a href="SMC.controls.layerTree.LayerTreeLeaf.html">LayerTreeLeaf</a></li><li><a href="SMC.controls.layerTree.LayerTreeNode.html">LayerTreeNode</a></li><li><a href="SMC.layers.aggregation.AggregatingLayer.html">AggregatingLayer</a></li><li><a href="SMC.layers.aggregation.MultiModeLayer.html">MultiModeLayer</a></li><li><a href="SMC.layers.EditableLayer.html">EditableLayer</a></li><li><a href="SMC.layers.Folder.html">Folder</a></li><li><a href="SMC.layers.geometry.CanvasRenderer.html">CanvasRenderer</a></li><li><a href="SMC.layers.geometry.GeometryLayer.html">GeometryLayer</a></li><li><a href="SMC.layers.geometry.TiledGeometryLayer.html">TiledGeometryLayer</a></li><li><a href="SMC.layers.geometry.WFSGeometryLayer.html">WFSGeometryLayer</a></li><li><a href="SMC.layers.geometry.WFSTiledGeometryLayer.html">WFSTiledGeometryLayer</a></li><li><a href="SMC.layers.history.AggregatingHistoryLayer.html">AggregatingHistoryLayer</a></li><li><a href="SMC.layers.history.DataHistoryLayer.html">DataHistoryLayer</a></li><li><a href="SMC.layers.Layer.html">Layer</a></li><li><a href="SMC.layers.markers.AtmosphereRTMarkerLayer.html">AtmosphereRTMarkerLayer</a></li><li><a href="SMC.layers.markers.MarkerLayer.html">MarkerLayer</a></li><li><a href="SMC.layers.markers.WFSMarkerLayer.html">WFSMarkerLayer</a></li><li><a href="SMC.layers.markers.WFSTMarkerLayer.html">WFSTMarkerLayer</a></li><li><a href="SMC.layers.reloaders.LayerReloader.html">LayerReloader</a></li><li><a href="SMC.layers.reloaders.ReloadTrigger.html">ReloadTrigger</a></li><li><a href="SMC.layers.reloaders.TimerReloadTrigger.html">TimerReloadTrigger</a></li><li><a href="SMC.layers.stylers.Styler.html">Styler</a></li><li><a href="SMC.layers.TileLayer.html">TileLayer</a></li><li><a href="SMC.layers.WMSLayer.html">WMSLayer</a></li><li><a href="SMC.Map.html">Map</a></li><li><a href="SMC.providers.AtmosphereRTFeatureProvider.html">AtmosphereRTFeatureProvider</a></li><li><a href="SMC.providers.FeatureHistory.html">FeatureHistory</a></li><li><a href="SMC.providers.FeatureHistoryProvider.html">FeatureHistoryProvider</a></li><li><a href="SMC.providers.FeaturesProvider.html">FeaturesProvider</a></li><li><a href="SMC.providers.RTFeatureProvider.html">RTFeatureProvider</a></li><li><a href="SMC.providers.URLFeatureProvider.html">URLFeatureProvider</a></li><li><a href="SMC.providers.WFSProvider.html">WFSProvider</a></li><li><a href="SMC.providers.WFSTProvider.html">WFSTProvider</a></li></ul><h3>Events</h3><ul><li><a href="SMC.layers.reloaders.ReloadTrigger.html#event:reloadTriggered">reloadTriggered</a></li><li><a href="SMC.layers.reloaders.TimerReloadTrigger.html#event:reloadTriggered">reloadTriggered</a></li><li><a href="SMC.providers.AtmosphereRTFeatureProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.FeatureHistoryProvider.html#event:featureHistoryLoaded">featureHistoryLoaded</a></li><li><a href="SMC.providers.FeaturesProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.RTFeatureProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.URLFeatureProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.WFSProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.WFSTProvider.html#event:featuresLoaded">featuresLoaded</a></li></ul><h3>Namespaces</h3><ul><li><a href="SMC.html">SMC</a></li><li><a href="SMC.controls.html">controls</a></li><li><a href="SMC.controls.layerTree.html">layerTree</a></li><li><a href="SMC.layers.html">layers</a></li><li><a href="SMC.layers.aggregation.html">aggregation</a></li><li><a href="SMC.layers.geometry.html">geometry</a></li><li><a href="SMC.layers.history.html">history</a></li><li><a href="SMC.layers.markers.html">markers</a></li><li><a href="SMC.layers.reloaders.html">reloaders</a></li><li><a href="SMC.layers.stylers.html">stylers</a></li><li><a href="SMC.providers.html">providers</a></li></ul><h3>Mixins</h3><ul><li><a href="SMC.controls.layerTree.LayerTreeFolder.html">LayerTreeFolder</a></li><li><a href="SMC.LayerLoader.html">LayerLoader</a></li><li><a href="SMC.layers.SingleLayer.html">SingleLayer</a></li><li><a href="SMC.layers.stylers.MapCssStyler.html">MapCssStyler</a></li><li><a href="SMC.layers.stylers.MarkerCssStyler.html">MarkerCssStyler</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Mustache">Mustache</a></li><li><a href="global.html#paper">paper</a></li><li><a href="global.html#PEG">PEG</a></li><li><a href="global.html#rbush">rbush</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha8</a> on Mon Jun 30 2014 10:37:46 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha8</a> on Wed Jul 30 2014 10:34:07 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
