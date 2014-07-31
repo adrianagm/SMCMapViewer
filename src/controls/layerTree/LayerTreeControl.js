@@ -181,6 +181,14 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
                 this._addItem(obj);
                 overlaysPresent = overlaysPresent || obj.overlay;
                 baseLayersPresent = baseLayersPresent || !obj.overlay;
+               
+            }
+
+            for(var j in map._layers){
+                 obj = map._layers[j];
+                 if(obj instanceof SMC.layers.aggregation.MultiModeLayer){   
+                    obj._initializeTree();
+                }
             }
 
             this._separator.style.display = overlaysPresent && baseLayersPresent ? '' : 'none';
@@ -223,22 +231,12 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
         },
 
         _onLayerChange: function(e) {
-            if (e.layer instanceof L.MarkerClusterGroup) {
-                e.layer.off('clustermouseover', e.layer._showCoverage);
-            }
-
-            if (e.layer instanceof L.Marker && e.layer.__parent) {
-                return;
-            }
-
+           
             if (e.layer._slidermove) {
                 return;
             }
 
-
-            if (e.layer instanceof L.Popup) {
-                return;
-            }
+           
             var obj = this._layers[L.Util.stamp(e.layer)];
 
             if (e.layer._map) {

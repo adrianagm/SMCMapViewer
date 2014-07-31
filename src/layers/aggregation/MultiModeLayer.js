@@ -20,15 +20,16 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 
 		initialize: function(options) {
 			L.Util.setOptions(this, options);
+			SMC.layers.aggregation.AggregatingLayer.prototype.initialize.apply(this, arguments);
 			L.LayerGroup.prototype.initialize.call(this, arguments);
-
+			this.checked = true;
 		},
 
 
 		createNodeHTML: function() {
 
 			var node = document.createElement("div");
-			node.id = this.options.label;
+			node.id = this._leaflet_id;
 			var label = document.createElement("i");
 			label.className = 'fa fa-check-square-o';
 			label.style.cursor = "pointer";
@@ -59,10 +60,12 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 
 			};
 
+
 			node.appendChild(modes);
 			if (this.node == null) {
 				this.node = node;
 				this._initializeButtons(modes);
+				var active = this._getActiveLayer();
 
 			}
 
@@ -80,9 +83,11 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 			}
 
 			var multiLayers = this._aggregatingLayers;
+
 			for (var l in multiLayers) {
 				multiLayers[l].addTo(map);
 				if (!multiLayers[l].active) {
+					L.FeatureGroup.prototype.onRemove.call(this, map);
 					multiLayers[l].onRemove(map);
 				}
 
@@ -94,19 +99,22 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 		},
 
 		_initializeTree: function() {
-			this._getActiveLayer();
+
 			var multiLayers = this._aggregatingLayers;
 			for (var l in multiLayers) {
 				if (multiLayers[l].active) {
 					//add node of active layer
-					var id = this.options.label;
+					var id = this._leaflet_id;
 					var tree = document.getElementById(id);
-					var treeNodes = tree.parentNode.nextElementSibling;
-					tree = tree.parentNode.nextElementSibling.children;
-					var label = multiLayers[l].options.label;
-					if (multiLayers[label] instanceof SMC.layers.aggregation.AggregatingLayer) {
-						this._addNode(tree, treeNodes, label);
+					if (!tree) {
+						return;
 					}
+					var treeNodes = tree.parentNode.nextElementSibling;
+					var label = multiLayers[l].options.label;
+					if ((multiLayers[label] instanceof SMC.layers.aggregation.AggregatingLayer || multiLayers[label] instanceof SMC.layers.markers.WFSTMarkerLayer) && this.checked) {
+						this._addNode (treeNodes, label);
+					} else
+						this._addNode(treeNodes, 'none');
 
 				}
 
@@ -144,7 +152,6 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 
 			}
 
-
 			return active;
 
 
@@ -168,41 +175,44 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 					if (multiLayers[l].active) {
 						var pause = document.getElementsByClassName('fa fa-pause');
 						for (var i = 0; i < pause.length; i++) {
-							if (pause[i].parentNode.style.display != 'none') {
-								pause[i].className = 'fa fa-play';
-							}
+							pause[i].className = 'fa fa-play';
 						}
 						clearInterval(multiLayers[l]._timer);
+
+						if (multiLayers[l]._finishEditControl) {
+							multiLayers[l]._finishEditControl();
+						}
+
 						multiLayers[l].onRemove(map);
 						multiLayers[l].active = false;
 					}
+
 
 
 				} else {
 					if (!multiLayers[l].active) {
 						multiLayers[l].onAdd(map);
 						multiLayers[l].active = true;
-
-
 					}
 
 				}
 
 			}
 
-			var tree = event.target.parentNode.parentNode.parentNode.nextElementSibling.children;
-			var treeNodes = event.target.parentNode.parentNode.parentNode.nextElementSibling;
+			var d =document.getElementById('leaflet-control-layers-group-'+ this._leaflet_id);
+			var treeNodes = d.getElementsByClassName('leaflet-control-layers-group-content')[0];
 			var label = event.target.value;
-			if (multiLayers[label] instanceof SMC.layers.aggregation.AggregatingLayer) {
-				this._addNode(tree, treeNodes, label);
+			if (multiLayers[label] instanceof SMC.layers.aggregation.AggregatingLayer || multiLayers[label] instanceof SMC.layers.markers.WFSTMarkerLayer) {
+				this._addNode(treeNodes, label);
+			} else {
+				this._addNode(treeNodes, 'none');
 			}
-
-
 
 		},
 
-		_addNode: function(tree, treeNodes, label) {
+		_addNode: function(treeNodes, label) {
 			var node = null;
+			var tree = treeNodes.children;
 			search(tree);
 			treeNodes.style.display = 'block';
 
@@ -212,7 +222,7 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 				for (var i = 0; i < tree.length; i++) {
 					if (tree[i].innerHTML.trim() != label) {
 
-						if (tree[i].parentNode == treeNodes) {
+						if (tree[i].parentNode == treeNodes || tree[i].type == 'checkbox' || tree[i].nodeName == 'BR') {
 							tree[i].style.display = 'none';
 						}
 						if (node != null) {
@@ -236,9 +246,6 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 
 					} else {
 
-						for (var j = 0; j < tree.length; j++) {
-							tree[j].style.display = 'inline-block';
-						}
 						tree[i].style.display = 'none';
 						tree[i].parentNode.style.display = 'block';
 						tree[i].parentNode.parentNode.style.display = 'block';
@@ -258,54 +265,46 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 			//active/desactive multimode layer
 
 			var nodesLayers = event.target.parentNode.parentNode.nextElementSibling;
-			var data = this._aggregatingLayers;
+			var pause = nodesLayers.getElementsByClassName('fa fa-pause');
+			var multiLayers = this._aggregatingLayers;
 
 			if (node.children[1].style.display != 'none') {
+				this.checked = false;
 				node.children[1].style.display = 'none';
 				event.target.parentNode.parentNode.nextElementSibling.style.display = 'none';
 				node.children[0].className = 'fa fa-square-o';
-				for (var d in data) {
-					if (data[d].active) {
-						if (data[d] instanceof SMC.layers.history.AggregatingHistoryLayer) {
-
-							var pause = nodesLayers.getElementsByClassName('fa fa-pause');
-
-							if (pause.length != 0) {
-								clearInterval(data[d]._timer);
-								
+				for (var d in multiLayers) {
+					if (multiLayers[d].active) {
+						if (multiLayers[d] instanceof SMC.layers.history.AggregatingHistoryLayer) {
+							for (var i = 0; i < pause.length; i++) {
+								clearInterval(multiLayers[d]._timer);
+								pause[i].className = 'fa fa-play';
 							}
-
-
-
 						}
-						data[d].onRemove(map);
+
+						if (multiLayers[d] instanceof SMC.layers.markers.WFSTMarkerLayer) {
+							multiLayers[d]._finishEditControl();
+						}
+						multiLayers[d].onRemove(map);
 					}
 				}
 			} else {
+				this.checked = true;
 				node.children[1].style.display = 'block';
 				event.target.parentNode.parentNode.nextElementSibling.style.display = 'block';
 				node.children[0].className = 'fa fa-check-square-o';
-				for (var d in data) {
-					if (data[d].active) {
-						if (data[d] instanceof SMC.layers.history.AggregatingHistoryLayer) {
-
-							var pause = nodesLayers.getElementsByClassName('fa fa-pause');
-
-							for (var i = 0; i < pause.length; i++) {
-								if (pause[i].parentNode.style.display != 'none') {
-									pause[i].className = 'fa fa-play';
-								}
-							}
-						}
-
-
-
-						data[d].onAdd(map);
+				for (var d in multiLayers) {
+					if (multiLayers[d].active) {
+						multiLayers[d].onAdd(map);
 					}
 				}
+
+
+
 			}
 
 		},
+
 
 
 	});

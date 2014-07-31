@@ -44,7 +44,7 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 
 			var sliderControlLabel = document.createElement("span");
 			sliderControlLabel.style.float = 'left';
-			sliderControl.innerHTML += '<input id="interval_' + this._leaflet_id + '" name="interval_' + this._leaflet_id + '" min="0" max="' + (this.options.layersConfig.length - 1) + '" type="range" step="0.1" value="0"/>';
+			sliderControl.innerHTML += '<input id="interval_' + this._leaflet_id + '" name="interval_' + this._leaflet_id + '" min="0" max="' + (this.options.layersConfig.length - 1) + '" type="range" step="1" value="0"/>';
 			sliderControl.className = 'leaflet-bar leaflet-update-interval ';
 
 			var time = sliderControl.children[0].value;
@@ -156,6 +156,8 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 				i++;
 
 			}
+
+			//recalculate canvas position for geometry layers (important)
 			map.fire("slidermove");
 		},
 
@@ -225,6 +227,7 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 				var i = parseFloat(node.children[1].children[0].value);
 				var self = this;
 				this._timer = setInterval(function() {
+					i += parseFloat(node.children[1].children[0].step);
 					self.showTimeData(i);
 					self._showLabel(sliderControlLabel);
 					if (i < maxValue) {
@@ -236,8 +239,8 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 						node.children[1].children[0].value = maxValue;
 
 					}
-					i += parseFloat(node.children[1].children[0].step);
-				}, 300);
+					
+				}, this.options.time);
 
 			} else {
 

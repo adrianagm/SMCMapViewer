@@ -77,9 +77,9 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             map.off("mousemove", this._onMapMouseMoved, this);
         },
 
-        _onMapMouseMoved: function() {
+        _onMapMouseMoved: function(event) {
             if (this.canvasTree) {
-                this._onMouseMoveAux;
+                this._onMouseMoveAux(event);
             }
         },
 
@@ -670,6 +670,14 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             // We need to remove all events associated with the layer, or performance will be sorely affected.
 
             var map = this.getMap();
+            if (!map && this.parent) {
+                if (this.parent._map) {
+                    map = this.parent._map;
+                } else if (this.parent.parent) {
+                    map = this.parent.parent._map;
+                }
+            }
+
             map.off("click", this._onMapClicked, this);
             map.off("mousemove", this._onMapMouseMoved, this);
             map.off("dragstart", this._onMapDragStarted, this);
