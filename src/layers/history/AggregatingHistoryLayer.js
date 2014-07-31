@@ -11,6 +11,11 @@ require("./DataHistoryLayer.js");
 SMC.layers.history.AggregatingHistoryLayer = SMC.layers.aggregation.AggregatingLayer.extend(
 	/** @lends SMC.layers.history.AggregatingHistoryLayer# */
 	{
+
+		options:{
+			time: 1000
+		},
+
 		includes: SMC.Util.deepClassInclude([SMC.layers.history.DataHistoryLayer]),
 
 		initialize: function(options) {

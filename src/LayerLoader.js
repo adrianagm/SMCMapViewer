@@ -8,11 +8,13 @@ require("./SMC.js");
  *
  * @author Luis Román (lroman@emergya.com)
  */
+
 SMC.LayerLoader = L.Class.extend(
     /** @lends SMC.layers.LayerLoader# */
-    {
+    { 
 
         loadedLayers: {},
+
 
         /**
          * Creates layers from a Javascript object (or its javascript reprsentantion) defining the type and options of the layers to be loaded.
@@ -21,6 +23,7 @@ SMC.LayerLoader = L.Class.extend(
          * @param {(Object|JSON)} layersConfig - Configuration to load a layer
          */
         loadLayers: function(layersConfig) {
+
             if (!layersConfig) {
                 throw new Error("SMC.layers.LayerLoader::loadLayers: no layers config received");
             }
@@ -173,16 +176,7 @@ SMC.LayerLoader = L.Class.extend(
 
             this.loadedLayers[id] = layer;
 
-            //add node active multimode layer
-            if (layer.parent == map) {
-                for (var l in map._layers) {
-                    if (map._layers[l] instanceof SMC.layers.aggregation.MultiModeLayer) {
-                        var layer = map._layers[l];
-                        layer._initializeTree();
-                    }
-                }
-
-            }
+           
 
 
         }
