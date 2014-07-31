@@ -145,20 +145,8 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
 
         _draw: function(ctx) {
 
-
             var bounds = this._tileBounds(ctx);
-
-
-            // var request = this.createRequest(bounds, ctx);
-            // var loader = $.ajax;
             var self = this;
-            // loader($.extend(request, {
-            //     success: function(response) {
-            //         console.log(response.features);
-            //         self.addTiledGeometryFromFeatures(response.features, ctx);
-
-            //     }
-            // }, this.options.request));
 
             this.loadTile(bounds).then(function(featuresCollection) {
                 console.log(featuresCollection.features);

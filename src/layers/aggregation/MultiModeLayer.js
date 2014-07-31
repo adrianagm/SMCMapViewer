@@ -16,7 +16,7 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 	/** @lends SMC.layers.history.AggregatingHistoryLayer# */
 	{
 		node: null,
-		includes: SMC.Util.deepClassInclude([]),
+		includes: SMC.Util.deepClassInclude([SMC.layers.SingleLayer]),
 
 		initialize: function(options) {
 			L.Util.setOptions(this, options);
@@ -30,12 +30,23 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 
 			var node = document.createElement("div");
 			node.id = this._leaflet_id;
-			var label = document.createElement("i");
-			label.className = 'fa fa-check-square-o';
-			label.style.cursor = "pointer";
-			label.innerHTML = " " + this.options.label;
 
-			label.onclick = function(event) {
+			var label = document.createElement('label');
+			var	checked = this.getMap().hasLayer(this);
+
+			var input = document.createElement('input');
+			input.type = 'checkbox';
+			input.defaultChecked = checked;
+			var name = document.createElement('span');
+			name.innerHTML = ' ' + this.options.label;
+
+			label.appendChild(input);
+			label.appendChild(name);
+			
+			label.style.cursor = "pointer";
+
+
+			input.onchange = function(event) {
 				self._clickOnMultiLayer(node);
 			};
 			node.appendChild(label);
@@ -85,7 +96,7 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 			var multiLayers = this._aggregatingLayers;
 
 			for (var l in multiLayers) {
-				multiLayers[l].addTo(map);
+				multiLayers[l].addTo(this.getMap());
 				if (!multiLayers[l].active) {
 					L.FeatureGroup.prototype.onRemove.call(this, map);
 					multiLayers[l].onRemove(map);
@@ -112,7 +123,7 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 					var treeNodes = tree.parentNode.nextElementSibling;
 					var label = multiLayers[l].options.label;
 					if ((multiLayers[label] instanceof SMC.layers.aggregation.AggregatingLayer || multiLayers[label] instanceof SMC.layers.markers.WFSTMarkerLayer) && this.checked) {
-						this._addNode (treeNodes, label);
+						this._addNode(treeNodes, label);
 					} else
 						this._addNode(treeNodes, 'none');
 
@@ -199,7 +210,7 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 
 			}
 
-			var d =document.getElementById('leaflet-control-layers-group-'+ this._leaflet_id);
+			var d = document.getElementById('leaflet-control-layers-group-' + this._leaflet_id);
 			var treeNodes = d.getElementsByClassName('leaflet-control-layers-group-content')[0];
 			var label = event.target.value;
 			if (multiLayers[label] instanceof SMC.layers.aggregation.AggregatingLayer || multiLayers[label] instanceof SMC.layers.markers.WFSTMarkerLayer) {
@@ -264,15 +275,15 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 		_clickOnMultiLayer: function(node) {
 			//active/desactive multimode layer
 
-			var nodesLayers = event.target.parentNode.parentNode.nextElementSibling;
+			var nodesLayers = event.target.parentNode.parentNode.parentNode.nextElementSibling;
 			var pause = nodesLayers.getElementsByClassName('fa fa-pause');
 			var multiLayers = this._aggregatingLayers;
 
 			if (node.children[1].style.display != 'none') {
 				this.checked = false;
 				node.children[1].style.display = 'none';
-				event.target.parentNode.parentNode.nextElementSibling.style.display = 'none';
-				node.children[0].className = 'fa fa-square-o';
+				nodesLayers.style.display = 'none';
+				node.children[0].checked = false;
 				for (var d in multiLayers) {
 					if (multiLayers[d].active) {
 						if (multiLayers[d] instanceof SMC.layers.history.AggregatingHistoryLayer) {
@@ -291,8 +302,8 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 			} else {
 				this.checked = true;
 				node.children[1].style.display = 'block';
-				event.target.parentNode.parentNode.nextElementSibling.style.display = 'block';
-				node.children[0].className = 'fa fa-check-square-o';
+				nodesLayers.style.display = 'block';
+				node.children[0].checked = true;
 				for (var d in multiLayers) {
 					if (multiLayers[d].active) {
 						multiLayers[d].onAdd(map);

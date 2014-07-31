@@ -30,7 +30,12 @@ SMC.layers.SingleLayer = SMC.layers.Layer.extend(
          * @param {SMC.Map} map - Map to be added
          */
         onAdd: function(map) {
-                this.load();
+            this.map = map;
+            this.load();
+        },
+
+        getMap: function() {
+           return this.map;
         }
 
     });

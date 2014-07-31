@@ -102,13 +102,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
          * @returns {SMC.layers.Layer} layer to show on the map
          */
         renderCanvas: function(ctx, features, map) {
-            if (!map && this.parent) {
-                if (this.parent._map) {
-                    map = this.parent._map;
-                } else if (this.parent.parent) {
-                    map = this.parent.parent._map;
-                }
-            }
+
             this._initCtx(ctx, map);
             ctx.canvas.zBuffer = [];
 
@@ -242,12 +236,8 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
 
             ctx.canvas._initialized = true;
 
-            if (!map && this.parent) {
-                if (this.parent._map) {
-                    map = this.parent._map;
-                } else if (this.parent.parent) {
-                    map = this.parent.parent._map;
-                }
+            if (!map) {
+                map = this.getMap();
             }
             var zoom = map.getZoom();
             if (this.canvasTree === null || this.lastZoom != zoom) {
@@ -291,8 +281,8 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
 
             this._ctxEvents[eventName].push(fn);
 
-			var map = this.getMap();
-			if (!map && this.parent) {
+            var map = this.getMap();
+            if (!map && this.parent) {
                 if (this.parent._map) {
                     map = this.parent._map;
                 } else if (this.parent.parent) {
@@ -670,13 +660,6 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             // We need to remove all events associated with the layer, or performance will be sorely affected.
 
             var map = this.getMap();
-            if (!map && this.parent) {
-                if (this.parent._map) {
-                    map = this.parent._map;
-                } else if (this.parent.parent) {
-                    map = this.parent.parent._map;
-                }
-            }
 
             map.off("click", this._onMapClicked, this);
             map.off("mousemove", this._onMapMouseMoved, this);
