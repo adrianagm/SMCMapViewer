@@ -181,12 +181,12 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
                 this._addItem(obj);
                 overlaysPresent = overlaysPresent || obj.overlay;
                 baseLayersPresent = baseLayersPresent || !obj.overlay;
-               
+
             }
 
-            for(var j in map._layers){
-                 obj = map._layers[j];
-                 if(obj instanceof SMC.layers.aggregation.MultiModeLayer){   
+            for (var j in map._layers) {
+                obj = map._layers[j];
+                if (obj instanceof SMC.layers.aggregation.MultiModeLayer) {
                     obj._initializeTree();
                 }
             }
@@ -231,12 +231,12 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
         },
 
         _onLayerChange: function(e) {
-           
+
             if (e.layer._slidermove) {
                 return;
             }
 
-           
+
             var obj = this._layers[L.Util.stamp(e.layer)];
 
             if (e.layer._map) {
@@ -301,9 +301,9 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
 
             var name = document.createElement('span');
             //name.innerHTML = ' ' + obj.name;
-            if(typeof obj.name == 'string'){
+            if (typeof obj.name == 'string') {
                 name.innerHTML = ' ' + obj.name;
-            }else{
+            } else {
                 name.appendChild(obj.name);
             }
 
@@ -434,24 +434,11 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             for (i = 0; i < inputsLen; i++) {
                 input = inputs[i];
                 obj = this._layers[input.layerId];
-                var buttons = $("input[type=button]", obj.name);
 
                 if (input.checked && !this._map.hasLayer(obj.layer)) {
                     this._map.addLayer(obj.layer);
-                    // Enable the buttons
-                    for(i=0; i<buttons.length; i++){
-                        if(buttons[i].disabled){
-                            buttons[i].disabled = false;
-                        }
-                    }
                 } else if (!input.checked && this._map.hasLayer(obj.layer)) {
                     this._map.removeLayer(obj.layer);
-                    // Disable the buttons
-                    for(i=0; i<buttons.length; i++){
-                        if(!buttons[i].disabled){
-                            buttons[i].disabled = true;
-                        }
-                    }
                 }
             }
             this._handlingClick = false;
