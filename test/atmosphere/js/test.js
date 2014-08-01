@@ -1,31 +1,25 @@
 function initMap() {
 
     // Centered in London
-    var map = SMC.map('map');
+    map = SMC.map('map');
     //map.setView([-0.2298500, -78.5249500], 8)
     map.setView([53.4666677, -2.2333333], 9);
 
 
-
-    var base = SMC.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
-        maxZoom: 18
-    }).addTo(map);
 
     var satelite = L.tileLayer.wms("http://maps.opengeo.org/geowebcache/service/wms", {
         layers: "bluemarble",
         format: 'image/png',
         transparent: true,
         attribution: "Weather data © 2012 IEM Nexrad"
-    });
+    }).addTo(map);
 
 
     map.loadLayers([{
         id: "realTimeLayer",
         type: "SMC.layers.markers.AtmosphereRTMarkerLayer",
         params: [{
-            url: "http://localhost:8080/chat-app/chat",
-            topic: "realTimeMarkers",
+            url: "http://localhost:8888/atmosphere-activemq-chat/atmosphere/map",
             stylesheet: "* {popUpTemplate:\"<p><a href=\\\"javascript:deleteMarker({{$id}})\\\">Delete</a></p><p><a href=\\\"javascript:moveMarker({{$id}})\\\">Move</a></p>\";popUpOffsetTop:-30;}"
         }],
         listeners: {
@@ -48,7 +42,6 @@ function initMap() {
     window._markersLayer = map.loadedLayers.realTimeLayer;
 
     var baseLayer = {
-        "Street Map": base,
         "Satelite": satelite
     };
 
