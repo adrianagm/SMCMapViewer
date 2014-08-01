@@ -31,11 +31,24 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 			var layers = this._historyLayers;
 
 			var node = document.createElement("div");
-			var label = document.createElement("i");
-			label.className = 'fa fa-check-square-o';
-			label.style.cursor = "pointer";
-			label.innerHTML = " " + (this.options.label || this.options.typeName);
+			var label = document.createElement('label'),
+				input,
+				checked = this.getMap().hasLayer(this);
 
+			input = document.createElement('input');
+			input.type = 'checkbox';
+			input.defaultChecked = checked;
+			var name = document.createElement('span');
+			name.innerHTML = ' ' + (this.options.label || this.options.typeName);
+
+			label.appendChild(input);
+			label.appendChild(name);
+
+			label.style.cursor = "pointer";
+
+			label.onchange = function(event) {
+				self._clickOnLayer(node);
+			};
 
 			var sliderControl = document.createElement("div");
 			sliderControl.style.marginLeft = '10px';
@@ -74,9 +87,7 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 			sliderControl.appendChild(play_pause);
 			node.appendChild(label);
 			node.appendChild(sliderControl);
-			label.onclick = function(event) {
-				self._clickOnLayer(node);
-			};
+
 			play_pause.onclick = function() {
 				self._onPlayPause(node, time);
 			};
@@ -129,7 +140,12 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 			SMC.layers.aggregation.AggregatingLayer.prototype.addTo.call(this, map);
 		},
 
-		showTimeData: function(time) {
+		getMap: function() {
+			SMC.layers.aggregation.AggregatingLayer.prototype.getMap.call(this, arguments);
+			return map;
+		},
+
+		showTimeData: function(time, add) {
 			var i = 0;
 			var data = this._historyLayers;
 			if (time % 1 !== 0) {
@@ -140,16 +156,19 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 					break;
 				}
 
-				if (this._historyLayers[d].actual) {
-					this._historyLayers[d].onRemove(map);
-					this._historyLayers[d].actual = false;
+				if (data[d].actual) {
+					data[d].onRemove(map);
+					data[d].actual = false;
 				}
 
 				if (i == time) {
-					if (!this._historyLayers[d].actual) {
-						this._historyLayers[d]._slidermove = true;
-						this._historyLayers[d].onAdd(map);
-						this._historyLayers[d].actual = true;
+					if (!data[d].actual) {
+						if (!add)
+							data[d]._slidermove = true;
+						data[d].onAdd(map);
+						data[d].actual = true;
+						//recalculate canvas position for geometry layers (important)
+						this.getMap().fire("slidermove");
 					}
 				}
 
@@ -157,8 +176,8 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 
 			}
 
-			//recalculate canvas position for geometry layers (important)
-			map.fire("slidermove");
+
+
 		},
 
 		_addTimeData: function(time) {
@@ -167,7 +186,7 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 			for (var d in data) {
 
 				if (i == time) {
-					map.addLayer(data[d]);
+					this.getMap().addLayer(data[d]);
 					this._historyLayers[d].actual = true;
 				}
 				i++;
@@ -193,7 +212,7 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 			var data = this._historyLayers;
 			if (node.children[1].style.display != 'none') {
 				node.children[1].style.display = 'none';
-				node.children[0].className = 'fa fa-square-o';
+				node.children[0].checked = false;
 				for (var d in data) {
 					if (data[d].actual) {
 						data[d].onRemove(map);
@@ -201,7 +220,7 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 				}
 			} else {
 				node.children[1].style.display = 'block';
-				node.children[0].className = 'fa fa-check-square-o';
+				node.children[0].checked = true;
 				for (var d in data) {
 					if (data[d].actual) {
 						data[d].onAdd(map);
@@ -239,7 +258,7 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 						node.children[1].children[0].value = maxValue;
 
 					}
-					
+
 				}, this.options.time);
 
 			} else {
@@ -252,9 +271,9 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 		onRemove: function(map) {
 			var data = this._historyLayers;
 			for (var d in data) {
-				if (this._historyLayers[d].actual) {
-					this._historyLayers[d].onRemove(map);
-					this._historyLayers[d].actual = false;
+				if (data[d].actual) {
+					data[d].onRemove(map);
+					data[d].actual = false;
 				}
 
 			}
@@ -267,7 +286,8 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 				value = this._node.children[1].children[0].value;
 			} else
 				value = 0;
-			this.showTimeData(value);
+
+			this.showTimeData(value, true);
 
 		}
 
