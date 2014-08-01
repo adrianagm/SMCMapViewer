@@ -1,6 +1,6 @@
 require("./providers.js");
 require("./RTFeatureProvider.js");
-require("../../lib/atmosphere-jquery/jquery.atmosphere.js");
+require("./AtmosphereConnector.js");
 
 
 /**
@@ -9,6 +9,7 @@ require("../../lib/atmosphere-jquery/jquery.atmosphere.js");
  * @class
  * @abstract
  * @extends SMC.providers.RTFeatureProvider
+ * @mixes SMC.providers.AtmosphereConnector
  * @param {SMC.providers.AtmosphereRTFeatureProvider~options} options - The configuration for the class
  *
  * @author Luis Román (lroman@emergya.com)
@@ -16,20 +17,7 @@ require("../../lib/atmosphere-jquery/jquery.atmosphere.js");
 SMC.providers.AtmosphereRTFeatureProvider = SMC.providers.RTFeatureProvider.extend(
     /** @lends SMC.providers.AtmosphereRTFeatureProvider# */
     {
-        /**
-         * @typedef {Object} SMC.providers.AtmosphereRTFeatureProvider~options
-         * @property {string} topic="" - The default topic value.
-         */
-        options: {
-            topic: ""
-        },
-
-        /**
-         * Socket
-         * @property {string} socket - The default socket value.
-         * @default null
-         */
-        socket: null,
+        includes: SMC.Util.deepClassInclude([SMC.providers.AtmosphereConnector]),
 
         /**
          * Initialize the object with the option parameter
@@ -37,38 +25,8 @@ SMC.providers.AtmosphereRTFeatureProvider = SMC.providers.RTFeatureProvider.exte
          */
         initialize: function(options) {
             SMC.providers.RTFeatureProvider.prototype.initialize.call(this, options);
+            SMC.providers.AtmosphereConnector.prototype.initialize.call(this, options);
             L.Util.setOptions(this, options);
-            if (!options.topic) {
-                throw new Error("SMC.providers.AtmosphereRTFeatureProvider::initialize: A valid topic field is required to be included in the options argument");
-            }
-        },
-
-        _createSubscription: function() {
-            var request = {
-                url: this.options.url,
-                contentType: "application/json",
-                logLevel: 'debug',
-                transport: 'websocket',
-                trackMessageLength: true,
-                fallbackTransport: 'long-polling'
-            };
-
-            var self = this;
-            request.onOpen = function(response) {
-                self.fireEvent("socketOpened", self.socket);
-            };
-
-            request.onMessage = function(response) {
-                self._onMessage(response);
-            };
-
-            request.onClose = function(response) {};
-
-            request.onError = function(response) {
-                console.debug(response);
-            };
-
-            this.socket = $.atmosphere.subscribe(request);
         },
 
         _onMessage: function(response) {

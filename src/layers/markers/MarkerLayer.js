@@ -34,8 +34,7 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
 
             this.noClusterGroup = new L.FeatureGroup();
             SMC.layers.stylers.MarkerCssStyler.prototype.initialize.apply(this, arguments);
-
-
+            SMC.layers.SingleLayer.prototype.initialize.apply(this, arguments);
         },
 
         /**
@@ -236,6 +235,16 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
                     this._applyStyles(marker, false);
                 }
 
+            }
+        },
+
+        unload: function() {
+            if (this.noClusterGroup) {
+                this.noClusterGroup.clearLayers();
+            }
+
+            if (this.clusterGroup) {
+                this.clusterGroup.clearLayers();
             }
         }
 

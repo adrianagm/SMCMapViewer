@@ -21,3 +21,6 @@ require("../src/layers/aggregation/MultiModeLayer.js");
 require("../src/providers/WFSTProvider.js");
 require("../src/layers/EditableLayer.js");
 require("../src/layers/markers/WFSTMarkerLayer.js");
+
+require("../src/layers/reloaders/TimerReloadTrigger.js");
+require("../src/layers/reloaders/AtmosphereRTReloadTrigger.js");
