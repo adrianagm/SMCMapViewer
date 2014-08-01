@@ -21,7 +21,7 @@ SMC.layers.aggregation.AggregatingLayer = L.LayerGroup.extend(
 		initialize: function(options) {
 			L.Util.setOptions(this, options);
 			this._aggregatingLayers = {};
-			
+
 		},
 
 		/**
@@ -39,14 +39,29 @@ SMC.layers.aggregation.AggregatingLayer = L.LayerGroup.extend(
 			} else if (typeof layerId === "object") {
 				console.log(layerId.options.typeName || layerId.options.label);
 				this._aggregatingLayers[layerId.options.label || layerId.options.typeName] = layerId;
-				
+
 			}
 
 		},
 
+		getMap: function() {
+			if (this.parent) {
+				if (this.parent.map) {
+					map = this.parent.map;
+				} else if (this.parent.parent) {
+					if (this.parent.parent.map)
+						map = this.parent.parent.map;
+					else if (this.parent.parent._map)
+						map = this.parent.parent._map;
+				}
+
+				return map;
+			}
+		}
+
 		// onAdd: function(map) {
 		// 	L.LayerGroup.prototype.onAdd.call(this, map);
-			 
+
 		// },
 
 		// onRemove: function(map){
@@ -57,6 +72,6 @@ SMC.layers.aggregation.AggregatingLayer = L.LayerGroup.extend(
 		// 	L.LayerGroup.prototype.addTo.call(this, map);
 		// }
 
-		
+
 
 	});

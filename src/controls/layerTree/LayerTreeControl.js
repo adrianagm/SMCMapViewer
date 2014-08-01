@@ -42,6 +42,10 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
 
         },
 
+        getMap: function() {
+            return this._map;
+        },
+
         /**
          * Method to load the control in the map
          * @param {SMC.Map} map - Map to be added
@@ -184,10 +188,15 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
 
             }
 
-            for (var j in map._layers) {
-                obj = map._layers[j];
-                if (obj instanceof SMC.layers.aggregation.MultiModeLayer) {
-                    obj._initializeTree();
+
+            var map = this.getMap();
+
+            if (map) {
+                for (var j in map._layers) {
+                    obj = map._layers[j];
+                    if (obj instanceof SMC.layers.aggregation.MultiModeLayer) {
+                        obj._initializeTree();
+                    }
                 }
             }
 

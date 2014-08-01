@@ -161,8 +161,11 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
                 this.noClusterGroup.addLayer(marker);
                 return;
             }
-            L.FeatureGroup.prototype.onAdd.call(this, map);
-            var zoom = this._map.getZoom();
+            
+           // var zoom = this._map.getZoom();
+            if(!zoom){
+               var zoom = this.getMap().getZoom();
+            }
             var style = this.applyStyle(marker.feature, zoom);
             if (style.icon) {
                 marker.setIcon(style.icon);

@@ -1,7 +1,7 @@
 function initMap() {
 
     // Centered in Manchester
-    map = SMC.map('map');
+    var map = SMC.map('map');
     map.setView([53.4666677, -2.2333333], 9);
 
     var base = SMC.tileLayer({
