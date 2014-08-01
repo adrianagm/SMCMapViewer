@@ -38,9 +38,10 @@ function initMap() {
     }, {
         type: "SMC.layers.markers.WFSMarkerLayer",
         reloadTriggers: [{
-            type: "SMC.layers.reloaders.TimerReloadTrigger",
+            type: "SMC.layers.reloaders.AtmosphereRTReloadTrigger",
             params: [{
-                triggerDelay: 3000
+                topic: "markers",
+                url: "http://localhost:8888/smc-mapviewer-updates-notifier/layerUpdates"
             }]
         }],
         params: [{

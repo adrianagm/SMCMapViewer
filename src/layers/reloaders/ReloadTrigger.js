@@ -15,6 +15,12 @@ SMC.layers.reloaders.ReloadTrigger = L.Class.extend(
 	{
 		includes: [L.Mixin.Events],
 
+
+		initialize: function() {
+
+		},
+
+
 		/**
 		 * Initializes the trigger so it will monitor for the need of a reload.
 		 *
