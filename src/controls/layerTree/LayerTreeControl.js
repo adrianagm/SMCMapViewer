@@ -185,7 +185,6 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
                 this._addItem(obj);
                 overlaysPresent = overlaysPresent || obj.overlay;
                 baseLayersPresent = baseLayersPresent || !obj.overlay;
-
             }
 
 
@@ -240,11 +239,9 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
         },
 
         _onLayerChange: function(e) {
-
             if (e.layer._slidermove) {
                 return;
             }
-
 
             var obj = this._layers[L.Util.stamp(e.layer)];
 
@@ -443,25 +440,11 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             for (i = 0; i < inputsLen; i++) {
                 input = inputs[i];
                 obj = this._layers[input.layerId];
-                //var buttons = $("input[type=button]", obj.name);
-                if (input.className == 'leaflet-control-layers-selector') {
-                    if (input.checked && !this._map.hasLayer(obj.layer)) {
-                        this._map.addLayer(obj.layer);
-                        // Enable the buttons
-                        // for (i = 0; i < buttons.length; i++) {
-                        //     if (buttons[i].disabled) {
-                        //         buttons[i].disabled = false;
-                        //     }
-                        // }
-                    } else if (!input.checked && this._map.hasLayer(obj.layer)) {
-                        this._map.removeLayer(obj.layer);
-                        // Disable the buttons
-                        // for (i = 0; i < buttons.length; i++) {
-                        //     if (!buttons[i].disabled) {
-                        //         buttons[i].disabled = true;
-                        //     }
-                        // }
-                    }
+
+                if (input.checked && !this._map.hasLayer(obj.layer)) {
+                    this._map.addLayer(obj.layer);
+                } else if (!input.checked && this._map.hasLayer(obj.layer)) {
+                    this._map.removeLayer(obj.layer);
                 }
             }
             this._handlingClick = false;

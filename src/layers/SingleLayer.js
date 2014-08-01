@@ -24,6 +24,7 @@ SMC.layers.SingleLayer = SMC.layers.Layer.extend(
         initialize: function(options) {
             L.Util.setOptions(this, options);
             SMC.layers.Layer.prototype.initialize.call(this, options);
+            SMC.layers.reloaders.LayerReloader.prototype.initialize.call(this, options);
         },
         /**
          * Method to load the control in the map

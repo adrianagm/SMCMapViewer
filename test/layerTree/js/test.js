@@ -4,7 +4,8 @@ function initMap() {
     map = SMC.map('map');
     map.setView([53.4666677, -2.2333333], 9);
 
-    var base = SMC.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+    var base = SMC.tileLayer({
+        url: 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
         maxZoom: 18,
     }).addTo(map);
@@ -29,8 +30,7 @@ function initMap() {
     var tree = [{
         type: "folder",
         label: 'Folder 1',
-        layers: [
-        {
+        layers: [{
             type: "folder",
             label: 'Folder 1.1',
             layers: [{
@@ -39,50 +39,50 @@ function initMap() {
                     serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
                     typeName: "OpenData:Parks",
                     label: "Salford Parks"
-                }] 
-            },{
+                }]
+            }, {
                 type: "folder",
                 label: 'Folder 1.1.1',
-                layers: [
-                {
+                layers: [{
                     type: "SMC.layers.markers.WFSMarkerLayer",
                     params: [{
                         serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
                         typeName: "OpenData:V_SURE_START_CENTRES",
                         label: "Children's centres"
-                    }] 
+                    }]
                 }]
-            },{
+            }, {
                 type: "folder",
                 label: 'Folder 1.1.2',
-                layers: [
-                {
+                layers: [{
                     type: "SMC.layers.markers.WFSMarkerLayer",
                     params: [{
                         serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
                         typeName: "OpenData:COMMUNITY_CENTRES",
                         label: "Community Centres"
-                    }] 
+                    }]
                 }]
             }]
-        },{
+        }, {
             type: "folder",
             label: 'Folder 1.1',
-            layers:[{
+            layers: [{
                 type: "SMC.layers.markers.WFSMarkerLayer",
                 params: [{
                     serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
                     typeName: "OpenData:LIBRARIES",
                     label: "Libraries"
                 }]
-            },{
+            }, {
                 type: "L.Marker",
-                params: [[51.5, -0.09], {
-                    label: "Marker Layer"
-                }]
+                params: [
+                    [51.5, -0.09], {
+                        label: "Marker Layer"
+                    }
+                ]
             }]
         }]
-    },{
+    }, {
         type: "folder",
         label: 'Folder 2',
         layers: [{
@@ -93,13 +93,13 @@ function initMap() {
                 label: "Cultural Locations"
             }]
         }]
-    },{
+    }, {
         type: "SMC.layers.markers.WFSMarkerLayer",
         params: [{
             serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
             typeName: "OpenData:V_RECYCLING_CENTRES",
             label: "Recycling centres"
-        }] 
+        }]
     }];
     map.loadLayers(tree);
     var wfsMarkerLayer = SMC.wfsMarkerLayer({

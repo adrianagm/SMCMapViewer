@@ -15,14 +15,38 @@ SMC.layers.TileLayer = L.TileLayer.extend(
     /** @lends SMC.layers.TileLayer# */
     {
 
-        includes: [SMC.layers.SingleLayer]
+        includes: SMC.Util.deepClassInclude([SMC.layers.SingleLayer]),
+
+        initialize: function(options) {
+            if (!options.url || typeof(options.url) !== "string") {
+                throw new Error("SMC.layers.TileLayer::initialize: options must contain an url attribute of type string.");
+            }
+            L.TileLayer.prototype.initialize.call(this, options.url, options);
+            SMC.layers.SingleLayer.prototype.initialize.call(this, options);
+        },
+
+        onAdd: function(map) {
+            L.TileLayer.prototype.onAdd.call(this, map);
+            SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
+        },
+
+        load: function() {
+            if (this._needsload) {
+                this._update();
+                this._needsload = false;
+            }
+        },
+
+        unload: function() {
+            this._reset();
+            this._needsload = true;
+        }
     });
 
 /**
  * API factory method for ease creation of tile layers.
- * @params {String} url - The url the tiles are retrieved from
  * @params {Object} options - Options for the layer.
  */
-SMC.tileLayer = function(url, options) {
-    return new SMC.layers.TileLayer(url, options);
+SMC.tileLayer = function(options) {
+    return new SMC.layers.TileLayer(options);
 };

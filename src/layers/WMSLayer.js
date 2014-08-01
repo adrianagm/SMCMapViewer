@@ -15,14 +15,38 @@ SMC.layers.WMSLayer = L.TileLayer.WMS.extend(
     /** @lends SMC.layers.WMSLayer# */
     {
 
-        includes: [SMC.layers.SingleLayer]
+        includes: SMC.Util.deepClassInclude([SMC.layers.SingleLayer]),
+
+        initialize: function(options) {
+            if (!options.url || typeof(options.url) !== "string") {
+                throw new Error("SMC.layers.WMSLayer::initialize: options must contain an url attribute of type string.");
+            }
+            L.TileLayer.WMS.prototype.initialize.call(this, options.url, options);
+            SMC.layers.SingleLayer.prototype.initialize.call(this, options);
+        },
+
+        onAdd: function(map) {
+            L.TileLayer.WMS.prototype.onAdd.call(this, map);
+            SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
+        },
+
+        load: function() {
+            if (this._needsload) {
+                this._update();
+                this._needsload = false;
+            }
+        },
+
+        unload: function() {
+            this._needsload = true;
+            this._reset();
+        }
     });
 
 /**
  * API factory method for ease creation of WMS layers.
- * @params {String} url - The url the tiles are retrieved from
- * @params {Object} options - Options for the layer.
+ * @params {Object} options - Options for the layer. Must contain a field url of type string.
  */
-SMC.wmsLayer = function(url, options) {
-    return new SMC.layers.WMSLayer(url, options);
+SMC.wmsLayer = function(options) {
+    return new SMC.layers.WMSLayer(options);
 };

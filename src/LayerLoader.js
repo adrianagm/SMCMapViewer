@@ -8,13 +8,11 @@ require("./SMC.js");
  *
  * @author Luis Román (lroman@emergya.com)
  */
-
 SMC.LayerLoader = L.Class.extend(
     /** @lends SMC.layers.LayerLoader# */
-    { 
+    {
 
         loadedLayers: {},
-
 
         /**
          * Creates layers from a Javascript object (or its javascript reprsentantion) defining the type and options of the layers to be loaded.
@@ -23,7 +21,6 @@ SMC.LayerLoader = L.Class.extend(
          * @param {(Object|JSON)} layersConfig - Configuration to load a layer
          */
         loadLayers: function(layersConfig) {
-
             if (!layersConfig) {
                 throw new Error("SMC.layers.LayerLoader::loadLayers: no layers config received");
             }
@@ -110,43 +107,20 @@ SMC.LayerLoader = L.Class.extend(
                 }
 
                 // We traverse the speficied class 'packages' from the root (window) to obtain the actual class object.
-                var typePaths = type.split(".");
-                var layerClass = window;
-                for (var i = 0; i < typePaths.length; i++) {
-                    layerClass = layerClass[typePaths[i]];
-                }
-
-                if (!layerClass.prototype) {
-                    throw new Error("SMC.layers.LayerLoader::_loadLayerConfig: layer config in position " + idx + " defined type '" + type + "' is not a valid class");
-                }
-
+                layerClass = SMC.Util.getClass(type);
             }
 
             // Class instantiation code from http://stackoverflow.com/questions/1606797/use-of-apply-with-new-operator-is-this-possible
-            var createClass = (function() {
-                function F(arguments) {
-                    if (arguments.length > 1) {
-                        return layerClass.apply(this, arguments);
-                    } else {
-                        return layerClass.apply(this, arguments[0]);
-                    }
+            var constructor = SMC.Util.getConstructor(layerClass);
 
-                }
-                F.prototype = layerClass.prototype;
-
-                return function(args) {
-                    return new F(arguments);
-                };
-            })();
-
-            if (url != "") {
+            if (url) {
                 if (Array.isArray(params)) {
-                    layer = createClass(url, params[0]);
+                    layer = constructor(url, params[0]);
                 } else {
-                    layer = createClass(url, params);
+                    layer = constructor(url, params);
                 }
             } else {
-                layer = createClass(params);
+                layer = constructor(params);
             }
 
 
@@ -156,13 +130,19 @@ SMC.LayerLoader = L.Class.extend(
                 }
             }
 
+            // If we have triggers and the layer is reloadable, we add the triggers.
+            if (layerConfig.reloadTriggers && (typeof layer.addReloadTrigger === "function")) {
+                for (var tIdx = 0; tIdx < layerConfig.reloadTriggers.length; tIdx++) {
+                    var triggerConfig = layerConfig.reloadTriggers[tIdx];
+                    layer.addReloadTrigger(triggerConfig);
+                }
+            }
+
             // The layer loader is mixed in into a map (or Folder) so we can add layers to that.
 
             layer._map = this;
 
             layer.addTo(this);
-
-
 
             // The loader (that is, the map or Folder) is the layer's parent
             layer.parent = this;
@@ -175,9 +155,5 @@ SMC.LayerLoader = L.Class.extend(
             }
 
             this.loadedLayers[id] = layer;
-
-           
-
-
         }
     });

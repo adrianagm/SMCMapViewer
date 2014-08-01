@@ -34,8 +34,7 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
 
             this.noClusterGroup = new L.FeatureGroup();
             SMC.layers.stylers.MarkerCssStyler.prototype.initialize.apply(this, arguments);
-
-
+            SMC.layers.SingleLayer.prototype.initialize.apply(this, arguments);
         },
 
         /**
@@ -48,7 +47,7 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
             } else if (this.noClusterGroup.hasLayer(layer)) {
                 this.noClusterGroup.removeLayer(layer);
             } else {
-                this._map.removeLayer(layer);
+                this.getMap().removeLayer(layer);
             }
 
         },
@@ -184,7 +183,7 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
                 return;
             }
 
-            var zoom = map.getZoom();
+            var zoom = this.getMap().getZoom();
             var style = this.applyStyle(marker.feature, zoom);
             if (style.icon) {
                 marker.setIcon(style.icon);
@@ -236,6 +235,16 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
                     this._applyStyles(marker, false);
                 }
 
+            }
+        },
+
+        unload: function() {
+            if (this.noClusterGroup) {
+                this.noClusterGroup.clearLayers();
+            }
+
+            if (this.clusterGroup) {
+                this.clusterGroup.clearLayers();
             }
         }
 

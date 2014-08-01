@@ -4,7 +4,8 @@ function initMap() {
     var map = SMC.map('map');
     map.setView([53.4666677, -2.2333333], 9);
 
-    var base = SMC.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+    var base = SMC.tileLayer({
+        url: 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
         maxZoom: 18,
     }).addTo(map);
@@ -128,48 +129,47 @@ function initMap() {
                 }]
 
 
-                }
-                ,{
-                    type: "SMC.layers.history.AggregatingHistoryLayer",
-                    label: 'History Geometry',
-                    layers: [{
-                        type: 'SMC.layers.geometry.WFSGeometryLayer',
-                        params: [{
-                            serverURL: 'http://www.salford.gov.uk/geoserver/OpenData/wfs',
-                            typeName: 'OpenData:Parks',
-                            label: 'Parks 1',
-                            date: '1',
-                            zoomOffset: 0,
-                            draggingUpdates: true,
-                            stylesheet: '* {fillColor: "rgba(0, 0, 255, 0.5)";}',   
+            }, {
+                type: "SMC.layers.history.AggregatingHistoryLayer",
+                label: 'History Geometry',
+                layers: [{
+                    type: 'SMC.layers.geometry.WFSGeometryLayer',
+                    params: [{
+                        serverURL: 'http://www.salford.gov.uk/geoserver/OpenData/wfs',
+                        typeName: 'OpenData:Parks',
+                        label: 'Parks 1',
+                        date: '1',
+                        zoomOffset: 0,
+                        draggingUpdates: true,
+                        stylesheet: '* {fillColor: "rgba(0, 0, 255, 0.5)";}',
 
-                        }]
+                    }]
 
-                    }, {
-                        type: 'SMC.layers.geometry.WFSGeometryLayer',
-                        params: [{
-                            serverURL: 'http://www.salford.gov.uk/geoserver/OpenData/wfs',
-                            typeName: 'OpenData:Parks',
-                            label: 'Parks 2',
-                            date: '2',
-                            zoomOffset: 0,
-                            draggingUpdates: true,
-                            stylesheet: '* {fillColor: "rgba(255, 0, 0, 0.5)";}',
+                }, {
+                    type: 'SMC.layers.geometry.WFSGeometryLayer',
+                    params: [{
+                        serverURL: 'http://www.salford.gov.uk/geoserver/OpenData/wfs',
+                        typeName: 'OpenData:Parks',
+                        label: 'Parks 2',
+                        date: '2',
+                        zoomOffset: 0,
+                        draggingUpdates: true,
+                        stylesheet: '* {fillColor: "rgba(255, 0, 0, 0.5)";}',
 
-                        }]
-                    }, {
-                        type: 'SMC.layers.geometry.WFSGeometryLayer',
-                        params: [{
-                            serverURL: 'http://www.salford.gov.uk/geoserver/OpenData/wfs',
-                            typeName: 'OpenData:Parks',
-                            label: 'Parks 3',
-                            date: '3',
-                            zoomOffset: 0,
-                            draggingUpdates: true,
-                            stylesheet: '* {fillColor: "rgba(0, 255, 0, 0.5)";}',
+                    }]
+                }, {
+                    type: 'SMC.layers.geometry.WFSGeometryLayer',
+                    params: [{
+                        serverURL: 'http://www.salford.gov.uk/geoserver/OpenData/wfs',
+                        typeName: 'OpenData:Parks',
+                        label: 'Parks 3',
+                        date: '3',
+                        zoomOffset: 0,
+                        draggingUpdates: true,
+                        stylesheet: '* {fillColor: "rgba(0, 255, 0, 0.5)";}',
 
-                        }]
-                  }]
+                    }]
+                }]
 
 
             }]
