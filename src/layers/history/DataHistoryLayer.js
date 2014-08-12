@@ -298,12 +298,12 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 			for (var d in data) {
 				if (data[d].actual) {
 					data[d]._slidermove = false;
-					data[d].addTo(map);
+					data[d].onAdd(map);
+
 				}
 			}
 
-			//this.showTimeData(value, true);
-
+		
 
 		}
 
