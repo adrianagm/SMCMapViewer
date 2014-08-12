@@ -222,7 +222,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             mypaper.view.draw();
 
             console.timeEnd("draw " + canvasLabel);
-            console.timeEnd("render " + canvasLabel);
+            console.timeEnd("render " + canvasLabel);                                                                                                                                                                                               
 
             return layer;
         },
