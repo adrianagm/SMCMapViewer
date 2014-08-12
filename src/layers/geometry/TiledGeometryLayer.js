@@ -28,7 +28,6 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
     /** @lends SMC.layers.geometry.TiledGeometryLayer# */
     {
 
-        includes: SMC.Util.deepClassInclude([SMC.layers.SingleLayer, SMC.layers.geometry.CanvasRenderer]),
         /**
          * @typedef {Object} SMC.layers.geometry.TiledGeometryLayer~options
          * @property {number} tileSize=256 - Default tile size value
@@ -411,4 +410,4 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
             // override with your code
         }
 
-    });
+    }, [SMC.layers.SingleLayer, SMC.layers.geometry.CanvasRenderer]);

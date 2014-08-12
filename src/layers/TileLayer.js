@@ -15,7 +15,6 @@ SMC.layers.TileLayer = L.TileLayer.extend(
     /** @lends SMC.layers.TileLayer# */
     {
 
-        includes: SMC.Util.deepClassInclude([SMC.layers.SingleLayer]),
 
         initialize: function(options) {
             if (!options.url || typeof(options.url) !== "string") {
@@ -41,7 +40,7 @@ SMC.layers.TileLayer = L.TileLayer.extend(
             this._reset();
             this._needsload = true;
         }
-    });
+    }, [SMC.layers.SingleLayer]);
 
 /**
  * API factory method for ease creation of tile layers.

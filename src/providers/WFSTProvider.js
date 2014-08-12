@@ -11,7 +11,6 @@ require("./WFSProvider");
 SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
 	/** @lends SMC.providers.WFSTProvider# */
 	{
-        includes: SMC.Util.deepClassInclude([SMC.providers.WFSProvider]),
 		/**
          * Initialize the class with options parameter
          * @param {object} options - default options
@@ -180,8 +179,7 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
              +  '   </wfs:Update>\n';
              return res;
         }
-	}
-);
+	}, [SMC.providers.WFSProvider]);
  /**
  * API factory method for ease creation of wfs features providers.
  * @params {Object} options - Options to initialize the WFS provider

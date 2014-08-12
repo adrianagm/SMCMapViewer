@@ -15,7 +15,6 @@ require("./reloaders/LayerReloader.js");
 SMC.layers.SingleLayer = SMC.layers.Layer.extend(
     /** @lends SMC.layers.SingleLayer# */
     {
-        includes: SMC.Util.deepClassInclude([SMC.layers.reloaders.LayerReloader]),
 
         /**
          * Initialize the object with the params
@@ -39,4 +38,4 @@ SMC.layers.SingleLayer = SMC.layers.Layer.extend(
            return this.map;
         }
 
-    });
+    }, [SMC.layers.reloaders.LayerReloader]);

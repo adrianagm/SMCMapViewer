@@ -15,7 +15,6 @@ var editable_layers = [];
 SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
 	/** @lends SMC.layers.markers.WFSTMarkerLayer# */
 	{
-		includes: SMC.Util.deepClassInclude([SMC.layers.EditableLayer, SMC.providers.WFSTProvider]),
 		/**
          * Initialize the object with the params
          * @param {object} options - object with need parameters
@@ -188,8 +187,8 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
             }
             return index;
         },
-	}
-);
+	}, [SMC.layers.EditableLayer, SMC.providers.WFSTProvider]);
+
 /**
  * API factory method for ease creation of wfs features providers.
  * @param {Object} options - Options for wfs the provider.

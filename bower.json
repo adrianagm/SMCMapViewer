@@ -9,7 +9,6 @@
     ],
     "description": "Extensions for Leaflet for a configurable map architecture",
     "dependencies": {
-        "leaflet": "*",
         "leaflet.markercluster": "*",
         "leaflet.draw": "*",
         "mustache.js": "*",

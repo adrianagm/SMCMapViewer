@@ -15,7 +15,6 @@ SMC.layers.Folder = L.LayerGroup.extend(
     /** @lends SMC.layers.Folder# */
     {
 
-        includes: SMC.Util.deepClassInclude([SMC.controls.layerTree.LayerTreeFolder, SMC.LayerLoader]),
 
         /**
          * Initialize the object with the params
@@ -67,4 +66,4 @@ SMC.layers.Folder = L.LayerGroup.extend(
                 evt.target.className = "fa fa-folder-open";
             }
         }
-    });
+    },[SMC.controls.layerTree.LayerTreeFolder, SMC.LayerLoader]);

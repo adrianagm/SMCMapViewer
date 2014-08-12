@@ -27,13 +27,8 @@ function initMap() {
         }],
         params: [{
             url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
-            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
-            maxZoom: 18,
-            label: "Tile Layer Satellite",
-            tileSize: 512,
-            subdomains: ["a"],
-            zoomOffset: 0,
-            maxNativeZoom: 18
+            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',           
+            label: "Tile Layer Satellite"
         }]
     }, {
         type: "SMC.layers.markers.WFSMarkerLayer",

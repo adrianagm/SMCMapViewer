@@ -16,7 +16,6 @@ SMC.layers.history.AggregatingHistoryLayer = SMC.layers.aggregation.AggregatingL
 			time: 1000
 		},
 
-		includes: SMC.Util.deepClassInclude([SMC.layers.history.DataHistoryLayer]),
 
 		initialize: function(options) {
 			SMC.layers.aggregation.AggregatingLayer.prototype.initialize.apply(this, arguments);
@@ -49,4 +48,4 @@ SMC.layers.history.AggregatingHistoryLayer = SMC.layers.aggregation.AggregatingL
         	SMC.layers.aggregation.AggregatingLayer.prototype.onRemove.call(this, map);
         }
 
-	});
+	}, [SMC.layers.history.DataHistoryLayer]);

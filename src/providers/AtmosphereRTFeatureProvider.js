@@ -17,7 +17,6 @@ require("./AtmosphereConnector.js");
 SMC.providers.AtmosphereRTFeatureProvider = SMC.providers.RTFeatureProvider.extend(
     /** @lends SMC.providers.AtmosphereRTFeatureProvider# */
     {
-        includes: SMC.Util.deepClassInclude([SMC.providers.AtmosphereConnector]),
 
         /**
          * Initialize the object with the option parameter
@@ -59,5 +58,4 @@ SMC.providers.AtmosphereRTFeatureProvider = SMC.providers.RTFeatureProvider.exte
             this.onFeaturesDeleted(featuresDeleted);
             this.onFeaturesModified(featuresModified);
         }
-    }
-);
+    }, [SMC.providers.AtmosphereConnector]);
