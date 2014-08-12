@@ -185,7 +185,6 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
                 this._addItem(obj);
                 overlaysPresent = overlaysPresent || obj.overlay;
                 baseLayersPresent = baseLayersPresent || !obj.overlay;
-
             }
 
 
@@ -240,11 +239,9 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
         },
 
         _onLayerChange: function(e) {
-
             if (e.layer._slidermove) {
                 return;
             }
-
 
             var obj = this._layers[L.Util.stamp(e.layer)];
 
