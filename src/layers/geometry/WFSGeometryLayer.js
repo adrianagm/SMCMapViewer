@@ -15,8 +15,6 @@ SMC.layers.geometry.WFSGeometryLayer = SMC.layers.geometry.GeometryLayer.extend(
     /** @lends SMC.layers.geometry.WFSGeometryLayer# */
     {
 
-        includes: SMC.Util.deepClassInclude([SMC.providers.WFSProvider]),
-
         /**
          * Initialize the object with the params
          * @param {object} options - object with need parameters
@@ -51,8 +49,8 @@ SMC.layers.geometry.WFSGeometryLayer = SMC.layers.geometry.GeometryLayer.extend(
         createNodeHTML: function() {
             return this.options.label || this.options.typeName;
         }
-    }
-);
+        
+    }, [SMC.providers.WFSProvider]);
 
 /**
  * API factory method for easy creation of wfs geometry layer.

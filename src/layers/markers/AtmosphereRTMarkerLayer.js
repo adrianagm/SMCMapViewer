@@ -15,7 +15,6 @@ require("../../providers/AtmosphereRTFeatureProvider.js");
 SMC.layers.markers.AtmosphereRTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
     /** @lends SMC.layers.markers.AtmosphereRTMarkerLayer# */
     {
-        includes: SMC.Util.deepClassInclude([SMC.providers.AtmosphereRTFeatureProvider]),
 
         _markersMap: {},
 
@@ -76,7 +75,7 @@ SMC.layers.markers.AtmosphereRTMarkerLayer = SMC.layers.markers.MarkerLayer.exte
         },
 
 
-    });
+    }, [SMC.providers.AtmosphereRTFeatureProvider]);
 /**
  * API factory method for ease creation of atmosphere powered realtime marker layers.
  * @param {Object} options - Options for the marker layer and Atmosphere provider.

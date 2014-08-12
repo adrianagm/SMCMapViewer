@@ -17,8 +17,6 @@ SMC.layers.reloaders.AtmosphereRTReloadTrigger = SMC.layers.reloaders.ReloadTrig
     /** @lends SMC.layers.reloaders.TimerReloadTrigger# */
     {
 
-        includes: SMC.Util.deepClassInclude([SMC.providers.AtmosphereConnector]),
-
         /**
          * Initialize the object with the params
          * @param {object} options - default options
@@ -41,4 +39,4 @@ SMC.layers.reloaders.AtmosphereRTReloadTrigger = SMC.layers.reloaders.ReloadTrig
             this._notifyReload();
         }
 
-    });
+    }, [SMC.providers.AtmosphereConnector]);

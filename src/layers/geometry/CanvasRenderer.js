@@ -19,7 +19,6 @@ var rbush = require("../../../lib/rbush.js");
 SMC.layers.geometry.CanvasRenderer = L.Class.extend(
     /** @lends SMC.layers.geometry.CanvasRenderer# */
     {
-        includes: SMC.Util.deepClassInclude([SMC.layers.stylers.MapCssStyler]),
 
         canvasTree: null,
 
@@ -674,4 +673,4 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             }
         }
 
-    });
+    }, [SMC.layers.stylers.MapCssStyler]);

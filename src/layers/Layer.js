@@ -13,7 +13,6 @@ SMC.layers.Layer = L.Class.extend(
     {
         visible: true,
 
-        includes: SMC.Util.deepClassInclude([SMC.controls.layerTree.LayerTreeLeaf]),
 
         /**
          * Initialize the class with options parameter
@@ -38,4 +37,4 @@ SMC.layers.Layer = L.Class.extend(
         setVisible: function(visible) {
              this.visible = visible;
         }
-    });
+    }, [SMC.controls.layerTree.LayerTreeLeaf]);

@@ -14,10 +14,11 @@ require("./LayerLoader.js");
  * @author Luis Román (lroman@emergya.com)
  */
 SMC.Map = L.Map.extend(
-    /** @lends SMC.Map# */
-    {
-        includes: SMC.Util.deepClassInclude([SMC.LayerLoader])
-    });
+	/** @lends SMC.Map# */
+	{
+	
+		
+	}, [SMC.LayerLoader]);
 
 /**
  * API factory method for creating SMCViewer's Maps.
@@ -26,5 +27,5 @@ SMC.Map = L.Map.extend(
  * @param {Object} options - Configuration for the map
  */
 SMC.map = function(element, options) {
-    return new SMC.Map(element, options);
+	return new SMC.Map(element, options);
 };

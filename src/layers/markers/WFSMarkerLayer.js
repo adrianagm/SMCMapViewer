@@ -13,7 +13,6 @@ require("../EditableLayer.js");
 SMC.layers.markers.WFSMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
     /** @lends SMC.layers.markers.WFSMarkerLayer# */
     {
-        includes: SMC.Util.deepClassInclude([SMC.providers.WFSProvider]),
 
         initialize: function(options) {
             SMC.layers.markers.MarkerLayer.prototype.initialize.call(this, options);
@@ -43,7 +42,7 @@ SMC.layers.markers.WFSMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
             return this.options.label || this.options.typeName;
         }
 
-    });
+    }, [SMC.providers.WFSProvider]);
 /**
  * API factory method for ease creation of wfs features providers.
  * @param {Object} options - Options for wfs the provider.

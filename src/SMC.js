@@ -1,4 +1,5 @@
 require("../lib/leaflet/leaflet-src.js");
+require("./Util.js");
 
 /**
  * Global namespace for classes making up the SMC's map viewer

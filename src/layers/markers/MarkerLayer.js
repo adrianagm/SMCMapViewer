@@ -16,7 +16,6 @@ require("../../../lib/LeafletHtmlIcon.js");
 SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
     /** @lends SMC.layers.markers.MarkerLayer# */
     {
-        includes: SMC.Util.deepClassInclude([SMC.layers.SingleLayer, SMC.layers.stylers.MarkerCssStyler]),
 
         _markersMap: {},
 
@@ -183,7 +182,12 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
                 return;
             }
 
-            var zoom = this.getMap().getZoom();
+            var zoom;
+            try {
+              zoom = this.getMap().getZoom();  
+            } catch(e) {
+                return;
+            }
             var style = this.applyStyle(marker.feature, zoom);
             if (style.icon) {
                 marker.setIcon(style.icon);
@@ -250,4 +254,4 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
 
 
 
-    });
+    }, [SMC.layers.SingleLayer, SMC.layers.stylers.MarkerCssStyler]);

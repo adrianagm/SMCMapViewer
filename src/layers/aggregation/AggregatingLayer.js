@@ -14,8 +14,6 @@ SMC.layers.aggregation.AggregatingLayer = L.LayerGroup.extend(
 	/** @lends SMC.layers.aggregation.AggregatingLayer# */
 	{
 
-		includes: SMC.Util.deepClassInclude([SMC.LayerLoader]),
-
 		_aggregatingLayers: {},
 
 		initialize: function(options) {
@@ -74,4 +72,4 @@ SMC.layers.aggregation.AggregatingLayer = L.LayerGroup.extend(
 
 
 
-	});
+	}, [SMC.LayerLoader]);

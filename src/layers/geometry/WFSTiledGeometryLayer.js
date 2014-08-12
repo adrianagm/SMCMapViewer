@@ -15,8 +15,6 @@ SMC.layers.geometry.WFSTiledGeometryLayer = SMC.layers.geometry.TiledGeometryLay
     /** @lends SMC.layers.geometry.WFSTiledGeometryLayer# */
     {
 
-        includes: SMC.Util.deepClassInclude([SMC.providers.WFSProvider]),
-
         /**
          * Initialize the object with the params
          * @param {object} options - object with need parameters
@@ -43,8 +41,8 @@ SMC.layers.geometry.WFSTiledGeometryLayer = SMC.layers.geometry.TiledGeometryLay
         createNodeHTML: function() {
             return this.options.label || this.options.typeName;
         }
-    }
-);
+        
+    }, [SMC.providers.WFSProvider]);
 
 /**
  * API factory method for easy creation of wfs tiled geometry layer.

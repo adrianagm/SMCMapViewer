@@ -16,7 +16,6 @@ require("../../../lib/canvasLayer/leaflet_canvas_layer.js");
 SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 	/** @lends SMC.layers.geometry.GeometryLayer# */
 	{
-		includes: SMC.Util.deepClassInclude([SMC.layers.SingleLayer, SMC.layers.geometry.CanvasRenderer]),
 
 		features: [],
 		/**
@@ -154,4 +153,4 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 		}
 
 
-	});
+	}, [SMC.layers.SingleLayer, SMC.layers.geometry.CanvasRenderer]);

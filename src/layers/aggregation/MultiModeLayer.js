@@ -16,7 +16,6 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 	/** @lends SMC.layers.history.AggregatingHistoryLayer# */
 	{
 		node: null,
-		includes: SMC.Util.deepClassInclude([SMC.layers.SingleLayer]),
 
 		initialize: function(options) {
 			L.Util.setOptions(this, options);
@@ -322,4 +321,4 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 
 
 
-	});
+	}, [SMC.layers.SingleLayer]);

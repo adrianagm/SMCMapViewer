@@ -15,8 +15,6 @@ SMC.layers.WMSLayer = L.TileLayer.WMS.extend(
     /** @lends SMC.layers.WMSLayer# */
     {
 
-        includes: SMC.Util.deepClassInclude([SMC.layers.SingleLayer]),
-
         initialize: function(options) {
             if (!options.url || typeof(options.url) !== "string") {
                 throw new Error("SMC.layers.WMSLayer::initialize: options must contain an url attribute of type string.");
@@ -41,7 +39,7 @@ SMC.layers.WMSLayer = L.TileLayer.WMS.extend(
             this._needsload = true;
             this._reset();
         }
-    });
+    }, [SMC.layers.SingleLayer]);
 
 /**
  * API factory method for ease creation of WMS layers.
