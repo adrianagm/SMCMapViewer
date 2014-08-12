@@ -32,7 +32,7 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 			node.id = this._leaflet_id;
 
 			var label = document.createElement('label');
-			var	checked = this.getMap().hasLayer(this);
+			var checked = this.getMap().hasLayer(this);
 
 			var input = document.createElement('input');
 			input.type = 'checkbox';
@@ -42,7 +42,7 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 
 			label.appendChild(input);
 			label.appendChild(name);
-			
+
 			label.style.cursor = "pointer";
 
 
@@ -256,12 +256,15 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 
 
 					} else {
-
+						if (tree[i].parentNode.nextElementSibling) {
+							tree[i].parentNode.nextElementSibling.style.display = 'block';
+						}
 						tree[i].style.display = 'none';
 						tree[i].parentNode.style.display = 'block';
 						tree[i].parentNode.parentNode.style.display = 'block';
 						tree[i].parentNode.parentNode.parentNode.style.display = 'block';
 						tree[i].parentNode.parentNode.parentNode.parentNode.style.display = 'block';
+						tree[i].parentNode.parentNode.parentNode.parentNode.parentNode.style.display = 'block';
 						node = tree[i];
 					}
 				}
@@ -291,6 +294,7 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 								clearInterval(multiLayers[d]._timer);
 								pause[i].className = 'fa fa-play';
 							}
+							
 						}
 
 						if (multiLayers[d] instanceof SMC.layers.markers.WFSTMarkerLayer) {

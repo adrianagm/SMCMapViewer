@@ -152,29 +152,34 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 				time = time - (time % 1);
 			}
 			for (var d in data) {
-				if (i == time && data[d].actual) {
-					break;
-				}
+				// if (i == time && data[d].actual) {
+				// 	break;
+				// }
 
-				if (data[d].actual) {
-					data[d].onRemove(map);
-					data[d].actual = false;
-				}
+				
+					if (data[d].actual) {
+							data[d].onRemove(this.getMap());
+							data[d].actual = false;
 
-				if (i == time) {
-					if (!data[d].actual) {
-						if (!add)
-							data[d]._slidermove = true;
-						data[d].onAdd(map);
-						data[d].actual = true;
-						//recalculate canvas position for geometry layers (important)
-						this.getMap().fire("slidermove");
 					}
+
+					if (i == time) {
+						if (!data[d].actual) {
+							data[d]._slidermove = true;
+							data[d].actual = true;
+							data[d].onAdd(this.getMap());
+
+							//recalculate canvas position for geometry layers (important)
+							this.getMap().fire("slidermove");
+						}
+					}
+
+
+
+					i++;
+
 				}
-
-				i++;
-
-			}
+			
 
 
 
@@ -272,8 +277,9 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 			var data = this._historyLayers;
 			for (var d in data) {
 				if (data[d].actual) {
+					data[d]._slidermove = false;
 					data[d].onRemove(map);
-					data[d].actual = false;
+
 				}
 
 			}
@@ -281,13 +287,23 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 		},
 
 		onAdd: function(map) {
+			SMC.layers.aggregation.AggregatingLayer.prototype.addTo.call(this, map);
 			var value;
 			if (this._node != null) {
 				value = this._node.children[1].children[0].value;
 			} else
 				value = 0;
 
-			this.showTimeData(value, true);
+			var data = this._historyLayers;
+			for (var d in data) {
+				if (data[d].actual) {
+					data[d]._slidermove = false;
+					data[d].addTo(map);
+				}
+			}
+
+			//this.showTimeData(value, true);
+
 
 		}
 
