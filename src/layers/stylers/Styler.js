@@ -5,12 +5,15 @@ require("./stylers.js");
  */
 var PEG = require("../../../lib/pegjs/lib/peg.js");
 
+
+require("./StyleParser.js");
+
 /**
  * Global variable that represents mustache library functionality
  * @property {mustache} - mustache variable
  */
- var Mustache = require("../../../lib/mustache.js/mustache.js");
- 
+var Mustache = require("../../../lib/mustache.js/mustache.js");
+
 /**
  * Base class for feature layers' styles processors.
  *
@@ -34,39 +37,53 @@ SMC.layers.stylers.Styler = L.Class.extend(
 		 */
 		options: {
 			stylesheet: null,
-			stylesheetURL: null
+			stylesheetURL: null,
+			generateParser: false,
 		},
 
 		/**
-	     * Initialize the object with the params
-	     * @param {object} options - default options
-	     */
+		 * Initialize the object with the params
+		 * @param {object} options - default options
+		 */
 		initialize: function(options) {
 			L.Util.setOptions(this, options);
-			var scope = this;
-			$.ajax({
-				url: this._parser_url,
-				type: 'get',
-				success: function(response) {
-					scope._grammar = PEG.buildParser(response);
-					if (scope.options.stylesheetURL) {
-						$.ajax({
-							url: scope.options.stylesheetURL,
-							type: 'get',
-							success: function(response) {
-								scope.parse(response);
-							}
-						});
-					} else if (scope.options.stylesheet) {
-						scope.parse(scope.options.stylesheet);
-					} else {
-						// We return default empty styles if we have no config.
-						scope._createStyles = function() {
-							return {};
-						};
+
+			if (this.options.generateParser) {
+				var scope = this;
+				$.ajax({
+					url: this._parser_url,
+					type: 'get',
+					success: function(response) {
+						scope._grammar = PEG.buildParser(response);
+						scope._parseStyles();
 					}
-				}
-			});
+				});
+
+			} else {
+				this._grammar = SMC.layers.stylers.StylerParser;
+				this._parseStyles();
+			}
+
+
+		},
+
+		_parseStyles: function() {
+			if (this.options.stylesheetURL) {
+				$.ajax({
+					url: this.options.stylesheetURL,
+					type: 'get',
+					success: function(response) {
+						this.parse(response);
+					}
+				});
+			} else if (this.options.stylesheet) {
+				this.parse(this.options.stylesheet);
+			} else {
+				// We return default empty styles if we have no config.
+				this._createStyles = function() {
+					return {};
+				};
+			}
 		},
 
 		/**

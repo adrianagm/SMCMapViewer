@@ -293,7 +293,7 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 								clearInterval(multiLayers[d]._timer);
 								pause[i].className = 'fa fa-play';
 							}
-							
+
 						}
 
 						if (multiLayers[d] instanceof SMC.layers.markers.WFSTMarkerLayer) {
@@ -310,6 +310,9 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 				for (var d in multiLayers) {
 					if (multiLayers[d].active) {
 						multiLayers[d].onAdd(map);
+						map.fire('layeradd', {
+							layer: this
+						});
 					}
 				}
 

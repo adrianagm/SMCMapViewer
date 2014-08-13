@@ -26,7 +26,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
          * @param {SMC.layers} baseLayers - Layers as a base layers
          * @param {Object} options - Object with extra information
          */
-        initialize: function(baseLayers, options) {
+        initialize: function(baseLayers,options) {
             L.Util.setOptions(this, options);
 
             this._layers = {};
@@ -432,7 +432,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
 
         _onInputClick: function() {
             var i, input, obj,
-                inputs = $('input[type=checkbox]', this._from),
+                inputs = $('input[type=checkbox], input[type=radio]', this._from),
                 inputsLen = inputs.length;
 
             this._handlingClick = true;
@@ -440,6 +440,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             for (i = 0; i < inputsLen; i++) {
                 input = inputs[i];
                 obj = this._layers[input.layerId];
+                
                 if (obj) {
                     if (input.checked && !this._map.hasLayer(obj.layer)) {
                         this._map.addLayer(obj.layer);

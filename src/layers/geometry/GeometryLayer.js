@@ -36,9 +36,7 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 
 			L.CanvasLayer.prototype.onAdd.call(this, map);
 			SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
-			// map.fire('layeradd', {
-			// 	layer: this
-			// });
+			
 
 			map.on("popupopen", function(event) {
 				var d = event.target._panAnim;
