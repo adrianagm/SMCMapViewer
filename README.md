@@ -50,10 +50,11 @@ By default (as we didn’t pass any options when creating the map instance), all
 
 Next we’ll add a tile layer to add to our map, in this case it’s a Cloudmade tile layer. Creating a tile layer usually involves setting the URL template for the tile images, the attribution text and the maximum zoom level of the layer:
 
-	var base = SMC.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-		attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
-		maxZoom: 18
-	}).addTo(map);
+	var base = SMC.tileLayer({
+        url: 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery Â© <a href="http://cloudmade.com">CloudMade</a>',
+        maxZoom: 18
+    }).addTo(map);
 
 Make sure all the code is called after the div and smc.viewer-bundle.js inclusion. That’s it! You have a working SMCViewerMap map now.
 
@@ -67,12 +68,13 @@ Make sure all the code is called after the div and smc.viewer-bundle.js inclusio
 
 To add a wms layer to the map we're going to need first of all create the layer. To do that we need the url of the service and the name of the layer that it'll be load.
 
-	var satelite = SMC.wmsLayer("http://www.idee.es/wms/PNOA/PNOA", {
+	var satelite = SMC.wmsLayer({
+        url: "http://www.idee.es/wms/PNOA/PNOA",
         layers: "PNOA",
         format: 'image/png',
         transparent: true,
         crs: L.CRS.EPSG4326,
-        attribution: "Map data © Instituto Geográfico Nacional de España"
+        attribution: "Map data © Instituto Geogr&aacute;fico Nacional de Espa&ntilde;a"
     }).addTo(map);
 
 ### Add Marker Layer
@@ -96,9 +98,10 @@ Let's create a marker layer to add to map.
 Let's create a wfs marker layer to add to map. To do this we have to know the url service and the typename to get. We also can add a label with the layer name to add to layer tree panel.
 
 	var wfsMarkerLayer = SMC.wfsMarkerLayer({
-        serverURL: "http://www.juntadeandalucia.es/medioambiente/mapwms/REDIAM_WFS_SP_Infraestructuras_Hidraulicas",
-        typeName: "edar",
-        label: "Prueba WFS"
+        serverURL: "http://www.ideandalucia.es/dea100/wfs",
+        typeName: "ideandalucia:it03_aeropuerto_pun",
+        label: "Prueba WFS",
+        outputFormat: "json"
     }).addTo(map);
 
 ### Add WFS-T Marker Layer to map
@@ -112,8 +115,8 @@ Let's create a wfs marker layer to add to map. To do this we have to know the ur
 Let's create a WFS-T marker layer to add to map. This kind of layers add the posibility to add new markers, update the existed markes and delete it. Let's see how it's possible. We need to know the url service and the typename feature to get it. In the same way that we add a WFS marker layer to add layer tree panel.
 
     var wfstMarkerLayer = SMC.wfstMarkerLayer({
-        serverURL: "http://www.juntadeandalucia.es/medioambiente/mapwms/REDIAM_WFS_SP_Infraestructuras_Hidraulicas",
-        typeName: "edar",
+        serverURL: <path of editable wfs-t>,
+        typeName: <wfst name>,
         label: "Prueba WFS"
     }).addTo(map);
 
@@ -161,18 +164,19 @@ Let's create a map with a layer tree where we could load a serie of layers. Firs
 
 	var map = SMC.map('map').setView([37.383333, -5.983333], 11);
 
-	var base = SMC.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-		attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
-		maxZoom: 18
-	}).addTo(map);
-
-	var satelite = SMC.wmsLayer("http://www.idee.es/wms/PNOA/PNOA", {
+	var base = SMC.tileLayer({
+        url: 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+        maxZoom: 18
+    }).addTo(map);
+    var satelite = SMC.wmsLayer({
+        url: "http://www.idee.es/wms/PNOA/PNOA",
         layers: "PNOA",
         format: 'image/png',
         transparent: true,
         crs: L.CRS.EPSG4326,
-        attribution: "Map data © Instituto Geográfico Nacional de España"
-    }).addTo(map); 
+        attribution: "Map data © Instituto Geogr&aacute;fico Nacional de Espa&ntilde;a"
+    });
 
 Next we'll add the layer tree to the map. To do that we need to create a layer tree control and add it the base layers create before.
 
@@ -195,13 +199,13 @@ Next we'll add the layer tree to the map. To do that we need to create a layer t
 
 Once we have added the layer tree panel to the map, we have the possibility to add new layers dinamically to the layer tree. On this way when we add a new layer to map automatically we can see on the layer tree. Simply add a parameter which name is label. We use this one to add a name on the layer tree panel.
 
-	var satelite = SMC.wmsLayer("http://www.idee.es/wms/PNOA/PNOA", {
+	var satelite = SMC.wmsLayer({
+        url: "http://www.idee.es/wms/PNOA/PNOA",
         layers: "PNOA",
         format: 'image/png',
         transparent: true,
         crs: L.CRS.EPSG4326,
-        label: "PNOA",
-        attribution: "Map data © Instituto Geográfico Nacional de España"
+        attribution: "Map data © Instituto Geogr&aacute;fico Nacional de Espa&ntilde;a"
     }).addTo(map);
 
 
