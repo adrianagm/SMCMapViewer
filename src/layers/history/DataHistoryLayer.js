@@ -17,6 +17,10 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 		_timer: null,
 		_node: null,
 
+		 /**
+         * Initialize the object with the params
+         * @param {object} options - object with need parameters
+         */
 		initialize: function(options) {
 			L.Util.setOptions(this, options);
 			L.LayerGroup.prototype.initialize.call(this, options);
@@ -25,9 +29,12 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 
 		},
 
-
+		/**
+         * Method to create an HTML node for the name of the layer.
+         * @returns {String} HTML code representing the code to be added to the layer's entry in the layer tree.
+         */
 		createNodeHTML: function() {
-			this._historyLayers = this.orderLayers();
+			this._historyLayers = this._orderLayers();
 			var layers = this._historyLayers;
 
 			var node = document.createElement("div");
@@ -96,7 +103,7 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 
 		},
 
-		orderLayers: function() {
+		_orderLayers: function() {
 			var layers;
 			var exists = true;
 			for (var d in this._aggregatingLayers) {
@@ -136,16 +143,28 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 		},
 
 
+		 /**
+         * Method to load the control in the map
+         * @param {SMC.Map} map - Map to be added
+         */
 		addTo: function(map) {
 			SMC.layers.aggregation.AggregatingLayer.prototype.addTo.call(this, map);
 		},
 
+		/**
+         * Method to get the map
+         * @returns {SMC.Map} map - Map layer
+         */
 		getMap: function() {
 			SMC.layers.aggregation.AggregatingLayer.prototype.getMap.call(this, arguments);
 			return map;
 		},
 
-		showTimeData: function(time, add) {
+		/**
+         * Method to show the correct history layer
+         * @param {string} time - Value of the slider control
+         */
+		showTimeData: function(time) {
 			var i = 0;
 			var data = this._historyLayers;
 			if (time % 1 !== 0) {
@@ -155,7 +174,6 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 				// if (i == time && data[d].actual) {
 				// 	break;
 				// }
-
 				
 					if (data[d].actual) {
 							data[d].onRemove(this.getMap());
@@ -174,14 +192,10 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 						}
 					}
 
-
-
 					i++;
 
 				}
 			
-
-
 
 		},
 
@@ -273,6 +287,10 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 			}
 		},
 
+		 /**
+         * Method to remove the control in the map
+         * @param {SMC.Map} map - Map to be removed
+         */
 		onRemove: function(map) {
 			var data = this._historyLayers;
 			for (var d in data) {
@@ -286,6 +304,10 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 
 		},
 
+ 		/**
+         * Method to load the control in the map
+         * @param {SMC.Map} map - Map to be added
+         */
 		onAdd: function(map) {
 			SMC.layers.aggregation.AggregatingLayer.prototype.addTo.call(this, map);
 			var value;

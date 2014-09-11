@@ -642,6 +642,9 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
 
         },
 
+        /**
+         * Method to add a layer from the map
+         */
         onAdd: function() {
             this._ctxEvents = {};
             var map = this.getMap();
@@ -651,6 +654,9 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             map.on("moveend", this._onMapMoveEnded, this);
         },
 
+        /**
+         * Method to remove a layer from the map
+         */
         onRemove: function() {
             if (this.canvasTree) {
                 this.canvasTree.clear();
