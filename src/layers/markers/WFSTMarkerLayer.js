@@ -62,7 +62,7 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
         },
         /**
          * Method to remove the control in the map
-         * @param {SMC.Map} map - Map to be added
+         * @param {SMC.Map} map - Map to be removed
          */
         onRemove: function(map){
             var index = this._getIndexFromEditableLayer(this);

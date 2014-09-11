@@ -34,6 +34,7 @@ SMC.providers.RTFeatureProvider = SMC.providers.URLFeatureProvider.extend(
         },
         /**
          * Method to create a subcription
+         * @abstract
          * @private
          */
         _createSubscription: function() {

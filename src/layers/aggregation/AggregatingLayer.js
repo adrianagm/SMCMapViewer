@@ -16,6 +16,10 @@ SMC.layers.aggregation.AggregatingLayer = L.LayerGroup.extend(
 
 		_aggregatingLayers: {},
 
+		/**
+         * Initialize the object with the params
+         * @param {Object} options - Object with extra information
+         */
 		initialize: function(options) {
 			L.Util.setOptions(this, options);
 			this._aggregatingLayers = {};
@@ -42,6 +46,10 @@ SMC.layers.aggregation.AggregatingLayer = L.LayerGroup.extend(
 
 		},
 
+		 /**
+         * Method to get the map
+         * @returns {SMC.Map} map - Map layer
+         */
 		getMap: function() {
 			if (this.parent) {
 				if (this.parent.map) {

@@ -14,6 +14,10 @@ SMC.layers.markers.WFSMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
     /** @lends SMC.layers.markers.WFSMarkerLayer# */
     {
 
+         /**
+         * Initialize the object with the params
+         * @param {object} options - object with need parameters
+         */
         initialize: function(options) {
             SMC.layers.markers.MarkerLayer.prototype.initialize.call(this, options);
             SMC.providers.WFSProvider.prototype.initialize.call(this, options);

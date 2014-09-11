@@ -36,7 +36,7 @@ SMC.layers.markers.AtmosphereRTMarkerLayer = SMC.layers.markers.MarkerLayer.exte
         },
 
         /**
-         * Method to remove tje features from the map
+         * Method to remove the features from the map
          * @param {object} features - features to be deleted
          */
         onFeaturesDeleted: function(features) {
@@ -67,8 +67,8 @@ SMC.layers.markers.AtmosphereRTMarkerLayer = SMC.layers.markers.MarkerLayer.exte
         },
 
         /**
-         * Implementations of FeatureProvider must contain an override of this method, so features can be loaded from their source.
-         * @abstract
+         * Method to load the features from the map
+         * @returns {object} Deferred object from jQuery
          */
         doFeaturesLoading: function() {
             return $.Deferred();

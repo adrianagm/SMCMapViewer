@@ -11,7 +11,7 @@ require("../../../lib/canvasLayer/leaflet_canvas_layer.js");
  */
 var rbush = require("../../../lib/rbush.js");
 /**
- * Base class for layers using client side rendering of tiles containing geographical features in the SCM map viewer component.
+ * Base class for layers using client side rendering of tiles containing geographical features in the SMC map viewer component.
  *
  * The tiles contents will be retrieved using a data provided supporting tiling as needed to cover the viewing area.
  *
@@ -50,7 +50,7 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
         /**
          * Tiles load variable
          * @property {number} tilesLoad - Default tiles load variable
-         * @default 1
+         * @default 0
          */
         tilesLoad: 0,
         /**
@@ -120,17 +120,29 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
         /**
          * Method to load the control in the map
          * @param {SMC.Map} map - Map to be added
+         * @fires SMC.layers.geometry.TiledGeometryLayer#layeradd
          */
         onAdd: function(map) {
             L.TileLayer.Canvas.prototype.onAdd.call(this, map);
             SMC.layers.geometry.CanvasRenderer.prototype.onAdd.apply(this, arguments);
             SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
+             /**
+                 * Layer add event.
+                 *
+                 * @event SMC.layers.geometry.TiledGeometryLayer#layeradd
+                 * @type {object}
+                 * @property {object} layer - Layer to be added.
+                 */
             map.fire('layeradd',{
                 layer: this
             });
 
         },
 
+         /**
+         * Method to remove the control in the map
+         * @param {SMC.Map} map - Map to be removed
+         */
         onRemove: function(map) {
             SMC.layers.geometry.CanvasRenderer.prototype.onRemove.call(this);
             L.TileLayer.Canvas.prototype.onRemove.call(this, map);
@@ -138,6 +150,10 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
 
         },
 
+        /**
+         * Method to get the map
+         * @returns {SMC.Map} map - Map layer
+         */
         getMap: function() {
             return this._map;
         },

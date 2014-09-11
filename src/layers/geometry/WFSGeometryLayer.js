@@ -36,7 +36,6 @@ SMC.layers.geometry.WFSGeometryLayer = SMC.layers.geometry.GeometryLayer.extend(
 
         /**
          * Method to load the features
-         * @param {Object} features - Features to be loaded
          */
         load: function() {
             this.loadFeatures();

@@ -105,6 +105,7 @@ SMC.layers.stylers.Styler = L.Class.extend(
 		 * Adds style properties to the received features, so the can be represented as intended by the style for the layer.
 		 * @param {object} feature - An object that represents the geometry element being styled.
 		 * @param {string} zoom - Number that represents the level zoom to apply the style.
+		 * @abstract
 		 */
 		applyStyle: function(feature, zoom) {
 			throw new Error("SMC.layers.stylers.Styler::applyStyle: Derivate classes must implement this method.");

@@ -38,7 +38,7 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
 
         /**
          * Method to remove a layer from the map
-         * @param {SMC.Layers.Layer} layer - default options
+         * @param {SMC.Layers.Layer} layer - layer to be removed
          */
         removeLayer: function(layer) {
             if (this.clusterGroup.hasLayer(layer)) {
@@ -50,6 +50,7 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
             }
 
         },
+
         /**
          * Method to load the control in the map
          * @param {SMC.Map} map - Map to be added
@@ -69,9 +70,10 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
                 map.on("zoomend", this._onViewChanged, this);
             }
         },
+
         /**
          * Method to remove the control in the map
-         * @param {SMC.Map} map - Map to be added
+         * @param {SMC.Map} map - Map to be removed
          */
         onRemove: function(map) {
             var self = this;
@@ -242,6 +244,9 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
             }
         },
 
+        /**
+         * Method to unload the layer on the map
+         */
         unload: function() {
             if (this.noClusterGroup) {
                 this.noClusterGroup.clearLayers();
