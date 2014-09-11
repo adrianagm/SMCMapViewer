@@ -101,6 +101,53 @@ Let's create a wfs marker layer to add to map. To do this we have to know the ur
         label: "Prueba WFS"
     }).addTo(map);
 
+### Add WFS-T Marker Layer to map
+
+<pre>
+<iframe src="http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_wfst_marker_layer.html" style="width: 100%;height: 300px;"></iframe>
+</pre>
+
+[View example on a separate page →](http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_wfst_marker_layer.html)
+
+Let's create a WFS-T marker layer to add to map. This kind of layers add the posibility to add new markers, update the existed markes and delete it. Let's see how it's possible. We need to know the url service and the typename feature to get it. In the same way that we add a WFS marker layer to add layer tree panel.
+
+    var wfstMarkerLayer = SMC.wfstMarkerLayer({
+        serverURL: "http://www.juntadeandalucia.es/medioambiente/mapwms/REDIAM_WFS_SP_Infraestructuras_Hidraulicas",
+        typeName: "edar",
+        label: "Prueba WFS"
+    }).addTo(map);
+
+When yo add this kind of layer, in the tree panel you could see a layer with two buttons, "Start Edition" and "Finish Edition".
+Both use to start edition state of the layer and add an edit control to the map, and to finish edition state of the layer and remove the edit control from the map added before.
+
+How we can use it to add a new marker?
+
+Pre-requisite: WFS-T Marker Layer added to the map
+1.- Click Start Edition button and it's added an edit control to the map on left side
+2.- Click marker icon button (first one on the edit control)
+3.- Click map to place marker
+4.- Automatically its marker have been saved on the server
+5.- Click Finish Edition button and the edit control will be removed from the map
+
+How we can use it to edit a marker?
+
+Pre-requisite: WFS-T Marker Layer added to the map
+1.- Click Start Edition button and it's added an edit control to the map on left side
+2.- Click edit icon button (second one on the edit control)
+3.- Click on marker to move
+4.- Click save option into edit control panel
+5.- Automatically its marker have been saved on the server
+6.- Click Finish Edition button and the edit control will be removed from the map
+
+How we can use it to remove a marker?
+
+Pre-requisite: WFS-T Marker Layer added to the map
+1.- Click Start Edition button and it's added an edit control to the map on left side
+2.- Click remove icon button (third one on the edit control)
+3.- Click on marker to remove (we can remove more than one marke at the same time)
+4.- Click save option into edit control panel
+5.- Automatically its marker have been saved on the server
+6.- Click Finish Edition button and the edit control will be removed from the map
 
 ### Add Layer Tree to map
 
@@ -221,7 +268,6 @@ To add this configuration to the tree panel it's necessary define before a map a
 
 		map.loadLayers(tree);
 
-
 ### Add Style to Layer
 
 <pre>
@@ -244,3 +290,4 @@ Add this style to layer:
         outputFormat: "json",
         stylesheet: stylesheet
     }).addTo(map);
+
