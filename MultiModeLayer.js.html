@@ -32,7 +32,7 @@ require("./AggregatingLayer.js");
 
 
 /**
- * Class formed by the aggregation of several history layers.
+ * Class formed by the aggregation of several layers.
  *
  * @class
  * @extends SMC.aggregation.AggregatingLayer
@@ -43,25 +43,43 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 	/** @lends SMC.layers.history.AggregatingHistoryLayer# */
 	{
 		node: null,
-		includes: SMC.Util.deepClassInclude([]),
 
+		/**
+         * Initialize the object with the params
+         * @param {Object} options - Object with extra information
+         */
 		initialize: function(options) {
 			L.Util.setOptions(this, options);
+			SMC.layers.aggregation.AggregatingLayer.prototype.initialize.apply(this, arguments);
 			L.LayerGroup.prototype.initialize.call(this, arguments);
-
+			this.checked = true;
 		},
 
-
+		 /**
+         * Method to create an HTML node for the name of the layer.
+         * @returns {String} HTML code representing the code to be added to the layer's entry in the layer tree.
+         */
 		createNodeHTML: function() {
 
 			var node = document.createElement("div");
-			node.id = this.options.label;
-			var label = document.createElement("i");
-			label.className = 'fa fa-check-square-o';
-			label.style.cursor = "pointer";
-			label.innerHTML = " " + this.options.label;
+			node.id = this._leaflet_id;
 
-			label.onclick = function(event) {
+			var label = document.createElement('label');
+			var checked = this.getMap().hasLayer(this);
+
+			var input = document.createElement('input');
+			input.type = 'checkbox';
+			input.defaultChecked = checked;
+			var name = document.createElement('span');
+			name.innerHTML = ' ' + this.options.label;
+
+			label.appendChild(input);
+			label.appendChild(name);
+
+			label.style.cursor = "pointer";
+
+
+			input.onchange = function(event) {
 				self._clickOnMultiLayer(node);
 			};
 			node.appendChild(label);
@@ -86,10 +104,12 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 
 			};
 
+
 			node.appendChild(modes);
 			if (this.node == null) {
 				this.node = node;
 				this._initializeButtons(modes);
+				var active = this._getActiveLayer();
 
 			}
 
@@ -107,33 +127,41 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 			}
 
 			var multiLayers = this._aggregatingLayers;
+
 			for (var l in multiLayers) {
-				multiLayers[l].addTo(map);
+				multiLayers[l].addTo(this.getMap());
 				if (!multiLayers[l].active) {
+					L.FeatureGroup.prototype.onRemove.call(this, map);
 					multiLayers[l].onRemove(map);
 				}
 
 			};
 		},
 
+		/**
+         * Retrieves the features from its source.
+         */
 		load: function() {
 
 		},
 
 		_initializeTree: function() {
-			this._getActiveLayer();
+
 			var multiLayers = this._aggregatingLayers;
 			for (var l in multiLayers) {
 				if (multiLayers[l].active) {
 					//add node of active layer
-					var id = this.options.label;
+					var id = this._leaflet_id;
 					var tree = document.getElementById(id);
-					var treeNodes = tree.parentNode.nextElementSibling;
-					tree = tree.parentNode.nextElementSibling.children;
-					var label = multiLayers[l].options.label;
-					if (multiLayers[label] instanceof SMC.layers.aggregation.AggregatingLayer) {
-						this._addNode(tree, treeNodes, label);
+					if (!tree) {
+						return;
 					}
+					var treeNodes = tree.parentNode.nextElementSibling;
+					var label = multiLayers[l].options.label;
+					if ((multiLayers[label] instanceof SMC.layers.aggregation.AggregatingLayer || multiLayers[label] instanceof SMC.layers.markers.WFSTMarkerLayer) &amp;&amp; this.checked) {
+						this._addNode(treeNodes, label);
+					} else
+						this._addNode(treeNodes, 'none');
 
 				}
 
@@ -171,7 +199,6 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 
 			}
 
-
 			return active;
 
 
@@ -195,41 +222,44 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 					if (multiLayers[l].active) {
 						var pause = document.getElementsByClassName('fa fa-pause');
 						for (var i = 0; i &lt; pause.length; i++) {
-							if (pause[i].parentNode.style.display != 'none') {
-								pause[i].className = 'fa fa-play';
-							}
+							pause[i].className = 'fa fa-play';
 						}
 						clearInterval(multiLayers[l]._timer);
+
+						if (multiLayers[l]._finishEditControl) {
+							multiLayers[l]._finishEditControl();
+						}
+
 						multiLayers[l].onRemove(map);
 						multiLayers[l].active = false;
 					}
+
 
 
 				} else {
 					if (!multiLayers[l].active) {
 						multiLayers[l].onAdd(map);
 						multiLayers[l].active = true;
-
-
 					}
 
 				}
 
 			}
 
-			var tree = event.target.parentNode.parentNode.parentNode.nextElementSibling.children;
-			var treeNodes = event.target.parentNode.parentNode.parentNode.nextElementSibling;
+			var d = document.getElementById('leaflet-control-layers-group-' + this._leaflet_id);
+			var treeNodes = d.getElementsByClassName('leaflet-control-layers-group-content')[0];
 			var label = event.target.value;
-			if (multiLayers[label] instanceof SMC.layers.aggregation.AggregatingLayer) {
-				this._addNode(tree, treeNodes, label);
+			if (multiLayers[label] instanceof SMC.layers.aggregation.AggregatingLayer || multiLayers[label] instanceof SMC.layers.markers.WFSTMarkerLayer) {
+				this._addNode(treeNodes, label);
+			} else {
+				this._addNode(treeNodes, 'none');
 			}
-
-
 
 		},
 
-		_addNode: function(tree, treeNodes, label) {
+		_addNode: function(treeNodes, label) {
 			var node = null;
+			var tree = treeNodes.children;
 			search(tree);
 			treeNodes.style.display = 'block';
 
@@ -239,7 +269,7 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 				for (var i = 0; i &lt; tree.length; i++) {
 					if (tree[i].innerHTML.trim() != label) {
 
-						if (tree[i].parentNode == treeNodes) {
+						if (tree[i].parentNode == treeNodes || tree[i].type == 'checkbox' || tree[i].nodeName == 'BR') {
 							tree[i].style.display = 'none';
 						}
 						if (node != null) {
@@ -262,15 +292,15 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 
 
 					} else {
-
-						for (var j = 0; j &lt; tree.length; j++) {
-							tree[j].style.display = 'inline-block';
+						if (tree[i].parentNode.nextElementSibling) {
+							tree[i].parentNode.nextElementSibling.style.display = 'block';
 						}
 						tree[i].style.display = 'none';
 						tree[i].parentNode.style.display = 'block';
 						tree[i].parentNode.parentNode.style.display = 'block';
 						tree[i].parentNode.parentNode.parentNode.style.display = 'block';
 						tree[i].parentNode.parentNode.parentNode.parentNode.style.display = 'block';
+						tree[i].parentNode.parentNode.parentNode.parentNode.parentNode.style.display = 'block';
 						node = tree[i];
 					}
 				}
@@ -284,58 +314,51 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 		_clickOnMultiLayer: function(node) {
 			//active/desactive multimode layer
 
-			var nodesLayers = event.target.parentNode.parentNode.nextElementSibling;
-			var data = this._aggregatingLayers;
+			var nodesLayers = event.target.parentNode.parentNode.parentNode.nextElementSibling;
+			var pause = nodesLayers.getElementsByClassName('fa fa-pause');
+			var multiLayers = this._aggregatingLayers;
 
 			if (node.children[1].style.display != 'none') {
+				this.checked = false;
 				node.children[1].style.display = 'none';
-				event.target.parentNode.parentNode.nextElementSibling.style.display = 'none';
-				node.children[0].className = 'fa fa-square-o';
-				for (var d in data) {
-					if (data[d].active) {
-						if (data[d] instanceof SMC.layers.history.AggregatingHistoryLayer) {
-
-							var pause = nodesLayers.getElementsByClassName('fa fa-pause');
-
-							if (pause.length != 0) {
-								clearInterval(data[d]._timer);
-								
+				nodesLayers.style.display = 'none';
+				node.children[0].checked = false;
+				for (var d in multiLayers) {
+					if (multiLayers[d].active) {
+						if (multiLayers[d] instanceof SMC.layers.history.AggregatingHistoryLayer) {
+							for (var i = 0; i &lt; pause.length; i++) {
+								clearInterval(multiLayers[d]._timer);
+								pause[i].className = 'fa fa-play';
 							}
-
-
-
+							
 						}
-						data[d].onRemove(map);
+
+						if (multiLayers[d] instanceof SMC.layers.markers.WFSTMarkerLayer) {
+							multiLayers[d]._finishEditControl();
+						}
+						multiLayers[d].onRemove(map);
 					}
 				}
 			} else {
+				this.checked = true;
 				node.children[1].style.display = 'block';
-				event.target.parentNode.parentNode.nextElementSibling.style.display = 'block';
-				node.children[0].className = 'fa fa-check-square-o';
-				for (var d in data) {
-					if (data[d].active) {
-						if (data[d] instanceof SMC.layers.history.AggregatingHistoryLayer) {
-
-							var pause = nodesLayers.getElementsByClassName('fa fa-pause');
-
-							for (var i = 0; i &lt; pause.length; i++) {
-								if (pause[i].parentNode.style.display != 'none') {
-									pause[i].className = 'fa fa-play';
-								}
-							}
-						}
-
-
-
-						data[d].onAdd(map);
+				nodesLayers.style.display = 'block';
+				node.children[0].checked = true;
+				for (var d in multiLayers) {
+					if (multiLayers[d].active) {
+						multiLayers[d].onAdd(map);
 					}
 				}
+
+
+
 			}
 
 		},
 
 
-	});</code></pre>
+
+	}, [SMC.layers.SingleLayer]);</code></pre>
         </article>
     </section>
 
@@ -345,13 +368,13 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="SMC.controls.layerTree.LayerTreeControl.html">LayerTreeControl</a></li><li><a href="SMC.controls.layerTree.LayerTreeLeaf.html">LayerTreeLeaf</a></li><li><a href="SMC.controls.layerTree.LayerTreeNode.html">LayerTreeNode</a></li><li><a href="SMC.layers.aggregation.AggregatingLayer.html">AggregatingLayer</a></li><li><a href="SMC.layers.aggregation.MultiModeLayer.html">MultiModeLayer</a></li><li><a href="SMC.layers.EditableLayer.html">EditableLayer</a></li><li><a href="SMC.layers.Folder.html">Folder</a></li><li><a href="SMC.layers.geometry.CanvasRenderer.html">CanvasRenderer</a></li><li><a href="SMC.layers.geometry.GeometryLayer.html">GeometryLayer</a></li><li><a href="SMC.layers.geometry.TiledGeometryLayer.html">TiledGeometryLayer</a></li><li><a href="SMC.layers.geometry.WFSGeometryLayer.html">WFSGeometryLayer</a></li><li><a href="SMC.layers.geometry.WFSTiledGeometryLayer.html">WFSTiledGeometryLayer</a></li><li><a href="SMC.layers.history.AggregatingHistoryLayer.html">AggregatingHistoryLayer</a></li><li><a href="SMC.layers.history.DataHistoryLayer.html">DataHistoryLayer</a></li><li><a href="SMC.layers.Layer.html">Layer</a></li><li><a href="SMC.layers.markers.AtmosphereRTMarkerLayer.html">AtmosphereRTMarkerLayer</a></li><li><a href="SMC.layers.markers.MarkerLayer.html">MarkerLayer</a></li><li><a href="SMC.layers.markers.WFSMarkerLayer.html">WFSMarkerLayer</a></li><li><a href="SMC.layers.markers.WFSTMarkerLayer.html">WFSTMarkerLayer</a></li><li><a href="SMC.layers.reloaders.LayerReloader.html">LayerReloader</a></li><li><a href="SMC.layers.reloaders.ReloadTrigger.html">ReloadTrigger</a></li><li><a href="SMC.layers.reloaders.TimerReloadTrigger.html">TimerReloadTrigger</a></li><li><a href="SMC.layers.stylers.Styler.html">Styler</a></li><li><a href="SMC.layers.TileLayer.html">TileLayer</a></li><li><a href="SMC.layers.WMSLayer.html">WMSLayer</a></li><li><a href="SMC.Map.html">Map</a></li><li><a href="SMC.providers.AtmosphereRTFeatureProvider.html">AtmosphereRTFeatureProvider</a></li><li><a href="SMC.providers.FeatureHistory.html">FeatureHistory</a></li><li><a href="SMC.providers.FeatureHistoryProvider.html">FeatureHistoryProvider</a></li><li><a href="SMC.providers.FeaturesProvider.html">FeaturesProvider</a></li><li><a href="SMC.providers.RTFeatureProvider.html">RTFeatureProvider</a></li><li><a href="SMC.providers.URLFeatureProvider.html">URLFeatureProvider</a></li><li><a href="SMC.providers.WFSProvider.html">WFSProvider</a></li><li><a href="SMC.providers.WFSTProvider.html">WFSTProvider</a></li></ul><h3>Events</h3><ul><li><a href="SMC.layers.reloaders.ReloadTrigger.html#event:reloadTriggered">reloadTriggered</a></li><li><a href="SMC.layers.reloaders.TimerReloadTrigger.html#event:reloadTriggered">reloadTriggered</a></li><li><a href="SMC.providers.AtmosphereRTFeatureProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.FeatureHistoryProvider.html#event:featureHistoryLoaded">featureHistoryLoaded</a></li><li><a href="SMC.providers.FeaturesProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.RTFeatureProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.URLFeatureProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.WFSProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.WFSTProvider.html#event:featuresLoaded">featuresLoaded</a></li></ul><h3>Namespaces</h3><ul><li><a href="SMC.html">SMC</a></li><li><a href="SMC.controls.html">controls</a></li><li><a href="SMC.controls.layerTree.html">layerTree</a></li><li><a href="SMC.layers.html">layers</a></li><li><a href="SMC.layers.aggregation.html">aggregation</a></li><li><a href="SMC.layers.geometry.html">geometry</a></li><li><a href="SMC.layers.history.html">history</a></li><li><a href="SMC.layers.markers.html">markers</a></li><li><a href="SMC.layers.reloaders.html">reloaders</a></li><li><a href="SMC.layers.stylers.html">stylers</a></li><li><a href="SMC.providers.html">providers</a></li></ul><h3>Mixins</h3><ul><li><a href="SMC.controls.layerTree.LayerTreeFolder.html">LayerTreeFolder</a></li><li><a href="SMC.LayerLoader.html">LayerLoader</a></li><li><a href="SMC.layers.SingleLayer.html">SingleLayer</a></li><li><a href="SMC.layers.stylers.MapCssStyler.html">MapCssStyler</a></li><li><a href="SMC.layers.stylers.MarkerCssStyler.html">MarkerCssStyler</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Mustache">Mustache</a></li><li><a href="global.html#paper">paper</a></li><li><a href="global.html#PEG">PEG</a></li><li><a href="global.html#rbush">rbush</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="SMC.controls.layerTree.LayerTreeControl.html">LayerTreeControl</a></li><li><a href="SMC.controls.layerTree.LayerTreeLeaf.html">LayerTreeLeaf</a></li><li><a href="SMC.controls.layerTree.LayerTreeNode.html">LayerTreeNode</a></li><li><a href="SMC.layers.aggregation.AggregatingLayer.html">AggregatingLayer</a></li><li><a href="SMC.layers.aggregation.MultiModeLayer.html">MultiModeLayer</a></li><li><a href="SMC.layers.EditableLayer.html">EditableLayer</a></li><li><a href="SMC.layers.Folder.html">Folder</a></li><li><a href="SMC.layers.geometry.CanvasRenderer.html">CanvasRenderer</a></li><li><a href="SMC.layers.geometry.GeometryLayer.html">GeometryLayer</a></li><li><a href="SMC.layers.geometry.TiledGeometryLayer.html">TiledGeometryLayer</a></li><li><a href="SMC.layers.geometry.WFSGeometryLayer.html">WFSGeometryLayer</a></li><li><a href="SMC.layers.geometry.WFSTiledGeometryLayer.html">WFSTiledGeometryLayer</a></li><li><a href="SMC.layers.history.AggregatingHistoryLayer.html">AggregatingHistoryLayer</a></li><li><a href="SMC.layers.history.DataHistoryLayer.html">DataHistoryLayer</a></li><li><a href="SMC.layers.Layer.html">Layer</a></li><li><a href="SMC.layers.markers.AtmosphereRTMarkerLayer.html">AtmosphereRTMarkerLayer</a></li><li><a href="SMC.layers.markers.MarkerLayer.html">MarkerLayer</a></li><li><a href="SMC.layers.markers.WFSMarkerLayer.html">WFSMarkerLayer</a></li><li><a href="SMC.layers.markers.WFSTMarkerLayer.html">WFSTMarkerLayer</a></li><li><a href="SMC.layers.reloaders.AtmosphereRTReloadTrigger.html">AtmosphereRTReloadTrigger</a></li><li><a href="SMC.layers.reloaders.LayerReloader.html">LayerReloader</a></li><li><a href="SMC.layers.reloaders.ReloadTrigger.html">ReloadTrigger</a></li><li><a href="SMC.layers.reloaders.TimerReloadTrigger.html">TimerReloadTrigger</a></li><li><a href="SMC.layers.stylers.Styler.html">Styler</a></li><li><a href="SMC.layers.TileLayer.html">TileLayer</a></li><li><a href="SMC.layers.WMSLayer.html">WMSLayer</a></li><li><a href="SMC.Map.html">Map</a></li><li><a href="SMC.providers.AtmosphereConnector.html">AtmosphereConnector</a></li><li><a href="SMC.providers.AtmosphereRTFeatureProvider.html">AtmosphereRTFeatureProvider</a></li><li><a href="SMC.providers.FeatureHistory.html">FeatureHistory</a></li><li><a href="SMC.providers.FeatureHistoryProvider.html">FeatureHistoryProvider</a></li><li><a href="SMC.providers.FeaturesProvider.html">FeaturesProvider</a></li><li><a href="SMC.providers.RTFeatureProvider.html">RTFeatureProvider</a></li><li><a href="SMC.providers.URLFeatureProvider.html">URLFeatureProvider</a></li><li><a href="SMC.providers.WFSProvider.html">WFSProvider</a></li><li><a href="SMC.providers.WFSTProvider.html">WFSTProvider</a></li></ul><h3>Events</h3><ul><li><a href="SMC.layers.geometry.TiledGeometryLayer.html#event:layeradd">layeradd</a></li><li><a href="SMC.layers.geometry.WFSTiledGeometryLayer.html#event:layeradd">layeradd</a></li><li><a href="SMC.layers.reloaders.AtmosphereRTReloadTrigger.html#event:reloadTriggered">reloadTriggered</a></li><li><a href="SMC.layers.reloaders.ReloadTrigger.html#event:reloadTriggered">reloadTriggered</a></li><li><a href="SMC.layers.reloaders.TimerReloadTrigger.html#event:reloadTriggered">reloadTriggered</a></li><li><a href="SMC.providers.AtmosphereConnector.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.AtmosphereRTFeatureProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.FeatureHistoryProvider.html#event:featureHistoryLoaded">featureHistoryLoaded</a></li><li><a href="SMC.providers.FeaturesProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.RTFeatureProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.URLFeatureProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.WFSProvider.html#event:featuresLoaded">featuresLoaded</a></li><li><a href="SMC.providers.WFSTProvider.html#event:featuresLoaded">featuresLoaded</a></li></ul><h3>Namespaces</h3><ul><li><a href="SMC.html">SMC</a></li><li><a href="SMC.controls.html">controls</a></li><li><a href="SMC.controls.layerTree.html">layerTree</a></li><li><a href="SMC.layers.html">layers</a></li><li><a href="SMC.layers.aggregation.html">aggregation</a></li><li><a href="SMC.layers.geometry.html">geometry</a></li><li><a href="SMC.layers.history.html">history</a></li><li><a href="SMC.layers.markers.html">markers</a></li><li><a href="SMC.layers.reloaders.html">reloaders</a></li><li><a href="SMC.layers.stylers.html">stylers</a></li><li><a href="SMC.providers.html">providers</a></li></ul><h3>Mixins</h3><ul><li><a href="SMC.controls.layerTree.LayerTreeFolder.html">LayerTreeFolder</a></li><li><a href="SMC.LayerLoader.html">LayerLoader</a></li><li><a href="SMC.layers.SingleLayer.html">SingleLayer</a></li><li><a href="SMC.layers.stylers.MapCssStyler.html">MapCssStyler</a></li><li><a href="SMC.layers.stylers.MarkerCssStyler.html">MarkerCssStyler</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Mustache">Mustache</a></li><li><a href="global.html#paper">paper</a></li><li><a href="global.html#PEG">PEG</a></li><li><a href="global.html#rbush">rbush</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha8</a> on Wed Jul 30 2014 10:34:07 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha9</a> on Thu Sep 11 2014 11:44:42 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
