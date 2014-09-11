@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: layers/Folder.js</title>
+    <title>JSDoc: Source: providers/AtmosphereConnector.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: layers/Folder.js</h1>
+    <h1 class="page-title">Source: providers/AtmosphereConnector.js</h1>
 
     
 
@@ -25,75 +25,89 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>require("./layers.js");
-require("../controls/layerTree/LayerTreeFolder.js");
-require("../LayerLoader.js");
+            <pre class="prettyprint source linenums"><code>require("./providers.js");
+require("../../lib/atmosphere-jquery/jquery.atmosphere.js");
+
 
 /**
- * Base class for folder.
+ * Base class for layer data providers capabla of receiving updates to the features
+ * retrieved initially from a Real Time source.
  * @class
- * @extends L.LayerGroup
- * @mixes SMC.controls.layerTree.LayerTreeFolder
- * @mixes SMC.LayerLoader
- * 
- * @author Moisés Arcos (marcos@emergya.com)
+ * @abstract
+ * @extends SMC.providers.RTFeatureProvider
+ * @param {SMC.providers.AtmosphereRTFeatureProvider~options} options - The configuration for the class
+ *
+ * @author Luis Román (lroman@emergya.com)
  */
-SMC.layers.Folder = L.LayerGroup.extend(
-    /** @lends SMC.layers.Folder# */
+SMC.providers.AtmosphereConnector = L.Class.extend(
+    /** @lends SMC.providers.AtmosphereRTFeatureProvider# */
     {
 
+        includes: [L.Mixin.Events],
 
         /**
-         * Initialize the object with the params
+         * @typedef {Object} SMC.providers.AtmosphereRTFeatureProvider~options
+         * @property {string} topic="" - The default topic value.
+         */
+        options: {
+            url: "",
+            topic: ""
+        },
+
+        /**
+         * Socket
+         * @property {string} socket - The default socket value.
+         * @default null
+         */
+        socket: null,
+
+        /**
+         * Initialize the object with the option parameter
          * @param {object} options - default options
          */
         initialize: function(options) {
             L.Util.setOptions(this, options);
-            L.LayerGroup.prototype.initialize.call(this, options);
-            SMC.controls.layerTree.LayerTreeFolder.prototype.initialize.call(this, options);
-
-            if (options.layersConfig) {
-                // We use the LayerLoader functionality.
-                this.loadLayers(options.layersConfig);
-            } else if (options.layers) {
-                for (var i = 0; i &lt; options.layers.length; i++) {
-                    options.layers[i].addTo(this);
-                    options.layers[i].parent = this;
-                }
-            } else {
-                throw new Error("SMC.layers.Folder::initialize: Either layersConfig or layers must be passed as an initialization option!");
-            }
         },
 
-        /**
-         * Method to create an HTML node for the name of the layer.
-         * @returns {String} HTML code representing the code to be added to the layer's entry in the layer tree.
-         */
-        createNodeHTML: function() {
-            var node = document.createElement("i");
-            node.className = 'fa fa-folder-open';
-            node.style.cursor = "pointer";
-            node.onclick = this._clickOnFolder;
-            node.innerHTML = (this.options.label || this.options.typeName);
-            return node;
+        _createSubscription: function() {
+            if (!this.options.url) {
+                throw new Error("SMC.providers.AtmosphereConnector::_createSubscription: A valid url field is required to be included in the options argument");
+            }
+
+            var request = {
+                url: this.options.url + (this.options.topic ? ("/" + this.options.topic) : ""),
+                contentType: "application/json",
+                logLevel: 'debug',
+                transport: 'websocket',
+                trackMessageLength: true,
+                fallbackTransport: 'long-polling'
+            };
+
+            var self = this;
+            request.onOpen = function(response) {
+                self.fireEvent("socketOpened", self.socket);
+            };
+
+            request.onMessage = function(response) {
+                self._onMessage(response);
+            };
+
+            request.onClose = function(response) {
+                self.fireEvent("socketClosed", self.socket);
+            };
+
+            request.onError = function(response) {
+                console.debug(response);
+            };
+
+            this.socket = $.atmosphere.subscribe(request);
         },
 
-        _clickOnFolder: function(evt){
-            if(evt.target.className.indexOf("open") != -1){
-                // Folder opened
-                var labels = evt.target.parentElement.parentElement.getElementsByClassName("leaflet-control-layers-group-content");
-                labels[0].style.display = 'none';
-                evt.target.removeAttribute("class");
-                evt.target.className = "fa fa-folder";
-            }else{
-                // Folder closed
-                var labels = evt.target.parentElement.parentElement.getElementsByClassName("leaflet-control-layers-group-content");
-                labels[0].style.display = 'block';
-                evt.target.removeAttribute("class");
-                evt.target.className = "fa fa-folder-open";
-            }
+        _onMessage: function(response) {
+            throw new Error("SMC.providers.AtmosphereConnector::_createSubscription must be implemented in derivate classes.");
         }
-    },[SMC.controls.layerTree.LayerTreeFolder, SMC.LayerLoader]);
+    }
+);
 </code></pre>
         </article>
     </section>
