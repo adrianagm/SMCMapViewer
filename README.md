@@ -126,31 +126,48 @@ Both use to start edition state of the layer and add an edit control to the map,
 How we can use it to add a new marker?
 
 Pre-requisite: WFS-T Marker Layer added to the map
-1.- Click Start Edition button and it's added an edit control to the map on left side
-2.- Click marker icon button (first one on the edit control)
-3.- Click map to place marker
-4.- Automatically its marker have been saved on the server
-5.- Click Finish Edition button and the edit control will be removed from the map
+
+* Click Start Edition button and it's added an edit control to the map on left side
+
+* Click marker icon button (first one on the edit control)
+
+* Click map to place marker
+
+* Automatically its marker have been saved on the server
+
+* Click Finish Edition button and the edit control will be removed from the map
 
 How we can use it to edit a marker?
 
 Pre-requisite: WFS-T Marker Layer added to the map
-1.- Click Start Edition button and it's added an edit control to the map on left side
-2.- Click edit icon button (second one on the edit control)
-3.- Click on marker to move
-4.- Click save option into edit control panel
-5.- Automatically its marker have been saved on the server
-6.- Click Finish Edition button and the edit control will be removed from the map
+
+* Click Start Edition button and it's added an edit control to the map on left side
+
+* Click edit icon button (second one on the edit control)
+
+* Click on marker to move
+
+* Click save option into edit control panel
+
+* Automatically its marker have been saved on the server
+
+* Click Finish Edition button and the edit control will be removed from the map
 
 How we can use it to remove a marker?
 
 Pre-requisite: WFS-T Marker Layer added to the map
-1.- Click Start Edition button and it's added an edit control to the map on left side
-2.- Click remove icon button (third one on the edit control)
-3.- Click on marker to remove (we can remove more than one marke at the same time)
-4.- Click save option into edit control panel
-5.- Automatically its marker have been saved on the server
-6.- Click Finish Edition button and the edit control will be removed from the map
+
+* Click Start Edition button and it's added an edit control to the map on left side
+
+* Click remove icon button (third one on the edit control)
+
+* Click on marker to remove (we can remove more than one marke at the same time)
+
+* Click save option into edit control panel
+
+* Automatically its marker have been saved on the server
+
+* Click Finish Edition button and the edit control will be removed from the map
 
 ### Add Layer Tree to map
 
