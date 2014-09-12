@@ -83,8 +83,9 @@
 <h3>Setting up the map</h3><p>Let’s create a map of the center of Seville with pretty Cloudmade tiles. First we’ll initialize the map and set its view to our chosen geographical coordinates and a zoom level:</p>
 <pre class="prettyprint source"><code>var map = SMC.map('map').setView([37.383333, -5.983333], 11);</code></pre><p>By default (as we didn’t pass any options when creating the map instance), all mouse and touch interactions on the map are enabled, and it has zoom and attribution controls.</p>
 <p>Next we’ll add a tile layer to add to our map, in this case it’s a Cloudmade tile layer. Creating a tile layer usually involves setting the URL template for the tile images, the attribution text and the maximum zoom level of the layer:</p>
-<pre class="prettyprint source"><code>var base = SMC.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-    attribution: 'Map data &copy; &lt;a href=&quot;http://openstreetmap.org&quot;>OpenStreetMap&lt;/a> contributors, &lt;a href=&quot;http://creativecommons.org/licenses/by-sa/2.0/&quot;>CC-BY-SA&lt;/a>, Imagery © &lt;a href=&quot;http://cloudmade.com&quot;>CloudMade&lt;/a>',
+<pre class="prettyprint source"><code>var base = SMC.tileLayer({
+    url: 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+    attribution: 'Map data &copy; &lt;a href=&quot;http://openstreetmap.org&quot;>OpenStreetMap&lt;/a> contributors, &lt;a href=&quot;http://creativecommons.org/licenses/by-sa/2.0/&quot;>CC-BY-SA&lt;/a>, Imagery Â© &lt;a href=&quot;http://cloudmade.com&quot;>CloudMade&lt;/a>',
     maxZoom: 18
 }).addTo(map);</code></pre><p>Make sure all the code is called after the div and smc.viewer-bundle.js inclusion. That’s it! You have a working SMCViewerMap map now.</p>
 <h3>Add WMS Layer to map</h3><pre>
@@ -93,12 +94,13 @@
 
 <p><a href="http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_wms_layer.html">View example on a separate page →</a></p>
 <p>To add a wms layer to the map we're going to need first of all create the layer. To do that we need the url of the service and the name of the layer that it'll be load.</p>
-<pre class="prettyprint source"><code>var satelite = SMC.wmsLayer(&quot;http://www.idee.es/wms/PNOA/PNOA&quot;, {
+<pre class="prettyprint source"><code>var satelite = SMC.wmsLayer({
+    url: &quot;http://www.idee.es/wms/PNOA/PNOA&quot;,
     layers: &quot;PNOA&quot;,
     format: 'image/png',
     transparent: true,
     crs: L.CRS.EPSG4326,
-    attribution: &quot;Map data © Instituto Geográfico Nacional de España&quot;
+    attribution: &quot;Map data © Instituto Geogr&aacute;fico Nacional de Espa&ntilde;a&quot;
 }).addTo(map);</code></pre><h3>Add Marker Layer</h3><pre>
 <iframe src="http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_marker_layer.html" style="width: 100%;height: 300px;"></iframe>
 </pre>
@@ -112,10 +114,46 @@
 <p><a href="http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_wfs_marker_layer.html">View example on a separate page →</a></p>
 <p>Let's create a wfs marker layer to add to map. To do this we have to know the url service and the typename to get. We also can add a label with the layer name to add to layer tree panel.</p>
 <pre class="prettyprint source"><code>var wfsMarkerLayer = SMC.wfsMarkerLayer({
-    serverURL: &quot;http://www.juntadeandalucia.es/medioambiente/mapwms/REDIAM_WFS_SP_Infraestructuras_Hidraulicas&quot;,
-    typeName: &quot;edar&quot;,
+    serverURL: &quot;http://www.ideandalucia.es/dea100/wfs&quot;,
+    typeName: &quot;ideandalucia:it03_aeropuerto_pun&quot;,
+    label: &quot;Prueba WFS&quot;,
+    outputFormat: &quot;json&quot;
+}).addTo(map);</code></pre><h3>Add WFS-T Marker Layer to map</h3><pre>
+<iframe src="http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_wfst_marker_layer.html" style="width: 100%;height: 300px;"></iframe>
+</pre>
+
+<p><a href="http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_wfst_marker_layer.html">View example on a separate page →</a></p>
+<p>Let's create a WFS-T marker layer to add to map. This kind of layers add the posibility to add new markers, update the existed markes and delete it. Let's see how it's possible. We need to know the url service and the typename feature to get it. In the same way that we add a WFS marker layer to add layer tree panel.</p>
+<pre class="prettyprint source"><code>var wfstMarkerLayer = SMC.wfstMarkerLayer({
+    serverURL: &lt;path of editable wfs-t>,
+    typeName: &lt;wfst name>,
     label: &quot;Prueba WFS&quot;
-}).addTo(map);</code></pre><h3>Add Layer Tree to map</h3><pre>
+}).addTo(map);</code></pre><p>When yo add this kind of layer, in the tree panel you could see a layer with two buttons, &quot;Start Edition&quot; and &quot;Finish Edition&quot;.
+Both use to start edition state of the layer and add an edit control to the map, and to finish edition state of the layer and remove the edit control from the map added before.</p>
+<p>How we can use it to add a new marker?</p>
+<p>Pre-requisite: WFS-T Marker Layer added to the map
+1.- Click Start Edition button and it's added an edit control to the map on left side
+2.- Click marker icon button (first one on the edit control)
+3.- Click map to place marker
+4.- Automatically its marker have been saved on the server
+5.- Click Finish Edition button and the edit control will be removed from the map</p>
+<p>How we can use it to edit a marker?</p>
+<p>Pre-requisite: WFS-T Marker Layer added to the map
+1.- Click Start Edition button and it's added an edit control to the map on left side
+2.- Click edit icon button (second one on the edit control)
+3.- Click on marker to move
+4.- Click save option into edit control panel
+5.- Automatically its marker have been saved on the server
+6.- Click Finish Edition button and the edit control will be removed from the map</p>
+<p>How we can use it to remove a marker?</p>
+<p>Pre-requisite: WFS-T Marker Layer added to the map
+1.- Click Start Edition button and it's added an edit control to the map on left side
+2.- Click remove icon button (third one on the edit control)
+3.- Click on marker to remove (we can remove more than one marke at the same time)
+4.- Click save option into edit control panel
+5.- Automatically its marker have been saved on the server
+6.- Click Finish Edition button and the edit control will be removed from the map</p>
+<h3>Add Layer Tree to map</h3><pre>
 <iframe src="http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_layer_tree.html" style="width: 100%;height: 300px;"></iframe>
 </pre>
 
@@ -123,18 +161,19 @@
 <p>Let's create a map with a layer tree where we could load a serie of layers. First, as we have been before, create a map and after that we are going to create two base layers. </p>
 <pre class="prettyprint source"><code>var map = SMC.map('map').setView([37.383333, -5.983333], 11);
 
-var base = SMC.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+var base = SMC.tileLayer({
+    url: 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
     attribution: 'Map data &copy; &lt;a href=&quot;http://openstreetmap.org&quot;>OpenStreetMap&lt;/a> contributors, &lt;a href=&quot;http://creativecommons.org/licenses/by-sa/2.0/&quot;>CC-BY-SA&lt;/a>, Imagery © &lt;a href=&quot;http://cloudmade.com&quot;>CloudMade&lt;/a>',
     maxZoom: 18
 }).addTo(map);
-
-var satelite = SMC.wmsLayer(&quot;http://www.idee.es/wms/PNOA/PNOA&quot;, {
+var satelite = SMC.wmsLayer({
+    url: &quot;http://www.idee.es/wms/PNOA/PNOA&quot;,
     layers: &quot;PNOA&quot;,
     format: 'image/png',
     transparent: true,
     crs: L.CRS.EPSG4326,
-    attribution: &quot;Map data © Instituto Geográfico Nacional de España&quot;
-}).addTo(map); </code></pre><p>Next we'll add the layer tree to the map. To do that we need to create a layer tree control and add it the base layers create before.</p>
+    attribution: &quot;Map data © Instituto Geogr&aacute;fico Nacional de Espa&ntilde;a&quot;
+});</code></pre><p>Next we'll add the layer tree to the map. To do that we need to create a layer tree control and add it the base layers create before.</p>
 <pre class="prettyprint source"><code>var baseLayer = {
     &quot;Street Map&quot;: base,
     &quot;Satelite&quot;: satelite
@@ -148,13 +187,13 @@ var leyenda = SMC.layerTreeControl(baseLayer, {
 
 <p><a href="http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_layer_to_layer_tree.html">View example on a separate page →</a></p>
 <p>Once we have added the layer tree panel to the map, we have the possibility to add new layers dinamically to the layer tree. On this way when we add a new layer to map automatically we can see on the layer tree. Simply add a parameter which name is label. We use this one to add a name on the layer tree panel.</p>
-<pre class="prettyprint source"><code>var satelite = SMC.wmsLayer(&quot;http://www.idee.es/wms/PNOA/PNOA&quot;, {
+<pre class="prettyprint source"><code>var satelite = SMC.wmsLayer({
+    url: &quot;http://www.idee.es/wms/PNOA/PNOA&quot;,
     layers: &quot;PNOA&quot;,
     format: 'image/png',
     transparent: true,
     crs: L.CRS.EPSG4326,
-    label: &quot;PNOA&quot;,
-    attribution: &quot;Map data © Instituto Geográfico Nacional de España&quot;
+    attribution: &quot;Map data © Instituto Geogr&aacute;fico Nacional de Espa&ntilde;a&quot;
 }).addTo(map);</code></pre><h3>Add Tree Config to Layer Tree from JSON</h3><pre>
 <iframe src="http://rawgit.com/Emergya/SMCMapViewer-dist/master/examples/add_tree_to_layer_tree.html" style="width: 100%;height: 500px;"></iframe>
 </pre>
@@ -242,7 +281,7 @@ var leyenda = SMC.layerTreeControl(baseLayer, {
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha9</a> on Thu Sep 11 2014 11:44:42 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha9</a> on Fri Sep 12 2014 09:58:08 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
