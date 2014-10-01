@@ -38,6 +38,13 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
                     var namespace = self.options.typeName.split(":")[0];
                     var typeName = self.options.typeName.split(":")[1];
                     var srsName = self.options.srsName ? self.options.requestParams.srsName : "EPSG:4326";
+                    var attributes = xml.getElementsByTagName('sequence')[0].getElementsByTagName('element');
+                    var theGeom = 'the_geom';
+                    for(var i = 0; i < attributes.length; i++){
+                        if(attributes[i].getAttribute('type') ==  "gml:GeometryPropertyType" ){
+                            theGeom = attributes[i].getAttribute('name');
+                        }
+                    }
                     var postData =
                         '<wfs:Transaction\n'
                      +  'version="1.1.0"\n'
@@ -46,17 +53,17 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
                      +  'xmlns:' + namespace + '="' + targetNamespace + '">\n'
                      +  '   <wfs:Insert>\n'
                      +  '       <' + self.options.typeName + ' xmlns:feature="' + self.options.serverURL + '">\n'
-                     +  '           <' + namespace + ':the_geom>\n'
+                     +  '           <' + namespace + ':' + theGeom + '>\n'
                      +  '               <gml:' + geom_type + ' xmlns:gml="http://www.opengis.net/gml" srsName="' + srsName + '">\n'
                      +  '                   <gml:pos>' + geometry.getLatLng().lng + ' ' + geometry.getLatLng().lat + '</gml:pos>\n'
                      +  '               </gml:' + geom_type + '>\n'
-                     +  '           </' + namespace + ':the_geom>\n'
+                     +  '           </' + namespace + ':' + theGeom + '>\n'
                      +  '       </' + self.options.typeName + '>\n'
                      +  '   </wfs:Insert>\n'
                      +  '</wfs:Transaction>\n';
 
                     self._sendRequest("POST", self.options.serverURL, postData, function(xml){
-                        self._getLastFeature();
+                       // self._getLastFeature();
                     });
                 }
             });
@@ -68,22 +75,35 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
          */
         _update: function(geometry){
         	var self = this;
-            var srsName = self.options.srsName ? self.options.requestParams.srsName : "EPSG:4326";
-            var wfs_elements = "";
-            geometry.eachLayer(function (layer) {
-                // Update the edited features
-                wfs_elements += self._getWFSUpdate(layer, srsName);
-            });
-            var postData =
-                '<wfs:Transaction\n'
-             +  'version="1.1.0"\n'
-             +  'service="WFS"\n'
-             +  'xmlns:wfs="http://www.opengis.net/wfs">\n'
-             +  wfs_elements
-             +  '</wfs:Transaction>\n';
+             $.ajax({
+                type: "GET",
+                url: this.options.serverURL + "?request=DescribeFeatureType&version=1.1.0&typename=" + this.options.typeName,
+                dataType: "xml",
+                contentType: "text/xml",
+                success: function(xml, status, object) {
+                    var srsName = self.options.srsName ? self.options.requestParams.srsName : "EPSG:4326";
+                    var attributes = xml.getElementsByTagName('sequence')[0].getElementsByTagName('element');
+                   
+                    var wfs_elements = "";
+                    geometry.eachLayer(function (layer) {
+                        // Update the edited features
+                        wfs_elements += self._getWFSUpdate(layer, srsName, attributes);
+                    });
+                    var postData =
+                        '<wfs:Transaction\n'
+                     +  'version="1.1.0"\n'
+                     +  'service="WFS"\n'
+                     +  'xmlns:wfs="http://www.opengis.net/wfs">\n'
+                     +  wfs_elements
+                     +  '</wfs:Transaction>\n';
 
-            this._sendRequest("POST", this.options.serverURL, postData);
+                    self._sendRequest("POST", self.options.serverURL, postData);
+              }
+           });  
         },
+
+
+
         /**
          * Method to prepare WFS-T request payload to delete a geometry
          * @private
@@ -111,7 +131,7 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
         /**
          * Method to send WFS-T request
          * @private
-         * @param {strin} url - url server where send request
+         * @param {string} url - url server where send request
          * @param {string} data - request payload
          */
         _sendRequest: function(type, url, data, method){
@@ -160,20 +180,30 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
          * @param {string} srsName - layer srs
          * @returns {string} request filter to update elements
          */
-        _getWFSUpdate: function(geometry, srsName){
+        _getWFSUpdate: function(geometry, srsName, attributes){
             var geom_type = this._getGeomType(geometry);
             var typeName = this.options.typeName.split(":")[1];
-            var res =
-                '   <wfs:Update typeName="feature:' + typeName + '" xmlns:feature="http://opengeo.org">\n'
-             +  '       <wfs:Property>\n'
-             +  '           <wfs:Name>the_geom</wfs:Name>\n'
-             +  '           <wfs:Value>\n'
-             +  '               <gml:' + geom_type + ' xmlns:gml="http://www.opengis.net/gml" srsName="' + srsName + '">\n'
+            var res =' <wfs:Update typeName="feature:' + typeName + '" xmlns:feature="http://opengeo.org">\n';
+                for(var i = 0; i < attributes.length; i++){
+                    var name = attributes[i].getAttribute('name');
+             res +=   '       <wfs:Property>\n'
+             
+             +  '           <wfs:Name>'+ name +'</wfs:Name>\n'
+             
+             +  '           <wfs:Value>\n';
+                if(attributes[i].getAttribute('type') == 'gml:GeometryPropertyType'){
+             res +=  '               <gml:' + geom_type + ' xmlns:gml="http://www.opengis.net/gml" srsName="' + srsName + '">\n'
              +  '                   <gml:pos>' + geometry.getLatLng().lng + ' ' + geometry.getLatLng().lat + '</gml:pos>\n'
-             +  '               </gml:' + geom_type + '>\n'
-             +  '           </wfs:Value>\n'
-             +  '       </wfs:Property>\n'
-             +  '       <ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">\n'
+             +  '               </gml:' + geom_type + '>\n';
+                     }
+                     else if (geometry.feature.properties[name] != null){
+                        res += geometry.feature.properties[name];
+                     }
+             res +=  '           </wfs:Value>\n'
+                
+             + '       </wfs:Property>\n';
+              }
+             res +=  '       <ogc:Filter xmlns:ogc="http://www.opengis.net/ogc">\n'
              +  '           <ogc:FeatureId fid="' + geometry.feature.id + '"/>\n'
              +  '       </ogc:Filter>\n'
              +  '   </wfs:Update>\n';

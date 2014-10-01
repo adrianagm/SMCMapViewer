@@ -3,6 +3,7 @@ require("../../providers/WFSTProvider.js");
 require("../EditableLayer");
 require("../../../lib/leaflet.draw/dist/leaflet.draw-src.js");
 var editable_layers = [];
+
 /**
  * Layer for all SMC map viewer's WFS-T layers rendered using markers.
  * @class
@@ -15,6 +16,7 @@ var editable_layers = [];
 SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
 	/** @lends SMC.layers.markers.WFSTMarkerLayer# */
 	{
+        featuresEdited: new L.LayerGroup(),
 		/**
          * Initialize the object with the params
          * @param {object} options - object with need parameters
@@ -119,6 +121,22 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
                     // Update the edited features
                     self._update(layers);
                 });
+                //Marker attributes edited
+                this._map.on('editAttributes', function(e){
+                    var layer = e.layer;
+                    layer.closePopup();
+                    var popup = layer.getPopup();
+                    //Open attributes edition popup
+                    var content = self._setAttrEditor(layer);
+                    layer.bindPopup(content).openPopup();
+                    layer.bindPopup(popup);
+                })
+                this._map.on('draw:editedData', function (e) {
+                    var layers = self.featuresEdited;
+                    // Update the edited features
+                    self._update(layers);
+                    
+                });
                 // Marker removed
                 this._map.on('draw:deleted', function (e) {
                     var layers = e.layers;
@@ -153,6 +171,68 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
                 this._map.removeControl(this._drawControl);
                 this._drawControl = null;
             }
+        },
+
+        _setAttrEditor:function(layer){
+            var self = this;
+            var content = document.createElement('div');
+            var header = document.createElement('div');
+            header.innerHTML = this.options.typeName;
+            header.style.borderBottom = '1px #000 solid';
+            header.style.fontWeight = 'bold';
+            content.appendChild(header);
+
+
+            var prop = layer.feature.properties;
+
+            for(var i in prop){
+                var value = prop[i];
+                if(value == null){
+                    value = '';
+                }
+
+                var attr = document.createElement('div');
+                attr.innerHTML = i + ": ";
+                var attrValue = document.createElement('input');
+                attrValue.type = 'text';
+                attrValue.value = value;
+                attrValue.style.width = '80px';
+                attrValue.style.height = '18px';
+                attrValue.style.float = 'right';
+                attrValue.className = 'attributes';
+                attr.appendChild(attrValue);
+                content.appendChild(attr);
+                var br = document.createElement('br');
+                content.appendChild(br);
+            }
+            var save = document.createElement('input');
+            save.type = 'button';
+            save.value='Save edition';
+            save.onclick = function(){
+                self._save(layer, content);
+            }
+            content.appendChild(save);
+            var cancel = document.createElement('input');
+            cancel.type = 'button';
+            cancel.value='Cancel';
+            cancel.onclick = function(){
+                 layer.closePopup();
+            }
+            content.appendChild(cancel);
+         
+           return content; 
+
+        },
+        _save:function(layer, content){
+            var prop = layer.feature.properties;
+            layer.propertiesInicial = prop;
+            var attributes = content.getElementsByClassName('attributes');
+            var i = 0;
+            for(var j in prop){
+                prop[j] = attributes[i].value;
+                i++;
+            }
+            this.featuresEdited.addLayer(layer);
         },
 
         _applyStyles: function(marker, inCluster) {
