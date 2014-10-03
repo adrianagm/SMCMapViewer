@@ -63,10 +63,34 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
                      +  '</wfs:Transaction>\n';
 
                     self._sendRequest("POST", self.options.serverURL, postData, function(xml){
-                       // self._getLastFeature();
+                        var id = xml.getElementsByTagName('FeatureId')[0].getAttribute('fid');
+                        self._loadMarker(id);
+                        
                     });
                 }
             });
+        },
+
+        _loadMarker: function(id){
+
+            var feature;
+            var srsName = this.options.srsName ? self.options.requestParams.srsName : "EPSG:4326";
+            var jsonpRandom = this._makeid();
+            var formatOptions = "callback:" + jsonpRandom;
+
+             $.ajax({
+                type: "GET",
+                url: this.options.serverURL + "?service=wfs&version=1.1.0&request=GetFeature&typename=" + this.options.typeName
+                + "&srsName=" + srsName +"&outputFormat=text/javascript&featureId=" + id +"&format_options=" + formatOptions ,
+                dataType: "jsonp",
+                jsonpCallback: jsonpRandom,
+                jsonp: false,
+                async: false,
+                success: function(featureCollection) {
+                    feature = featureCollection.features ;
+                }
+            });
+             this.addMarkerFromFeature(feature);
         },
         /**
          * Method to prepare WFS-T request payload to update a geometry
@@ -98,8 +122,10 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
                      +  '</wfs:Transaction>\n';
 
                     self._sendRequest("POST", self.options.serverURL, postData);
+
               }
-           });  
+           }); 
+            
         },
 
 
@@ -208,7 +234,7 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
              +  '       </ogc:Filter>\n'
              +  '   </wfs:Update>\n';
              return res;
-        }
+        },
 	}, [SMC.providers.WFSProvider]);
  /**
  * API factory method for ease creation of wfs features providers.

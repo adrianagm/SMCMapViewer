@@ -21,7 +21,8 @@ function initMap() {
     var leyenda = SMC.layerTreeControl(baseLayer, {
         collapsed: false
     }).addTo(map);
-
+    var stylesheet ='* {iconUrl: "../../dist/images/marker-icon.png";markerWidth: 30;markerHeight: 40;} * [TITULO="smc"] {iconUrl:"css/images/underground.png";markerWidth: 32;markerHeight: 37;}';
+   
     var tree = [{
        
         type: "folder",
@@ -30,9 +31,12 @@ function initMap() {
             type: "SMC.layers.markers.WFSTMarkerLayer",
             params: [{
                 serverURL: "http://localhost/geoserver/s/wfs",
-                typeName: "s:EDITABLE_PUNTO",
-                label: "Editable"
-            }]
+                typeName: "s:EDITABLE_PUNTO",  
+                label: "Editable",
+                stylesheet: stylesheet,
+
+            }],
+            
         }]
     }];
     map.loadLayers(tree);
@@ -40,6 +44,4 @@ function initMap() {
   
 }
 // On load the page call init map function
-L.Icon.Default.imagePath = "../../dist/images";
-
 window.onload = initMap;

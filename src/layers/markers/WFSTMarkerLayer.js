@@ -17,6 +17,7 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
 	/** @lends SMC.layers.markers.WFSTMarkerLayer# */
 	{
         featuresEdited: new L.LayerGroup(),
+
 		/**
          * Initialize the object with the params
          * @param {object} options - object with need parameters
@@ -111,31 +112,67 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
                 // Marker created
                 this._map.on('draw:created', function (e) {
                     var layer = e.layer;
-                    self.addLayer(layer);
+                    self.removeLayer(e.layer);
                     // Update the added features
-                    self._insert(layer);
+                   self._insert(layer);
+
                 });
                 // Marker edited
                 this._map.on('draw:edited', function (e) {
                     var layers = e.layers;
                     // Update the edited features
-                    self._update(layers);
+                    if(!$.isEmptyObject(layers._layers)){
+                        self._update(layers);
+                    }
                 });
+                
                 //Marker attributes edited
                 this._map.on('editAttributes', function(e){
                     var layer = e.layer;
                     layer.closePopup();
-                    var popup = layer.getPopup();
                     //Open attributes edition popup
                     var content = self._setAttrEditor(layer);
                     layer.bindPopup(content).openPopup();
-                    layer.bindPopup(popup);
-                })
+                    
+                    
+                });
+
+                //Save marker attributes edited
                 this._map.on('draw:editedData', function (e) {
                     var layers = self.featuresEdited;
+
                     // Update the edited features
-                    self._update(layers);
+                    layers.save = true;
+                   if(!$.isEmptyObject(layers._layers)){
+                        self._update(layers);
+                    }
+
+                    //Update properties of changed layers
+                    for(var i in layers._layers){
+                        layers._layers[i].propertiesInicial = layers._layers[i].feature.properties;
+                    }
+    
                     
+                });
+
+                this._map.on('draw:editDatastop', function (){
+                    var layers = self.featuresEdited;
+                    if(!layers.save){
+                        for(var i in layers._layers){
+                            var f = layers._layers[i].feature;
+                            var propIni = layers._layers[i].propertiesInicial;
+                            if(propIni){
+                                for (var j in f.properties){
+                                    f.properties[j] = propIni[j];
+                                } 
+                            }
+                        }
+                    }
+                    layers.save = false;
+                        for(var i in layers._layers){
+                            layers._layers[i].closePopup();
+                            self._applyStyles(layers._layers[i], false);
+                        } 
                 });
                 // Marker removed
                 this._map.on('draw:deleted', function (e) {
@@ -177,26 +214,35 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
             var self = this;
             var content = document.createElement('div');
             var header = document.createElement('div');
-            header.innerHTML = this.options.typeName;
+            header.innerHTML = layer.feature.id;
             header.style.borderBottom = '1px #000 solid';
             header.style.fontWeight = 'bold';
             content.appendChild(header);
 
 
             var prop = layer.feature.properties;
-
+            var noEditables = this._getNotNull();
             for(var i in prop){
+                var noNull = false;
                 var value = prop[i];
                 if(value == null){
                     value = '';
                 }
+                for(var j = 0; j < noEditables.length; j++){
+                    if(i == noEditables[j]){
+                        noNull = true;
+                    }
+                }
 
                 var attr = document.createElement('div');
                 attr.innerHTML = i + ": ";
-                var attrValue = document.createElement('input');
+                var attrValue = document.createElement('input'); 
+                if(noNull){
+                    attrValue.disabled = true;
+                }
                 attrValue.type = 'text';
                 attrValue.value = value;
-                attrValue.style.width = '80px';
+                attrValue.style.width = '90px';
                 attrValue.style.height = '18px';
                 attrValue.style.float = 'right';
                 attrValue.className = 'attributes';
@@ -209,6 +255,7 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
             save.type = 'button';
             save.value='Save edition';
             save.onclick = function(){
+
                 self._save(layer, content);
             }
             content.appendChild(save);
@@ -217,22 +264,49 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
             cancel.value='Cancel';
             cancel.onclick = function(){
                  layer.closePopup();
+                 
             }
             content.appendChild(cancel);
+            this.featuresEdited.addLayer(layer);
          
            return content; 
 
         },
-        _save:function(layer, content){
+
+        _getNotNull: function(){
+            var noEditables = [];
+             $.ajax({
+                type: "GET",
+                url: this.options.serverURL + "?request=DescribeFeatureType&version=1.1.0&typename=" + this.options.typeName,
+                dataType: "xml",
+                contentType: "text/xml",
+                async: false,
+                success: function(xml, status, object) {
+                    var attributes = xml.getElementsByTagName('sequence')[0].getElementsByTagName('element');
+                    for(var i = 0; i < attributes.length; i++){
+                        if(attributes[i].getAttribute('nillable') ==  "false" ){
+                            noEditables.push(attributes[i].getAttribute('name'));
+                        }
+                    }
+                }
+            });
+             return noEditables;
+        },
+
+        _save:function(layer, content){ 
             var prop = layer.feature.properties;
-            layer.propertiesInicial = prop;
+            var propInitial = {};
             var attributes = content.getElementsByClassName('attributes');
             var i = 0;
             for(var j in prop){
+                propInitial[j] = prop[j];
                 prop[j] = attributes[i].value;
                 i++;
             }
-            this.featuresEdited.addLayer(layer);
+            layer.propertiesInicial = propInitial;
+            
+             layer.closePopup();
+            
         },
 
         _applyStyles: function(marker, inCluster) {
