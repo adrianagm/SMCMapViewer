@@ -4,3 +4,4 @@
 /dist/smc.viewer-bundle.js
 *.orig
 /test/history/js/jquery-1.10.2.min.js
+/dist/.smc.viewer-bundle.js
