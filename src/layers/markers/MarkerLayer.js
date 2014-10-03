@@ -135,11 +135,33 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
          */
         addMarkerFromFeature: function(features) {
             if (L.Util.isArray(features)) {
-                this._sendFeatures(features);
+                features = features;
             } else if (arguments.length > 1) {
-                this._sendFeatures(arguments);
+                features = arguments;
             } else {
-                this._sendFeatures([features]);
+                features = [features];
+            }
+
+           
+            for (var i = 0; i < features.length; i++) {
+                this._setProperties(features[i]);
+            }
+
+            this._sendFeatures(features);
+        },
+
+        _setProperties: function(feature) {
+            var id = this.options.idField;
+            if (feature.hasOwnProperty(id))
+                feature.id = feature[id];
+            else {
+
+                for (var propKey in feature) {
+                    if (feature[propKey].hasOwnProperty(id)) {
+                        feature.id = feature[propKey][id];
+                    }
+                }
+
             }
         },
 

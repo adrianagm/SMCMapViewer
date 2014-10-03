@@ -4,5 +4,9 @@
 /dist/smc.viewer-bundle.js
 *.orig
 /test/history/js/jquery-1.10.2.min.js
+<<<<<<< HEAD
 /lib/mustache.js/*
 
+=======
+/dist/.smc.viewer-bundle.js
+>>>>>>> 2329eed6a39f3044d1c867d9ee9cba54a7c4c243
