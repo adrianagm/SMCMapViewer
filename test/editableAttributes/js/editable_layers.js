@@ -30,7 +30,7 @@ function initMap() {
         layers: [{
             type: "SMC.layers.markers.WFSTMarkerLayer",
             params: [{
-                serverURL: "http://localhost/geoserver/s/wfs",
+                serverURL: "http://geoemerg-win2008.emergya.es/geoserver/s/wfs",
                 typeName: "s:EDITABLE_PUNTO",  
                 label: "Editable",
                 stylesheet: stylesheet,

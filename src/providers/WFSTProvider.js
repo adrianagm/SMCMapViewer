@@ -72,7 +72,7 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
         },
 
         _loadMarker: function(id){
-
+            var self = this;
             var feature;
             var srsName = this.options.srsName ? self.options.requestParams.srsName : "EPSG:4326";
             var jsonpRandom = this._makeid();
@@ -88,9 +88,10 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
                 async: false,
                 success: function(featureCollection) {
                     feature = featureCollection.features ;
+                    self.addMarkerFromFeature(feature);
                 }
             });
-             this.addMarkerFromFeature(feature);
+             
         },
         /**
          * Method to prepare WFS-T request payload to update a geometry
