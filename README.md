@@ -137,13 +137,13 @@ Pre-requisite: WFS-T Marker Layer added to the map
 
 * Click Finish Edition button and the edit control will be removed from the map
 
-How we can use it to edit a marker?
+How we can use it to edit the geometry from a marker?
 
 Pre-requisite: WFS-T Marker Layer added to the map
 
 * Click Start Edition button and it's added an edit control to the map on left side
 
-* Click edit icon button (second one on the edit control)
+* Click edit geometry icon button (second one on the edit control)
 
 * Click on marker to move
 
@@ -153,13 +153,34 @@ Pre-requisite: WFS-T Marker Layer added to the map
 
 * Click Finish Edition button and the edit control will be removed from the map
 
+How we can use it to edit the attributes from a marker?
+
+Pre-requisite: WFS-T Marker Layer added to the map
+
+* Click Start Edition button and it's added an edit control to the map on left side
+
+* Click edit attributes icon button (third one on the edit control)
+
+* Click on marker to edit its attributes
+
+* Edit the attributes in the popup
+
+* Click save option into the popup
+
+* Click save option into edit control panel
+
+* Automatically its marker have been saved on the server
+
+* Click Finish Edition button and the edit control will be removed from the map
+
+
 How we can use it to remove a marker?
 
 Pre-requisite: WFS-T Marker Layer added to the map
 
 * Click Start Edition button and it's added an edit control to the map on left side
 
-* Click remove icon button (third one on the edit control)
+* Click remove icon button (fourth one on the edit control)
 
 * Click on marker to remove (we can remove more than one marke at the same time)
 
