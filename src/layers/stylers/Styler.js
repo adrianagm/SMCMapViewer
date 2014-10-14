@@ -10,7 +10,7 @@ var PEG = require("../../../lib/pegjs/lib/peg.js");
  * @property {mustache} - mustache variable
  */
  var Mustache = require("../../../lib/mustache.js/mustache.js");
- 
+
 /**
  * Base class for feature layers' styles processors.
  *
@@ -27,6 +27,7 @@ SMC.layers.stylers.Styler = L.Class.extend(
 
 		_grammar: null,
 		_parser_url: null,
+        parserInitialized: false,
 		/**
 		 * @typedef {Object} SMC.layers.stylers.Styler~options
 		 * @property {string} stylesheet=null - The style set to apply
@@ -98,6 +99,7 @@ SMC.layers.stylers.Styler = L.Class.extend(
 				return;
 			}
 
+            this.parserInitialized = true;
 			this._createStyles = new Function("feature", "zoom", "var style = {};" + stylesFuncBody + "return style;");
 		},
 
