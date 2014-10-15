@@ -52,7 +52,17 @@ SMC.layers.WMSLayer = L.TileLayer.WMS.extend(
         unload: function() {
             this._needsload = true;
             this._reset();
+        },
+
+        getTileUrl: function(tilePoint) {
+            var url = L.TileLayer.WMS.prototype.getTileUrl.apply(this, [tilePoint]);
+            if(this._needsload) {
+               url+="&_dc="+Math.random();
+            }
+
+            return url;
         }
+
     }, [SMC.layers.SingleLayer]);
 
 /**
