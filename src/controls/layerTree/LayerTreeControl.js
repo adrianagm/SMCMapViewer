@@ -29,6 +29,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
         initialize: function(baseLayers, options) {
             L.Util.setOptions(this, options);
 
+            this._baseLayers = [];
             this._layers = {};
             this._parents = {};
             this._lastZIndex = 0;
@@ -304,13 +305,15 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
                 input.className = 'leaflet-control-layers-selector';
                 input.id = obj.layer._leaflet_id;
                 input.defaultChecked = checked;
+                L.DomEvent.on(input, 'click', this._onInputClick, this);
             } else {
                 input = this._createRadioElement('leaflet-base-layers', checked);
+                L.DomEvent.on(input, 'click', this._onRadioClick, this);
             }
 
             input.layerId = L.Util.stamp(obj.layer);
 
-            L.DomEvent.on(input, 'click', this._onInputClick, this);
+           
 
             var name = document.createElement('span');
             //name.innerHTML = ' ' + obj.name;
@@ -440,6 +443,27 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
         _onInputClick: function() {
             var i, input, obj,
                 inputs = $('input[type=checkbox]', this._from),
+                inputsLen = inputs.length;
+
+            this._handlingClick = true;
+
+            for (i = 0; i < inputsLen; i++) {
+                input = inputs[i];
+                obj = this._layers[input.layerId];
+                if (obj) {
+                    if (input.checked && !this._map.hasLayer(obj.layer)) {
+                        this._map.addLayer(obj.layer);
+                    } else if (!input.checked && this._map.hasLayer(obj.layer)) {
+                        this._map.removeLayer(obj.layer);
+                    }
+                }
+            }
+            this._handlingClick = false;
+        },
+
+         _onRadioClick: function() {
+            var i, input, obj,
+                inputs = $('input[type=radio]', this._from),
                 inputsLen = inputs.length;
 
             this._handlingClick = true;
