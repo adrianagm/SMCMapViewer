@@ -9,7 +9,7 @@ var PEG = require("../../../lib/pegjs/lib/peg.js");
  * Global variable that represents mustache library functionality
  * @property {mustache} - mustache variable
  */
- var Mustache = require("../../../lib/mustache.js/mustache.js");
+var Mustache = require("../../../lib/mustache.js/mustache.js");
 
 /**
  * Base class for feature layers' styles processors.
@@ -22,121 +22,132 @@ var PEG = require("../../../lib/pegjs/lib/peg.js");
  * @author Luis Román (lroman@emergya.com)
  */
 SMC.layers.stylers.Styler = L.Class.extend(
-	/** @lends SMC.layers.stylers.Styler# */
-	{
+    /** @lends SMC.layers.stylers.Styler# */
+    {
 
-		_grammar: null,
-		_parser_url: null,
+        _grammar: null,
+        _parser_url: null,
         parserInitialized: false,
-		/**
-		 * @typedef {Object} SMC.layers.stylers.Styler~options
-		 * @property {string} stylesheet=null - The style set to apply
-		 * @property {string} stylesheetURL=null - The style set url to apply
-		 */
-		options: {
-			stylesheet: null,
-			stylesheetURL: null
-		},
+        /**
+         * @typedef {Object} SMC.layers.stylers.Styler~options
+         * @property {string} stylesheet=null - The style set to apply
+         * @property {string} stylesheetURL=null - The style set url to apply
+         */
+        options: {
+            stylesheet: null,
+            stylesheetURL: null
+        },
 
-		/**
-	     * Initialize the object with the params
-	     * @param {object} options - default options
-	     */
-		initialize: function(options) {
-			L.Util.setOptions(this, options);
-			var scope = this;
-			$.ajax({
-				url: this._parser_url,
-				type: 'get',
-				success: function(response) {
-					scope._grammar = PEG.buildParser(response);
-					if (scope.options.stylesheetURL) {
-						$.ajax({
-							url: scope.options.stylesheetURL,
-							type: 'get',
-							success: function(response) {
-								scope.parse(response);
-							}
-						});
-					} else if (scope.options.stylesheet) {
-						scope.parse(scope.options.stylesheet);
-					} else {
-						// We return default empty styles if we have no config.
-						scope._createStyles = function() {
-							return {};
-						};
-					}
-				}
-			});
-		},
+        /**
+         * Initialize the object with the params
+         * @param {object} options - default options
+         */
+        initialize: function(options) {
+            L.Util.setOptions(this, options);
+            var scope = this;
 
-		/**
-		 * Create a style to pass to feature and depends on zoom
-		 *
-		 * @abstract
-		 * @private
-		 * @param {object} feature - An object that represents the geometry element.
-		 * @param {string} zoom - Number that represents the level zoom to apply the style.
-		 */
-		_createStyles: function(feature, zoom) {
-			throw new Error("SMC.layers.stylers.Styler::_createStyles: Error, no _createStyles styles was found, did you specify a parser with a derivate class?");
-		},
+            if (!SMC.layers.stylers.PARSER_FUNCTION) {
+                $.ajax({
+                    url: this._parser_url,
+                    type: 'get',
+                    success: function(response) {
+                        scope._grammar = PEG.buildParser(response);
+                        scope._parseStyles();
+                    }
+                });
+            } else {
+            	this._grammar = SMC.layers.stylers.PARSER_FUNCTION;
+            	scope._parseStyles();
+            }
+        },
 
-		/**
-		 * Loads a stylesheet definition interpreting the rules so it can be applied to features.
-		 *
-		 * Must be implemented in derived classes.
-		 *
-		 * @abstract
-		 * @param {string} stylesheet - A string containing the stylesheet or an url to load the stylesheet from.
-		 */
-		parse: function(stylesheet) {
-			var stylesFuncBody;
-			try {
-				stylesFuncBody = this._grammar.parse(stylesheet);
-			} catch (e) {
-				console.debug(e);
-				return;
-			}
+        _parseStyles: function() {
+        	var _this = this;
+            if (this.options.stylesheetURL) {
+                $.ajax({
+                    url: this.options.stylesheetURL,
+                    type: 'get',
+                    success: function(response) {
+                        _this.parse(response);
+                    }
+                });
+            } else if (this.options.stylesheet) {
+                this.parse(this.options.stylesheet);
+            } else {
+                // We return default empty styles if we have no config.
+                this._createStyles = function() {
+                    return {};
+                };
+            }
+        },
+
+        /**
+         * Create a style to pass to feature and depends on zoom
+         *
+         * @abstract
+         * @private
+         * @param {object} feature - An object that represents the geometry element.
+         * @param {string} zoom - Number that represents the level zoom to apply the style.
+         */
+        _createStyles: function(feature, zoom) {
+            throw new Error("SMC.layers.stylers.Styler::_createStyles: Error, no _createStyles styles was found, did you specify a parser with a derivate class?");
+        },
+
+        /**
+         * Loads a stylesheet definition interpreting the rules so it can be applied to features.
+         *
+         * Must be implemented in derived classes.
+         *
+         * @abstract
+         * @param {string} stylesheet - A string containing the stylesheet or an url to load the stylesheet from.
+         */
+        parse: function(stylesheet) {
+            var stylesFuncBody;
+            try {
+                stylesFuncBody = this._grammar.parse(stylesheet);
+            } catch (e) {
+                console.debug(e);
+                return;
+            }
 
             this.parserInitialized = true;
-			this._createStyles = new Function("feature", "zoom", "var style = {};" + stylesFuncBody + "return style;");
-		},
+            this._createStyles = new Function("feature", "zoom", "var style = {};" + stylesFuncBody + "return style;");
+        },
 
-		/**
-		 * Adds style properties to the received features, so the can be represented as intended by the style for the layer.
-		 * @param {object} feature - An object that represents the geometry element being styled.
-		 * @param {string} zoom - Number that represents the level zoom to apply the style.
-		 * @abstract
-		 */
-		applyStyle: function(feature, zoom) {
-			throw new Error("SMC.layers.stylers.Styler::applyStyle: Derivate classes must implement this method.");
-		},
-
-
-		_contentFromTemplate: function(feature, template) {
-			var defaultTemplate = false;
-			if (!template) {
-				defaultTemplate = true;
-			}
+        /**
+         * Adds style properties to the received features, so the can be represented as intended by the style for the layer.
+         * @param {object} feature - An object that represents the geometry element being styled.
+         * @param {string} zoom - Number that represents the level zoom to apply the style.
+         * @abstract
+         */
+        applyStyle: function(feature, zoom) {
+            throw new Error("SMC.layers.stylers.Styler::applyStyle: Derivate classes must implement this method.");
+        },
 
 
-			var data = {};
-			if (this.options.featureId) {
-				data.$id = feature[this.options.featureId];
-				if (defaultTemplate) {
-					template += "$id: <b>{{$id}}</b><br>";
-				}
-			}
+        _contentFromTemplate: function(feature, template) {
+            var defaultTemplate = false;
+            if (!template) {
+                defaultTemplate = true;
+            }
 
-			for (var propKey in feature.properties) {
-				data[propKey] = feature.properties[propKey];
-				if (defaultTemplate) {
-					template += propKey + ": <b>{{" + propKey + "}}</b><br>";
-				}
-			}
 
-			var output = Mustache.render(template, data);
-			return output;
-		}
-	});
+            var data = {};
+            if (this.options.featureId) {
+                data.$id = feature[this.options.featureId];
+                if (defaultTemplate) {
+                    template += "$id: <b>{{$id}}</b><br>";
+                }
+            }
+
+            for (var propKey in feature.properties) {
+                data[propKey] = feature.properties[propKey];
+                if (defaultTemplate) {
+                    template += propKey + ": <b>{{" + propKey + "}}</b><br>";
+                }
+            }
+
+            var output = Mustache.render(template, data);
+            return output;
+        }
+    });

@@ -1,6 +1,8 @@
 
 require("../src/Util.js");
 
+
+
 require("../src/layers/WMSLayer.js");
 require("../src/layers/TileLayer.js");
 require("../src/layers/markers/MarkerLayer.js");
@@ -27,3 +29,5 @@ require("../src/layers/markers/WFSTMarkerLayer.js");
 
 require("../src/layers/reloaders/TimerReloadTrigger.js");
 require("../src/layers/reloaders/AtmosphereRTReloadTrigger.js");
+
+require("../src/layers/stylers/ParserFunction.js");
