@@ -25,13 +25,13 @@ SMC.layers.Folder = L.LayerGroup.extend(
             L.LayerGroup.prototype.initialize.call(this, options);
             SMC.controls.layerTree.LayerTreeFolder.prototype.initialize.call(this, options);
 
-            if (options.layersConfig) {
+            if (this.options.layersConfig) {
                 // We use the LayerLoader functionality.
-                this.loadLayers(options.layersConfig);
-            } else if (options.layers) {
+                this.loadLayers(this.options.layersConfig);
+            } else if (this.options.layers) {
                 for (var i = 0; i < options.layers.length; i++) {
-                    options.layers[i].addTo(this);
-                    options.layers[i].parent = this;
+                    this.options.layers[i].addTo(this);
+                    this.options.layers[i].parent = this;
                 }
             } else {
                 throw new Error("SMC.layers.Folder::initialize: Either layersConfig or layers must be passed as an initialization option!");
