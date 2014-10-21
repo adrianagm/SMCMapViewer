@@ -56,7 +56,7 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
          * @param {SMC.Map} map - Map to be added
          */
         onAdd: function(map) {
-            this.onRemove(map);
+            this._cleanMarkers(map);
             SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
             L.FeatureGroup.prototype.onAdd.call(this, map);
             if (this._slidermove) {
@@ -76,6 +76,10 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
          * @param {SMC.Map} map - Map to be removed
          */
         onRemove: function(map) {
+            this._cleanMarkers(map);
+        },
+
+        _cleanMarkers: function (map) {
             var self = this;
 
             var clusterGroup = this.clusterGroup.getLayers();
@@ -98,7 +102,6 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
             if (map) {
                 map.off("zoomend", this._onViewChanged, this);
             }
-
         },
 
         /**
