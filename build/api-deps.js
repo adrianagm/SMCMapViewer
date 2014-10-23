@@ -27,3 +27,6 @@ require("../src/layers/markers/WFSTMarkerLayer.js");
 
 require("../src/layers/reloaders/TimerReloadTrigger.js");
 require("../src/layers/reloaders/AtmosphereRTReloadTrigger.js");
+
+require("../src/layers/IsochroneLayer.js");
+require("../src/controls/IsochroneControl.js");

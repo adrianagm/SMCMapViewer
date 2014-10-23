@@ -3,7 +3,7 @@ function initMap() {
     // Centered in London
     var map = SMC.map('map');
     //map.setView([-0.2298500, -78.5249500], 8)
-    map.setView([53.4666677, -2.2333333], 9);
+    map.setView([42.8508743,-2.6694109], 13);
 
 
 
@@ -13,38 +13,19 @@ function initMap() {
         maxZoom: 18
     }).addTo(map);
 
-    var satelite = L.tileLayer.wms("http://maps.opengeo.org/geowebcache/service/wms", {
-        layers: "bluemarble",
-        format: 'image/png',
-        transparent: true,
-        attribution: "Weather data © 2012 IEM Nexrad"
-    });
-
-
-
-    map.loadLayers([{
-        type: "SMC.layers.markers.WFSMarkerLayer",
-        params: [{
-            serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
-            typeName: "OpenData:COMMUNITY_CENTRES"
-        }]
-    }]);
 
     var baseLayer = {
-        "Street Map": base,
-        "Satelite": satelite
+        "Street Map": base
     };
 
-
-    var leyenda = L.control.layers(baseLayer, null, {
+    var leyenda = SMC.layerTreeControl(baseLayer, {
         collapsed: false
     }).addTo(map);
 
 
+    var isochroneControl = SMC.isochroneControl(map);
 
-}
-
-
+};
 
 L.Icon.Default.imagePath = "../../dist/images";
 
