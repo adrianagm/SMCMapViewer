@@ -40,8 +40,6 @@ function initMap() {
         }]
     }];
     map.loadLayers(tree);
-    
-
   
 }
 // On load the page call init map function
