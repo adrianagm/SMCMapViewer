@@ -51,19 +51,46 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
             editable_layers.push(this);
             SMC.layers.EditableLayer.prototype.onAdd.call(this, map);
             SMC.layers.markers.MarkerLayer.prototype.onAdd.call(this, map);
+            this._setButtonState(this);
         },
         /**
          * Method to remove the control in the map
          * @param {SMC.Map} map - Map to be removed
          */
         onRemove: function(map) {
+            this._editing = false;
+            this._finishEditControl(this.options);
+
             var index = this._getIndexFromEditableLayer(this);
             if (index > -1) {
                 editable_layers.splice(index, 1);
             }
             SMC.layers.EditableLayer.prototype.onRemove.call(this, map);
             SMC.layers.markers.MarkerLayer.prototype.onRemove.call(this, map);
+
         },
+
+        _setButtonState: function(layer){
+            var editing;
+            for (var i = 0; i < editable_layers.length; i++) {
+                if(editable_layers[i]._editing){
+                   editing = true;
+                }
+            }
+            var label = layer.options.label;
+            var layer_div = $("[id='" + label + "']")[0];
+            var buttons = $("input[type=button]", layer_div);
+            for (j = 0; j < buttons.length; j++) {
+                if(editing){
+                    buttons[j].disabled = true;
+                }else{
+                    buttons[j].disabled = false;
+                }
+            }
+           
+                   
+        },
+
 
         /**
          * Method to add edit control to map
@@ -105,6 +132,8 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
                     self.removeLayer(e.layer);
                     // Update the added features
                     self._insert(layer);
+
+
 
                 });
                 // Marker edited
@@ -189,14 +218,24 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
                         for (j = 0; j < buttons.length; j++) {
                             if (check.checked) {
                                 if (buttons[j].disabled) {
-                                    buttons[j].disabled = false;
+                                    buttons[j].disabled = false;   
                                 }
                             }
                         }
                     }
+                    else{
+                        var label = this.options.label;
+                        var layer_div = $("[id='" + label + "']")[0];
+                        var buttons = $("input[type=button]", layer_div);
+                        for (j = 0; j < buttons.length; j++) {
+                            buttons[j].setAttribute("value", this.options.editButtonLabel);
+                        }
+                        
+                    }
                 }
                 this._map.removeControl(this._drawControl);
                 this._drawControl = null;
+                this._map.off('draw:created');
             }
         },
 

@@ -21,8 +21,9 @@ function initMap() {
     var leyenda = SMC.layerTreeControl(baseLayer, {
         collapsed: false
     }).addTo(map);
-    var stylesheet ='* {iconUrl: "../../dist/images/marker-icon.png";markerWidth: 30;markerHeight: 40;} * [TITULO="smc"] {iconUrl:"css/images/underground.png";markerWidth: 32;markerHeight: 37;}';
-   
+   // var stylesheet ='* {iconUrl: "../../dist/images/marker-icon.png";markerWidth: 30;markerHeight: 40;} * [TITULO="smc"] {iconUrl:"css/images/underground.png";markerWidth: 32;markerHeight: 37;}';
+    var stylesheet1 ='* {iconUrl: "../../dist/images/marker-icon.png";markerWidth: 30;markerHeight: 40;}';
+    var stylesheet2 ='* {iconUrl:"css/images/underground.png";markerWidth: 32;markerHeight: 37;}';
     var tree = [{
        
         type: "folder",
@@ -33,10 +34,19 @@ function initMap() {
                 serverURL: "http://geoemerg-win2008.emergya.es/geoserver/s/wfs",
                 typeName: "s:EDITABLE_PUNTO",  
                 label: "Editable",
-                stylesheet: stylesheet,
+                stylesheet: stylesheet1,
 
             }],
             
+        },{
+            type: "SMC.layers.markers.WFSTMarkerLayer",
+            params: [{
+                serverURL: "http://geoemerg-win2008.emergya.es/geoserver/s/wfs",
+                typeName: "s:EDITABLE_FUENTES",  
+                label: "Editable_2",
+                stylesheet: stylesheet2,
+
+            }],
         }]
     }];
     map.loadLayers(tree);
