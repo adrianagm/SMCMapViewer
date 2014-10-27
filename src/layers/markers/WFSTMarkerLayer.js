@@ -119,7 +119,8 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
                         polyline: false,
                         polygon: false,
                         rectangle: false,
-                        circle: false
+                        circle: false,
+                        isochrone: false
                     },
                     edit: {
                         featureGroup: this.noClusterGroup

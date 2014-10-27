@@ -178,10 +178,17 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
             // For GeoJSON standar the first coordinate is the longitude
             // Documentation http://geojson.org/geojson-spec.html#positions
             var markerLocation;
-            if (L.Util.isArray(f.geometry.coordinates)) {
-                markerLocation = new L.LatLng(f.geometry.coordinates[1], f.geometry.coordinates[0]);
+
+            var geometry = f.geometry;
+            var coordinates = geometry.coordinates;
+            if(geometry.type==="MultiPoint") {
+                coordinates = coordinates[0];
+            }
+
+            if (L.Util.isArray(coordinates)) {
+                markerLocation = new L.LatLng(coordinates[1], coordinates[0]);
             } else {
-                markerLocation = new L.LatLng(f.geometry.coordinates.latitude, f.geometry.coordinates.longitude);
+                markerLocation = new L.LatLng(coordinates.latitude, coordinates.longitude);
             }
 
             var marker = new L.Marker(markerLocation);

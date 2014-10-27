@@ -155,6 +155,13 @@
 
 }
 
+.leaflet-draw-toolbar .fa-dot-circle-o {
+	background-image: none;
+	background-position: -1520px -2px;
+	background-repeat: no-repeat;
+
+}
+
 .leaflet-draw-toolbar .leaflet-draw-edit-remove {
 	background-position: -182px -2px;
 }
@@ -171,6 +178,14 @@
 
 }
 
+.leaflet-draw-toolbar .fa-dot-circle-o.leaflet-disabled  {
+	background-image: none;
+	background-position: -1520px -2px;
+	background-repeat: no-repeat;
+	color: #bbb;
+
+}
+
 .leaflet-draw-toolbar .leaflet-draw-edit-remove.leaflet-disabled {
 	background-position: -242px -2px;
 }
@@ -178,6 +193,19 @@
 /* ================================================================== */
 /* Drawing styles
 /* ================================================================== */
+.leaflet-form{
+	background: rgb(54, 54, 54);
+	background: rgba(0, 0, 0, 0.5);
+	border: 1px solid transparent;
+	-webkit-border-radius: 4px;
+	        border-radius: 4px;
+	color: #fff;
+	font: 12px/18px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	width: 220px;
+	padding: 5px;
+	margin-top: -26px;
+	margin-left: 26px;
+}
 
 .leaflet-mouse-marker {
 	background-color: #fff;

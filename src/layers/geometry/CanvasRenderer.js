@@ -555,7 +555,9 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
                 var f = ctx.features[i];
                 f._clean = false;
                 this.canvasTree.clear();
+
             }
+            
         },
 
         _addOffset: function(proj, offset, ctx) {
