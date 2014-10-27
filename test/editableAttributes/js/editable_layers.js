@@ -34,6 +34,10 @@ function initMap() {
                 serverURL: "http://geoemerg-win2008.emergya.es/geoserver/s/wfs",
                 typeName: "s:EDITABLE_PUNTO",  
                 label: "Editable",
+                readOnlyFields:['NOMBRE'],
+                defaultNewValues:{
+                    'NOMBRE': 'defaultName'
+                },
                 stylesheet: stylesheet1,
 
             }],
@@ -44,6 +48,9 @@ function initMap() {
                 serverURL: "http://geoemerg-win2008.emergya.es/geoserver/s/wfs",
                 typeName: "s:EDITABLE_FUENTES",  
                 label: "Editable_2",
+                defaultNewValues:{
+                    'WHEELCHAIR': 'SI'
+                },
                 stylesheet: stylesheet2,
 
             }],

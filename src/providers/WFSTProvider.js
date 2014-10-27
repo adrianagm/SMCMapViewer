@@ -12,6 +12,16 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
     /** @lends SMC.providers.WFSTProvider# */
     {
         /**
+         * @typedef {Object} SMC.providers.WFSTProvider~options
+         * @property {string} defaultNewValues=null - The default values  to the fields from feature
+         * @property {string} readOnlyFields=null - The default no editable fields from feature
+         */
+        options: {
+            defaultNewValues: {},
+            readOnlyFields: []
+        },
+
+        /**
          * Initialize the class with options parameter
          * @param {object} options - default options
          */
@@ -36,7 +46,6 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
         _insert: function(geometry) {
             var self = this;
             var geom_type = this._getGeomType(geometry);
-
             $.ajax({
                 type: "GET",
                 url: this.options.serverURL + "?request=DescribeFeatureType&version=1.1.0&typename=" +
@@ -70,18 +79,18 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
                         '           </' + namespace + ':' + theGeom + '>\n' + '       </' + self.options
                         .typeName + '>\n' + '   </wfs:Insert>\n' + '</wfs:Transaction>\n';
 
-                    self._sendRequest("POST", self.options.serverURL, postData, function(xml) {
+                   self._sendRequest("POST", self.options.serverURL, postData, function(xml) {
                         var id = self._getElementsByTagNameNS(xml, "ogc", 'FeatureId')[0].getAttribute('fid');
                         self._loadMarker(id);
-
+                        
                     });
                 }
             });
+
         },
 
         _loadMarker: function(id) {
             var self = this;
-            var feature;
             var srsName = this.options.srsName ? self.options.requestParams.srsName : "EPSG:4326";
             var jsonpRandom = this._makeid();
             var formatOptions = "callback:" + jsonpRandom;
@@ -95,13 +104,27 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
                 dataType: "jsonp",
                 jsonpCallback: jsonpRandom,
                 jsonp: false,
-                async: false,
                 success: function(featureCollection) {
-                    feature = featureCollection.features;
+                    var feature = featureCollection.features;  
+                    feature = self._setDefaultValues(feature); 
+                    feature.geom_type = 'Point';
+                    feature.feature = feature;
+                    self._update(feature);
                     self.addMarkerFromFeature(feature);
                 }
             });
 
+        },
+
+         _setDefaultValues: function(feature){
+            var defaultValues = this.options.defaultNewValues;
+            var prop = feature[0].properties;
+            for(var i in prop){
+                if(defaultValues[i]){
+                   prop[i] = defaultValues[i];
+               }
+            }
+            return feature[0];
         },
         /**
          * Method to prepare WFS-T request payload to update a geometry
@@ -121,10 +144,14 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
                     var attributes = self._getElementsByTagNameNS(self._getElementsByTagNameNS(xml, "xsd","sequence")[0],"xsd",'element');
 
                     var wfs_elements = "";
-                    geometry.eachLayer(function(layer) {
-                        // Update the edited features
-                        wfs_elements += self._getWFSUpdate(layer, srsName, attributes);
-                    });
+                    if(!geometry.eachLayer){
+                        wfs_elements = self._getWFSUpdate(geometry, srsName, attributes);
+                    }else{
+                        geometry.eachLayer(function(layer) {
+                            // Update the edited features
+                            wfs_elements += self._getWFSUpdate(layer, srsName, attributes);
+                        });
+                    }
                     var postData =
                         '<wfs:Transaction\n' + 'version="1.1.0"\n' + 'service="WFS"\n' +
                         'xmlns:wfs="http://www.opengis.net/wfs">\n' + wfs_elements +
@@ -133,6 +160,7 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
                     self._sendRequest("POST", self.options.serverURL, postData);
 
                 }
+
             });
 
         },
@@ -188,6 +216,9 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
             if (geometry instanceof L.Marker || geometry instanceof L.Point) {
                 geom_type = "Point";
             }
+            if(geometry.geom_type){
+                geom_type = geometry.geom_type;
+            }
             return geom_type;
         },
         /**
@@ -214,6 +245,15 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
          */
         _getWFSUpdate: function(geometry, srsName, attributes) {
             var geom_type = this._getGeomType(geometry);
+            var lat, lng;
+            if(geometry.getLatLng){
+                lat = geometry.getLatLng().lat;
+                lng = geometry.getLatLng().lng;
+            }
+            else{
+                lat = geometry.geometry.coordinates[1];
+                lng = geometry.geometry.coordinates[0];
+            }
             var typeName = this.options.typeName.split(":")[1];
             var res = ' <wfs:Update typeName="feature:' + typeName + '" xmlns:feature="http://opengeo.org">\n';
             for (var i = 0; i < attributes.length; i++) {
@@ -226,7 +266,7 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
                 if (attributes[i].getAttribute('type') == 'gml:GeometryPropertyType') {
                     res += '               <gml:' + geom_type +
                         ' xmlns:gml="http://www.opengis.net/gml" srsName="' + srsName + '">\n' +
-                        '                   <gml:pos>' + geometry.getLatLng().lng + ' ' + geometry.getLatLng().lat +
+                        '                   <gml:pos>' + lng + ' ' + lat +
                         '</gml:pos>\n' + '               </gml:' + geom_type + '>\n';
                 } else if (geometry.feature.properties[name] != null) {
                     res += geometry.feature.properties[name];

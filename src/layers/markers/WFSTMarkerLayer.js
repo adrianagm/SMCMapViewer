@@ -132,6 +132,7 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
                     self.removeLayer(e.layer);
                     // Update the added features
                     self._insert(layer);
+                    
 
 
 
@@ -176,21 +177,23 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
 
                 this._map.on('draw:editDatastop', function() {
                     var layers = self.featuresEdited;
-                    if (!layers.save) {
-                        for (var i in layers._layers) {
-                            var f = layers._layers[i].feature;
-                            var propIni = layers._layers[i].propertiesInicial;
-                            if (propIni) {
-                                for (var j in f.properties) {
-                                    f.properties[j] = propIni[j];
+                    if (!$.isEmptyObject(layers._layers)){
+                        if (!layers.save) {
+                            for (var i in layers._layers) {
+                                var f = layers._layers[i].feature;
+                                var propIni = layers._layers[i].propertiesInicial;
+                                if (propIni) {
+                                    for (var j in f.properties) {
+                                        f.properties[j] = propIni[j];
+                                    }
                                 }
                             }
                         }
-                    }
-                    layers.save = false;
-                    for (var i in layers._layers) {
-                        layers._layers[i].closePopup();
-                        self._applyStyles(layers._layers[i], false);
+                        layers.save = false;
+                        for (var i in layers._layers) {
+                            layers._layers[i].closePopup();
+                            self._applyStyles(layers._layers[i], false);
+                        }
                     }
                 });
                 // Marker removed
@@ -210,6 +213,7 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
         _finishEditControl: function(options) {
             if (this._drawControl) {
                 for (var i = 0; i < editable_layers.length; i++) {
+                    editable_layers[i].featuresEdited.clearLayers();
                     if (editable_layers[i]._leaflet_id != this._leaflet_id) {
                         var label = editable_layers[i].options.label;
                         var layer_div = $("[id='" + label + "']")[0];
@@ -236,8 +240,12 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
                 this._map.removeControl(this._drawControl);
                 this._drawControl = null;
                 this._map.off('draw:created');
+                this._map.off('draw:deleted');
+             
             }
         },
+
+       
 
         _setAttrEditor: function(layer) {
             var self = this;
@@ -250,7 +258,7 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
 
             var table = document.createElement('table');  
             var prop = layer.feature.properties;
-            var noEditables = this._getNotNull();
+            var noEditables = this._getNotEditables();
             for (var i in prop) {
                 var noNull = false;
                 var value = prop[i];
@@ -276,6 +284,7 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
                 }
                 rowInput.type = 'text';
                 rowInput.value = value;
+                rowInput.style.width = '120px';
                 rowInput.style.float = 'right';
                 rowInput.className = 'attributes';
                 td = document.createElement("td");
@@ -286,6 +295,7 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
 
             content.appendChild(table);
 
+            var buttons = document.createElement('center');
             var save = document.createElement('input');
             save.type = 'button';
             save.value = 'Save edition';
@@ -293,7 +303,7 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
 
                 self._save(layer, content);
             }
-            content.appendChild(save);
+            buttons.appendChild(save);
             var cancel = document.createElement('input');
             cancel.type = 'button';
             cancel.value = 'Cancel';
@@ -301,15 +311,16 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
                 layer.closePopup();
 
             }
-            content.appendChild(cancel);
+            buttons.appendChild(cancel);
+            content.appendChild(buttons);
             this.featuresEdited.addLayer(layer);
 
             return content;
 
         },
 
-        _getNotNull: function() {
-            var noEditables = [];
+        _getNotEditables: function() {
+            var noEditables = this.options.readOnlyFields;
             var _this = this;
             $.ajax({
                 type: "GET",
