@@ -123,7 +123,22 @@ SMC.layers.IsochroneLayer = SMC.layers.geometry.WFSGeometryLayer.extend(
 
        
         load:function(){
-            this.doFeaturesLoading();
+            var self = this;
+            this.doFeaturesLoading().then(function(response){
+                var output = [];
+                for(var i in response.coordinates){
+                    var feature = {};
+                    feature.type = 'Feature';
+                    feature.geometry ={};
+                    feature.geometry.type = response.type;
+                    feature.geometry.coordinates = response.coordinates[i];
+                    output.push(feature);
+                }
+
+                self.onFeaturesLoaded(output);
+
+            });
+
         },
 
          doFeaturesLoading: function(){
@@ -134,30 +149,20 @@ SMC.layers.IsochroneLayer = SMC.layers.geometry.WFSGeometryLayer.extend(
             if(!this.options.stylesheet){
                 this.options.stylesheet = stylesheet;
             }
-            $.ajax({
+           return $.ajax({
                 type: 'GET',
                 url: self.options.serverURL, 
                 data: self.getParamsFromOptions(), 
                 jsonpCallback: jsonpRandom,
                 dataType: "jsonp",
                 async: false,
-                success:function(response){
-                   var output = [];
-                    for(var i in response.coordinates){
-                        var feature = {};
-                        feature.type = 'Feature';
-                        feature.geometry ={};
-                        feature.geometry.type = response.type;
-                        feature.geometry.coordinates = response.coordinates[i];
-                        output.push(feature);
-                    }
-                    self.onFeaturesLoaded(output);
-                }
+               
           });
 
-           
-            
+      
         },
+
+      
   
          /**
          * Method to unload the layer.

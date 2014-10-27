@@ -15,21 +15,66 @@ SMC.controls.IsochroneControl = L.Control.Draw.extend({
 	inputs:{
             walkTime: "num",
             mode: {
-            	walk: 'WALK',
-            	transit: 'TRANSIT',
-            	car: 'CAR'
+            	walk: {
+            		content:'WALK',
+            		label:'Walk'
+            	},
+            	transit: {
+            		content: 'TRANSIT,WALK',
+            		label: 'Transit'
+            	},
+            	bus: {
+            		content:'BUSISH,WALK',
+            		label: 'Bus only'
+            	},
+            	train: {
+            		content: 'TRAINISH,WALK',
+            		label: 'Train only'
+            	},
+            	bicycle: {
+            		content:'BICYCLE',
+            		label: 'Bicycle only'
+            	},
+            	rented_bicycle: {
+            		content:'WALK,BICYCLE',
+            		label: 'Rented bicycle'
+            	},
+            	transit_bicycle: {
+            		content:'TRANSIT,BICYCLE',
+            		label: 'Transit & Bicycle'
+            	},
+            	transit_rented_bicycle: {
+            		content:'TRANSIT,WALK,BICYCLE',
+            		label: 'Transit &  Rented Bicycle'
+            	},
+            	car: {
+            		content: 'CAR',
+            		label: 'Car'
+            	}
             },
             maxWalkDistance: "num",
             time: "date",
             arriveBy: {
-            	yes: 'yes',
-            	no: 'no'
+            	yes:{
+					 content: 'yes',
+					 label: 'Yes'
+				},
+            	no: {
+            		content:'no',
+            		label: 'No'
+            	}
             },
             walkSpeed: 'num',
             bikeSpeed: 'num', 
             output: {
-            	shed: 'SHED',
-            	edges:'EDGES'
+            	shed:{
+            	 content:'SHED',
+            	 label: 'Polygon'
+            	},
+            	edges:{
+            		content:'EDGES',
+            		label: 'Lines'
+            	}
             },
             label:"text"
      },
@@ -49,7 +94,7 @@ SMC.controls.IsochroneControl = L.Control.Draw.extend({
 
 		var self = this;
 		map.on('draw:startIso', function(e){
-			self.setForm(e.toolbar);
+				self.setForm(e.toolbar);	
 		});
 
 		map.on('draw:created', function (e) {
@@ -69,7 +114,7 @@ SMC.controls.IsochroneControl = L.Control.Draw.extend({
 	            ]
 
 			    }]);
-
+			
 	    });
 
        
@@ -81,14 +126,12 @@ SMC.controls.IsochroneControl = L.Control.Draw.extend({
 		toolbar._disabled();
 		var self = this;
 		
-		
 		var container = this._container;
 		container.style.width = '26px';
 		var table = document.createElement('table');
 		table.id = 'formIsochrone';
 		table.className = 'leaflet-form';
 		table.onmouseenter = function() {
-			console.debug("test");
 			self._map.dragging.disable();
 			self._map.keyboard.disable();
 			return false;
@@ -129,8 +172,8 @@ SMC.controls.IsochroneControl = L.Control.Draw.extend({
 				var input = document.createElement('select');
 				for(var o in e){
 					var option = document.createElement('option');
-					option.value = e[o];
-					option.innerHTML = o;
+					option.value = e[o].content;
+					option.innerHTML = e[o].label;
 					input.appendChild(option);
 					
 				}
@@ -177,7 +220,8 @@ SMC.controls.IsochroneControl = L.Control.Draw.extend({
 	_cancel: function(toolbar){
 		toolbar._enabled();
 		$('#formIsochrone').remove();
-		//L.Control.Draw.prototype.initialize.call(this, this.options);
+		this._map.dragging.enable();
+		this._map.keyboard.enable();
 
 	},
 	_save: function(toolbar, form){
@@ -190,6 +234,8 @@ SMC.controls.IsochroneControl = L.Control.Draw.extend({
 			}
 		}
 		toolbar._enabled();
+		this._map.dragging.enable();
+		this._map.keyboard.enable();
 
 
 	}
