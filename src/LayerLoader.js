@@ -115,13 +115,13 @@ SMC.LayerLoader = L.Class.extend(
 
             if (url) {
                 if (Array.isArray(params)) {
-                    layer = constructor(url, params[0]);
+                    params[0].url = url;
                 } else {
-                    layer = constructor(url, params);
+                    params.url = url;    
                 }
-            } else {
-                layer = constructor(params);
-            }
+            } 
+
+            layer = constructor(params);
 
 
             if (layerConfig.listeners) {

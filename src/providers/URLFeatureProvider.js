@@ -17,7 +17,8 @@ SMC.providers.URLFeatureProvider = SMC.providers.FeaturesProvider.extend(
          * @property {string} url=null - The default url to the feature provider
          */
         options: {
-            url: null
+            url: null,
+            dataType: "jsonp"
         },
         /**
          * Initialize the class with options parameter
@@ -37,7 +38,7 @@ SMC.providers.URLFeatureProvider = SMC.providers.FeaturesProvider.extend(
                 return $.ajax({
                     url: this.options.url,
                     type: "GET",
-                    dataType: "jsonp"
+                    dataType: this.options.dataType
                 });
             }
             return $.Deferred();

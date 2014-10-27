@@ -13,7 +13,8 @@ function initMap() {
         maxZoom: 18
     }).addTo(map);
 
-    var satelite = L.tileLayer.wms("http://maps.opengeo.org/geowebcache/service/wms", {
+    var satelite = SMC.wmsLayer({
+        url: "http://maps.opengeo.org/geowebcache/service/wms", 
         layers: "bluemarble",
         format: 'image/png',
         transparent: true,

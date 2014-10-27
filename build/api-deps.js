@@ -30,3 +30,4 @@ require("../src/layers/reloaders/AtmosphereRTReloadTrigger.js");
 
 require("../src/layers/IsochroneLayer.js");
 require("../src/controls/IsochroneControl.js");
+require("../src/layers/stylers/ParserFunction.js");
