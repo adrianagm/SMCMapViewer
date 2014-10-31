@@ -263,7 +263,7 @@ SMC.providers.WFSTProvider = SMC.providers.WFSProvider.extend(
                 + '           <wfs:Name>' + name + '</wfs:Name>\n'
 
                 + '           <wfs:Value>\n';
-                if (attributes[i].getAttribute('type') == 'gml:GeometryPropertyType') {
+                if (attributes[i].getAttribute('type') == 'gml:GeometryPropertyType' || attributes[i].getAttribute('type') == 'gml:PointPropertyType') {
                     res += '               <gml:' + geom_type +
                         ' xmlns:gml="http://www.opengis.net/gml" srsName="' + srsName + '">\n' +
                         '                   <gml:pos>' + lng + ' ' + lat +

@@ -227,7 +227,7 @@ SMC.controls.IsochroneControl = L.Control.Draw.extend({
 	_save: function(toolbar, form){
 		$('#formIsochrone').remove();
 		var form = form.getElementsByTagName('tr');
-		for(var i= 0; i < form.length -2; i++){
+		for(var i= 0; i < form.length -1; i++){
 			var option = form[i].lastChild.children[0];
 			if(option.value != ''){
 				this.params[option.id] = option.value;
