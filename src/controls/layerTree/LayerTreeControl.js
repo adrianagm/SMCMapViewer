@@ -190,6 +190,9 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
 
             for (i in this._layers) {
                 obj = this._layers[i];
+                if(obj.layer.override){
+                        continue;
+                 }
                 this._addItem(obj);
                 overlaysPresent = overlaysPresent || obj.overlay;
                 baseLayersPresent = baseLayersPresent || !obj.overlay;
@@ -204,6 +207,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
                     if (obj instanceof SMC.layers.aggregation.MultiModeLayer) {
                         obj._initializeTree();
                     }
+
                 }
             }
 
@@ -247,9 +251,14 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
         },
 
         _onLayerChange: function(e) {
-            if (e.layer._slidermove) {
+            if (e.layer._slidermove ) {
                 return;
             }
+            if(e.layer._group){
+                if(e.layer._group._slidermove)
+                    return;
+            }
+           
 
             var obj = this._layers[L.Util.stamp(e.layer)];
 
@@ -322,8 +331,8 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             } else {
                 name.appendChild(obj.name);
             }
-
-            label.appendChild(input);
+            if(!obj instanceof SMC.layers.geometry.SolrGeometryHistoryLayer)
+                label.appendChild(input);
             label.appendChild(name);
 
             return label;

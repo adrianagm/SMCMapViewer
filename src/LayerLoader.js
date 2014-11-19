@@ -79,8 +79,29 @@ SMC.LayerLoader = L.Class.extend(
                     label: layerConfig.label
                 }];
 
+            }else if(type === "SMC.layers.geometry.SolrGeometryHistoryLayer"){
+                var self = this;
+                layerClass = SMC.Util.getClass(type);
+                var constructor = SMC.Util.getConstructor(layerClass);
+                layer = constructor(layerConfig.params);
 
-            } else {
+                function waitFunc(){
+                    if($.isEmptyObject(layer._aggregatingLayers)){
+                        setTimeout(waitFunc, 100);
+                    }
+                    else{             
+                        layer.addTo(self);                      
+                        var id = "layer" + L.stamp(layer);
+                        self.loadedLayers[id] = layer;
+                    }
+                }
+                layer._map = self;
+                layer.doFeaturesLoading();
+                setTimeout(waitFunc, 100);
+
+                return false;
+            }
+            else{
                 if (layerConfig.params) {
                     params = layerConfig.params;
                 }

@@ -63,6 +63,10 @@ SMC.layers.aggregation.AggregatingLayer = L.LayerGroup.extend(
 
 				return map;
 			}
+			else if(this._map){
+				map = this._map;
+				return map;
+			}
 		}
 
 		// onAdd: function(map) {

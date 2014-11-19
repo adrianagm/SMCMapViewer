@@ -24,7 +24,7 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 		initialize: function(options) {
 			L.Util.setOptions(this, options);
 			L.LayerGroup.prototype.initialize.call(this, options);
-			SMC.layers.SingleLayer.prototype.initialize.apply(this, options);
+			//SMC.layers.SingleLayer.prototype.initialize.apply(this, options);
 
 
 		},
@@ -64,7 +64,7 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 
 			var sliderControlLabel = document.createElement("span");
 			sliderControlLabel.style.float = 'left';
-			sliderControl.innerHTML += '<input id="interval_' + this._leaflet_id + '" name="interval_' + this._leaflet_id + '" min="0" max="' + (this.options.layersConfig.length - 1) + '" type="range" step="1" value="0"/>';
+			sliderControl.innerHTML += '<input id="interval_' + this._leaflet_id + '" name="interval_' + this._leaflet_id + '" min="0" max="' + (Object.keys(this._aggregatingLayers).length - 1) + '" type="range" step="1" value="0"/>';
 			sliderControl.className = 'leaflet-bar leaflet-update-interval ';
 
 			var time = sliderControl.children[0].value;
@@ -174,27 +174,27 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 				// if (i == time && data[d].actual) {
 				// 	break;
 				// }
-				
-					if (data[d].actual) {
-							data[d].onRemove(this.getMap());
-							data[d].actual = false;
-
-					}
-
-					if (i == time) {
-						if (!data[d].actual) {
-							data[d]._slidermove = true;
-							data[d].actual = true;
-							data[d].onAdd(this.getMap());
-
-							//recalculate canvas position for geometry layers (important)
-							this.getMap().fire("slidermove");
-						}
-					}
-
-					i++;
+				data[d]._slidermove = true;
+				if (data[d].actual) {
+						data[d].onRemove(this.getMap());
+						data[d].actual = false;
 
 				}
+
+				if (i == time) {
+					if (!data[d].actual) {
+						
+						data[d].actual = true;
+						data[d].onAdd(this.getMap());
+
+						//recalculate canvas position for geometry layers (important)
+						this.getMap().fire("slidermove");
+					}
+				}
+
+				i++;
+
+			}
 			
 
 		},
@@ -243,6 +243,7 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 				for (var d in data) {
 					if (data[d].actual) {
 						data[d].onAdd(map);
+
 					}
 				}
 			}

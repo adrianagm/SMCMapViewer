@@ -92,6 +92,10 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 
 		},
 
+	   load: function(){
+            this.addGeometryFromFeatures(this.features);
+        },
+
 		/**
 		 * Method to load the control in the map
 		 * @param {SMC.Map} map - Map to be added
