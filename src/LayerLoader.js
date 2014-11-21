@@ -48,6 +48,7 @@ SMC.LayerLoader = L.Class.extend(
             }
             for (var i = 0; i < layersConfig.length; i++) {
                 var layerConfig = layersConfig[i];
+
                 this._loadLayerConfig(layerConfig, i + 1);
 
             }
@@ -79,8 +80,9 @@ SMC.LayerLoader = L.Class.extend(
                     label: layerConfig.label
                 }];
 
-
-            } else {
+    
+            }
+            else{
                 if (layerConfig.params) {
                     params = layerConfig.params;
                 }
@@ -123,7 +125,6 @@ SMC.LayerLoader = L.Class.extend(
 
             layer = constructor(params);
 
-
             if (layerConfig.listeners) {
                 for (var eventName in layerConfig.listeners) {
                     layer.on(eventName, layerConfig.listeners[eventName]);
@@ -137,15 +138,20 @@ SMC.LayerLoader = L.Class.extend(
                     layer.addReloadTrigger(triggerConfig);
                 }
             }
-
             // The layer loader is mixed in into a map (or Folder) so we can add layers to that.
-
             layer._map = this;
+
+            if(type ===  "SMC.layers.geometry.SolrGeometryHistoryLayer"){
+                layer.doFeaturesLoading();
+            }
 
             layer.addTo(this);
 
             // The loader (that is, the map or Folder) is the layer's parent
+           
             layer.parent = this;
+  
+          
 
             var id;
             if (layerConfig.id) {

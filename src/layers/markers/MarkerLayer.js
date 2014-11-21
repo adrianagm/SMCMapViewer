@@ -56,13 +56,11 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
          * @param {SMC.Map} map - Map to be added
          */
         onAdd: function(map) {
+
             this._cleanMarkers(map);
             SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
             L.FeatureGroup.prototype.onAdd.call(this, map);
-            if (this._slidermove) {
-                this.noClusterGroup._slidermove = true;
-                this.clusterGroup._slidermove = true;
-            }
+           
             map.addLayer(this.noClusterGroup);
             map.addLayer(this.clusterGroup);
 
@@ -80,6 +78,10 @@ SMC.layers.markers.MarkerLayer = L.FeatureGroup.extend(
         },
 
         _cleanMarkers: function (map) {
+            if (this._slidermove) {
+                this.noClusterGroup._slidermove = true;
+                this.clusterGroup._slidermove = true;
+            }
             var self = this;
 
             var clusterGroup = this.clusterGroup.getLayers();

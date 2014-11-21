@@ -253,20 +253,22 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             this._registerCtxEvent("zoomend", function() {
                 this._onViewChanged(ctx);
             });
+            if(!this instanceof SMC.layers.geometry.SolrGeometryHistoryLayer){
 
-            this._registerCtxEvent("dragend", function() {
-                this.dragging = false;
+                this._registerCtxEvent("dragend", function() {
+                    this.dragging = false;
 
-                console.debug("moving renabled!");
-                map.on("mousemove", this._onMouseMoveAux, this);
+                    console.debug("moving renabled!");
+                    map.on("mousemove", this._onMouseMoveAux, this);
 
-                var treeNode = this._createTreeNode(ctx);
-                this.canvasTree.insert(treeNode);
+                    var treeNode = this._createTreeNode(ctx);
+                    this.canvasTree.insert(treeNode);
 
-                if (!this.options.draggingUpdates) {
-                    this.renderCanvas(ctx, ctx.features, ctx.canvas._map);
-                }
-            });
+                    if (!this.options.draggingUpdates) {
+                        this.renderCanvas(ctx, ctx.features, ctx.canvas._map);
+                    }
+                });
+            }
         },
 
         _registerCtxEvent: function(eventName, fn) {
@@ -551,8 +553,8 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
         },
 
         _onViewChanged: function(ctx) {
-            for (var i = 0; i < ctx.features.length; i++) {
-                var f = ctx.features[i];
+            for (var i = 0; i < this.features.length; i++) {
+                var f = this.features[i];
                 f._clean = false;
                 this.canvasTree.clear();
 
@@ -650,10 +652,12 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
         onAdd: function() {
             this._ctxEvents = {};
             var map = this.getMap();
-            map.on("click", this._onMapClicked, this);
-            map.on("mousemove", this._onMapMouseMoved, this);
             map.on("dragstart", this._onMapDragStarted, this);
-            map.on("moveend", this._onMapMoveEnded, this);
+            if(!this instanceof SMC.layers.geometry.SolrGeometryHistoryLayer){
+                map.on("mousemove", this._onMapMouseMoved, this);
+                map.on("moveend", this._onMapMoveEnded, this);
+                map.on("click", this._onMapClicked, this);
+            }
         },
 
         /**

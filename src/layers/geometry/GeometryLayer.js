@@ -33,13 +33,13 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 		 * @param {SMC.Map} map - Map to be added
 		 */
 		onAdd: function(map) {
-
 			L.CanvasLayer.prototype.onAdd.call(this, map);
+			SMC.layers.geometry.CanvasRenderer.prototype.onAdd.call(this, map);
 			SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
 		    // map.fire('layeradd', {
 			// 	layer: this
 			//});
-
+			var self = this;
 			map.on("popupopen", function(event) {
 				var d = event.target._panAnim;
 				if (d && map._autopan) {
@@ -87,16 +87,22 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 				}
 			}, this);
 
-
+			map.on('zoomend', function(){
+				self._onViewChanged();
+			})
 
 
 		},
+
+	   load: function(){
+            this.addGeometryFromFeatures(this.features);
+        },
 
 		/**
 		 * Method to load the control in the map
 		 * @param {SMC.Map} map - Map to be added
 		 */
-		onRemove: function() {
+		onRemove: function(map) {
 			SMC.layers.geometry.CanvasRenderer.prototype.onRemove.call(this);
 			L.CanvasLayer.prototype.onRemove.apply(this, arguments);
 		},
@@ -118,7 +124,7 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 			if (this.features.length !== 0) {
 				this.renderCanvas({
 					canvas: canvas
-				}, this.features, this._map);
+				}, this.features, this.getMap());
 			}
 		},
 
