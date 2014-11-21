@@ -13,13 +13,15 @@ require("./URLFeatureProvider.js");
 SMC.providers.SolrHistoryProvider = SMC.providers.URLFeatureProvider.extend(
     /** @lends SMC.providers.WFSProvider# */
     {
-        _aggregatingLayers: {},
+        _featuresForLayer: {},
         features: [],
        /**
         * @typedef {Object} SMC.providers.WFSProvider~options
         * @property {SMC.providers.WFSProvider~requestParams} requestParams - Default wfs request parameters
         * @property {string} serverURL=null - The wfs server url path parameter
-        * @property {string} bbox=null - The bbox parameter
+        * @property {string} timeField='time' - The field for define history layers
+        * @property {string} geomField='location' - The geometry field 
+        * @property {string} time=500 - Time for slider in milliseconds 
         */
         options: {
             /** @typedef {Object} SMC.providers.WFSProvider~requestParams - Default wfs request parameters
@@ -51,7 +53,8 @@ SMC.providers.SolrHistoryProvider = SMC.providers.URLFeatureProvider.extend(
             },
             serverURL: null,
             timeField: 'time',
-            geomField: 'location'
+            geomField: 'location',
+            time: 500
             
             
         },
@@ -63,8 +66,7 @@ SMC.providers.SolrHistoryProvider = SMC.providers.URLFeatureProvider.extend(
             L.Util.setOptions(this, options);
         },
         /**
-         * Send WFS request to get the features
-         * @returns {object} Deferred object from jQuery
+         * Send Solr request to get the group layers
          */
         doFeaturesLoading: function() {
         	
@@ -110,7 +112,9 @@ SMC.providers.SolrHistoryProvider = SMC.providers.URLFeatureProvider.extend(
             }
             return params;
         },
-
+        /**
+         * Send Solr request to get the features
+         */
         doLayersGroupLoading:function(rows, values){
             var self = this; 
             this.options.requestParams.rows = rows;
@@ -136,7 +140,7 @@ SMC.providers.SolrHistoryProvider = SMC.providers.URLFeatureProvider.extend(
                        allFeatures.push(f);
 
                    }
-                   //self.onFeaturesLoaded(features);
+
                    
                    for(var j in values){
                     var features = [];
@@ -147,17 +151,15 @@ SMC.providers.SolrHistoryProvider = SMC.providers.URLFeatureProvider.extend(
                             }
 
                         }
-                        self._aggregatingLayers[values[j]] = new SMC.layers.geometry.GeometryLayer(self.options);
+
+                        self._featuresForLayer[values[j]] = features;
                        
-                       // self._aggregatingLayers[values[j]].options.date = self.options.timeField;
-                        self._aggregatingLayers[values[j]].options.label = values[j];
-                        self._aggregatingLayers[values[j]].features = features;
-                        self._aggregatingLayers[values[j]].override = true;
-                        self._aggregatingLayers[values[j]].addTo(self._map);
                    }
-                   console.log(self._aggregatingLayers);
-                   
-                   
+                   console.log(self._featuresForLayer);
+                   //override tree node for layer
+                   var node = document.getElementById('node_'+self._leaflet_id);
+                   node.parentNode.appendChild(self.createNodeHTML());
+                   node.parentNode.removeChild(node);
    
                 }
 

@@ -189,10 +189,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
                 i, obj;
 
             for (i in this._layers) {
-                obj = this._layers[i];
-                if(obj.layer.override){
-                        continue;
-                 }
+                obj = this._layers[i]; 
                 this._addItem(obj);
                 overlaysPresent = overlaysPresent || obj.overlay;
                 baseLayersPresent = baseLayersPresent || !obj.overlay;
@@ -233,6 +230,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
                     this._parents[id] = element;
                 } else {
                     this._layers[id] = element;
+
                 }
 
                 if (layer.parent) {
@@ -286,7 +284,10 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
                     this._update();
                 }
             }
+
         },
+
+        
 
         // IE7 bugs out if you create a radio dynamically, so you have to do it this hacky way (see http://bit.ly/PqYLBe)
         _createRadioElement: function(name, checked) {
@@ -331,8 +332,13 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             } else {
                 name.appendChild(obj.name);
             }
-            if(!obj instanceof SMC.layers.geometry.SolrGeometryHistoryLayer)
-                label.appendChild(input);
+            if(obj.layer instanceof SMC.layers.geometry.SolrGeometryHistoryLayer){
+                 var label = document.createElement('div');
+                label.appendChild(name);
+                return label;
+            }
+            
+            label.appendChild(input);
             label.appendChild(name);
 
             return label;

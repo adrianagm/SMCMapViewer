@@ -48,6 +48,7 @@ SMC.LayerLoader = L.Class.extend(
             }
             for (var i = 0; i < layersConfig.length; i++) {
                 var layerConfig = layersConfig[i];
+
                 this._loadLayerConfig(layerConfig, i + 1);
 
             }
@@ -79,27 +80,7 @@ SMC.LayerLoader = L.Class.extend(
                     label: layerConfig.label
                 }];
 
-            }else if(type === "SMC.layers.geometry.SolrGeometryHistoryLayer"){
-                var self = this;
-                layerClass = SMC.Util.getClass(type);
-                var constructor = SMC.Util.getConstructor(layerClass);
-                layer = constructor(layerConfig.params);
-
-                function waitFunc(){
-                    if($.isEmptyObject(layer._aggregatingLayers)){
-                        setTimeout(waitFunc, 100);
-                    }
-                    else{             
-                        layer.addTo(self);                      
-                        var id = "layer" + L.stamp(layer);
-                        self.loadedLayers[id] = layer;
-                    }
-                }
-                layer._map = self;
-                layer.doFeaturesLoading();
-                setTimeout(waitFunc, 100);
-
-                return false;
+    
             }
             else{
                 if (layerConfig.params) {
@@ -144,7 +125,6 @@ SMC.LayerLoader = L.Class.extend(
 
             layer = constructor(params);
 
-
             if (layerConfig.listeners) {
                 for (var eventName in layerConfig.listeners) {
                     layer.on(eventName, layerConfig.listeners[eventName]);
@@ -158,15 +138,20 @@ SMC.LayerLoader = L.Class.extend(
                     layer.addReloadTrigger(triggerConfig);
                 }
             }
-
             // The layer loader is mixed in into a map (or Folder) so we can add layers to that.
-
             layer._map = this;
+
+            if(type ===  "SMC.layers.geometry.SolrGeometryHistoryLayer"){
+                layer.doFeaturesLoading();
+            }
 
             layer.addTo(this);
 
             // The loader (that is, the map or Folder) is the layer's parent
+           
             layer.parent = this;
+  
+          
 
             var id;
             if (layerConfig.id) {

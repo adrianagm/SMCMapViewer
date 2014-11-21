@@ -30,7 +30,9 @@ function initMap() {
 
     // Add tree to map
     var tree = [{
-        
+        type: 'folder', 
+        label: 'Folder 1',
+        layers:[{
                 type: "SMC.layers.history.AggregatingHistoryLayer",
                 label: 'History Geometry',
                 layers: [{
@@ -71,7 +73,7 @@ function initMap() {
 
                     }]
                 }]
-
+}]
 
 
     }];

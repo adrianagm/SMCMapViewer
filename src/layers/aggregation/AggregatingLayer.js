@@ -54,6 +54,8 @@ SMC.layers.aggregation.AggregatingLayer = L.LayerGroup.extend(
 			if (this.parent) {
 				if (this.parent.map) {
 					map = this.parent.map;
+				}else if(this.parent._map){
+					map = this.parent._map;
 				} else if (this.parent.parent) {
 					if (this.parent.parent.map)
 						map = this.parent.parent.map;

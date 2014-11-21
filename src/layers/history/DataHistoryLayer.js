@@ -37,70 +37,87 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 			this._historyLayers = this._orderLayers();
 			var layers = this._historyLayers;
 
-			var node = document.createElement("div");
-			var label = document.createElement('label'),
-				input,
-				checked = this.getMap().hasLayer(this);
+			 var node = document.createElement("div");
+            var label = document.createElement('span'),
+                input,
+                checked = this.getMap().hasLayer(this);
 
-			input = document.createElement('input');
-			input.type = 'checkbox';
-			input.defaultChecked = checked;
-			var name = document.createElement('span');
-			name.innerHTML = ' ' + (this.options.label || this.options.typeName);
+            input = document.createElement('input');
+            input.type = 'checkbox';
+            input.defaultChecked = checked;
+            input.style.cursor = "pointer";
+            var name = document.createElement('span');
+            name.innerHTML = ' ' + (this.options.label || this.options.typeName);
 
-			label.appendChild(input);
-			label.appendChild(name);
-
-			label.style.cursor = "pointer";
-
-			label.onchange = function(event) {
-				self._clickOnLayer(node);
-			};
-
-			var sliderControl = document.createElement("div");
-			sliderControl.style.marginLeft = '10px';
-			sliderControl.style.marginTop = '5px';
+            label.appendChild(input);
+            label.appendChild(name);
 
 
-			var sliderControlLabel = document.createElement("span");
-			sliderControlLabel.style.float = 'left';
-			sliderControl.innerHTML += '<input id="interval_' + this._leaflet_id + '" name="interval_' + this._leaflet_id + '" min="0" max="' + (Object.keys(this._aggregatingLayers).length - 1) + '" type="range" step="1" value="0"/>';
-			sliderControl.className = 'leaflet-bar leaflet-update-interval ';
+            var sliderControl = document.createElement("table");
+            sliderControl.style.marginLeft = '10px';
+            sliderControl.style.marginTop = '5px';
+            sliderControl.className = 'leaflet-bar leaflet-update-interval ';
+            sliderControl.style.font = '12px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif';
 
-			var time = sliderControl.children[0].value;
+            var sliderControlLabel = document.createElement("span");
+            sliderControlLabel.style.float = 'left';
+            
 
-			var play_pause = document.createElement("i");
-			play_pause.style.float = 'left';
-			play_pause.style.marginLeft = '10px';
-			play_pause.style.marginTop = '5px';
-			play_pause.className = 'fa fa-play';
-			play_pause.style.cursor = "pointer";
+            var inputInterval = document.createElement('input');
+            inputInterval.type = 'range';
+            inputInterval.id = "interval_" + this._leaflet_id;
+            inputInterval.name = "interval_" + this._leaflet_id;
+            inputInterval.min = 0;
+            inputInterval.max = Object.keys(layers).length - 1;
+            inputInterval.step = 1;
+            inputInterval.value = 0;
+            //sliderControl.innerHTML += '<input id="interval_' + this._leaflet_id + '" name="interval_' + this._leaflet_id + '" min="0" max="' + (Object.keys(this._featuresForLayer).length - 1) + '" type="range" step="1" value="0"/>';
+           
 
-			this._addTimeData(time);
-			this._showLabel(sliderControlLabel);
+            var time = inputInterval.value;
 
-			var self = this;
-			L.DomEvent.addListener(sliderControl, 'mousedown', L.DomEvent.stopPropagation);
-			L.DomEvent.addListener(sliderControl, 'mouseup', function() {
-				time = sliderControl.children[0].value;
-				self.showTimeData(time);
-				self._showLabel(sliderControlLabel);
-				L.DomEvent.stopPropagation;
-			});
-			L.DomEvent.addListener(sliderControl, 'touchstart', L.DomEvent.stopPropagation);
-			L.DomEvent.addListener(sliderControl, 'touchend', L.DomEvent.stopPropagation);
+            var play_pause = document.createElement("i"); 
+            play_pause.className = 'fa fa-play';
+            play_pause.style.cursor = "pointer";
 
-			sliderControl.appendChild(sliderControlLabel);
-			sliderControl.appendChild(play_pause);
-			node.appendChild(label);
-			node.appendChild(sliderControl);
+            this._addTimeData(time);
+            this._showLabel(sliderControlLabel);
 
-			play_pause.onclick = function() {
-				self._onPlayPause(node, time);
-			};
-			this._node = node;
-			return node;
+            var self = this;
+            L.DomEvent.addListener(inputInterval, 'mousedown', L.DomEvent.stopPropagation);
+            L.DomEvent.addListener(inputInterval, 'mouseup', function() {
+                time = inputInterval.value;
+                self.showTimeData(time);
+                self._showLabel(sliderControlLabel);
+                L.DomEvent.stopPropagation;
+            });
+            L.DomEvent.addListener(inputInterval, 'touchstart', L.DomEvent.stopPropagation);
+            L.DomEvent.addListener(inputInterval, 'touchend', L.DomEvent.stopPropagation);
 
+            var tr = document.createElement('tr');
+            var td1 = document.createElement('td');
+            var td2 = document.createElement('td');
+            var td3 = document.createElement('td');
+            td1.appendChild(sliderControlLabel);
+            td2.appendChild(play_pause);
+            td3.appendChild(inputInterval);
+            tr.appendChild(td1);
+            tr.appendChild(td2);
+            tr.appendChild(td3);
+
+            sliderControl.appendChild(tr);
+           
+            node.appendChild(label);
+            node.appendChild(sliderControl);
+
+            play_pause.onclick = function() {
+                self._onPlayPause(node, time);
+            };
+            label.onchange = function(event) {
+                self._clickOnLayer(node);
+            };
+            this._node = node;
+            return node;
 		},
 
 		_orderLayers: function() {
@@ -185,8 +202,13 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 					if (!data[d].actual) {
 						
 						data[d].actual = true;
+						if(data[d].lastZoom && (data[d].lastZoom != this.getMap().getZoom())){
+							 for(var f in data[d].features){
+	                            data[d].features[f]._clean = false;
+	                        }
+	                    }
 						data[d].onAdd(this.getMap());
-
+						data[d].lastZoom = this.getMap().getZoom();
 						//recalculate canvas position for geometry layers (important)
 						this.getMap().fire("slidermove");
 					}
@@ -234,7 +256,7 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 				node.children[0].checked = false;
 				for (var d in data) {
 					if (data[d].actual) {
-						data[d].onRemove(map);
+						data[d].onRemove(this.getMap());
 					}
 				}
 			} else {
@@ -242,7 +264,7 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 				node.children[0].checked = true;
 				for (var d in data) {
 					if (data[d].actual) {
-						data[d].onAdd(map);
+						data[d].onAdd(this.getMap());
 
 					}
 				}
@@ -253,39 +275,42 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 		_onPlayPause: function(node, time) {
 			var data = this._historyLayers;
 
-			var maxValue = node.children[1].children[0].max;
-			var sliderControlLabel = node.children[1].children[1];
+           var slider = node.children[1].children[0].children[2].children[0];
+           var maxValue = slider.max;
+           var sliderControlLabel = node.children[1].children[0].children[0].children[0];
+           var play = node.children[1].children[0].children[1].children[0];
 
-			if (node.children[1].children[2].className == 'fa fa-play') {
-				node.children[1].children[2].className = 'fa fa-pause';
-				if (node.children[1].children[0].value == maxValue) {
-					node.children[1].children[0].value = 0;
-				}
+            if (play.className == 'fa fa-play') {
+                play.className = 'fa fa-pause';
+                if (slider.value == maxValue) {
+                   slider.value = 0;
+                }
 
 
-				var i = parseFloat(node.children[1].children[0].value);
-				var self = this;
-				this._timer = setInterval(function() {
-					i += parseFloat(node.children[1].children[0].step);
-					self.showTimeData(i);
-					self._showLabel(sliderControlLabel);
-					if (i < maxValue) {
-						node.children[1].children[0].value = i;
+                var i = parseFloat(slider.value);
+                var self = this;
+                this._timer = setInterval(function() {
+                    
+                    self.showTimeData(i);
+                    self._showLabel(sliderControlLabel);
+                    if (i < maxValue) {
+                        slider.value = i;
 
-					} else {
-						clearInterval(self._timer);
-						node.children[1].children[2].className = 'fa fa-play';
-						node.children[1].children[0].value = maxValue;
+                    } else {
+                        clearInterval(self._timer);
+                        play.className = 'fa fa-play';
+                        slider.value = maxValue;
 
-					}
+                    }
+                    i += parseFloat(slider.step);
 
-				}, this.options.time);
+                }, this.options.time);
 
-			} else {
+            } else {
 
-				node.children[1].children[2].className = 'fa fa-play';
-				clearInterval(this._timer);
-			}
+                play.className = 'fa fa-play';
+                clearInterval(this._timer);
+            }
 		},
 
 		 /**
