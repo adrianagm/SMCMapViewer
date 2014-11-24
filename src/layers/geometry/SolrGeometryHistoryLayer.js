@@ -3,17 +3,16 @@ require("../../providers/SolrHistoryProvider.js");
 
 
 /**
- * Base class for layers using a WFS provider to get the features
+ * Base class for layers using a Solr provider to get the features
  *
  * @class
  * @abstract
  * @extends SMC.layers.geometry.GeometryLayer
- * @mixes SMC.providers.WFSProvider
+ * @mixes SMC.providers.SolrHistoryProvider
  *
- * @author Luis Román (lroman@emergya.com)
  */
 SMC.layers.geometry.SolrGeometryHistoryLayer = SMC.layers.geometry.GeometryLayer.extend(
-    /** @lends SMC.layers.geometry.WFSGeometryLayer# */
+    /** @lends SMC.layers.geometry.SolrGeometryHistoryLayer# */
     {
         _historyLayers: {},
         _timer: null,
@@ -28,10 +27,6 @@ SMC.layers.geometry.SolrGeometryHistoryLayer = SMC.layers.geometry.GeometryLayer
            
             SMC.layers.geometry.GeometryLayer.prototype.initialize.call(this, options);
             SMC.providers.SolrHistoryProvider.prototype.initialize.call(this, options);
-
-            //SMC.layers.history.DataHistoryLayer.prototype.initialize.call(this, arguments);
-            
-          // L.LayerGroup.prototype.initialize.call(this, options);
             L.Util.setOptions(this, options);
             this.setZIndex(1000);
 
@@ -47,13 +42,11 @@ SMC.layers.geometry.SolrGeometryHistoryLayer = SMC.layers.geometry.GeometryLayer
            
 
         },
-       /*addTo: function(map){
-          
-            map.off('layeradd');
-            
-        },*/
-
-
+      
+        /**
+         * Method to create an HTML node for the layer.
+         * @returns {String} HTML code representing the code to be added to the layer's entry in the layer tree.
+         */
         createNodeHTML: function(){
 
             var node = document.createElement("div");
@@ -144,7 +137,10 @@ SMC.layers.geometry.SolrGeometryHistoryLayer = SMC.layers.geometry.GeometryLayer
 
         },
      
-
+        /**
+         * Method to get the map
+         * @returns {SMC.Map} map - Map layer
+         */
         getMap: function() {
            if (this.parent) {
                 if (this.parent.map) {
@@ -169,10 +165,11 @@ SMC.layers.geometry.SolrGeometryHistoryLayer = SMC.layers.geometry.GeometryLayer
         },
 
        
-
+         /**
+         * Method to change the set of features for the layer
+         */
         showTimeData: function(time) {
             var i = 0;
-           // alert('time slider' + time);
             var data = this._featuresForLayer;
             if (time % 1 !== 0) {
                 time = time - (time % 1);
@@ -304,8 +301,8 @@ SMC.layers.geometry.SolrGeometryHistoryLayer = SMC.layers.geometry.GeometryLayer
     }, [SMC.providers.SolrHistoryProvider]);
 
 /**
- * API factory method for easy creation of wfs geometry layer.
- * @params {Object} options - Options to initialize the WFS 
+ * API factory method for easy creation of Solr geometry history layer.
+ * @params {Object} options - Options to initialize the Solr request 
  */
 SMC.solrGeometryHistoryLayer = function(options) {
     return new SMC.layers.geometry.SolrGeometryHistoryLayer(options);
