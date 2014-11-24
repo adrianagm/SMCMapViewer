@@ -2,42 +2,36 @@ require("./URLFeatureProvider.js");
 
 
 /**
- * Base class to create a WFS provider
+ * Base class to create a Solr provider
  * @class
  * @extends SMC.providers.URLFeatureProvider
  * @mixes L.Mixin.Events
- * @param {SMC.providers.WFSProvider~options} options - The configuration for the class
+ * @param {SMC.providers.SolrHistoryProvider~options} options - The configuration for the class
  *
- * @author Moisés Arcos (marcos@emergya.com)
  */
 SMC.providers.SolrHistoryProvider = SMC.providers.URLFeatureProvider.extend(
-    /** @lends SMC.providers.WFSProvider# */
+    /** @lends SMC.providers.SolrHistoryProvider# */
     {
         _featuresForLayer: {},
         features: [],
        /**
-        * @typedef {Object} SMC.providers.WFSProvider~options
-        * @property {SMC.providers.WFSProvider~requestParams} requestParams - Default wfs request parameters
-        * @property {string} serverURL=null - The wfs server url path parameter
+        * @typedef {Object} SMC.providers.SolrHistoryProvider~options
+        * @property {SMC.providers.SolrHistoryProvider~requestParams} requestParams - Default solr request parameters
+        * @property {string} serverURL=null - The solr server url path parameter
         * @property {string} timeField='time' - The field for define history layers
         * @property {string} geomField='location' - The geometry field 
         * @property {string} time=500 - Time for slider in milliseconds 
         */
         options: {
-            /** @typedef {Object} SMC.providers.WFSProvider~requestParams - Default wfs request parameters
-             * @property {string} service="wfs" - Default wfs service
-             * @property {string} version="1.1.0" - Default wfs version
-             * @property {string} request="GetFeature" - Default wfs request
-             * @property {string} typeName="namespace:featuretype" - Default wfs typename
-             * @property {string} featureID=null - Default wfs feature id
-             * @property {string} count=null - Default wfs count parameter
-             * @property {string} maxFeatures=null - Default wfs max features parameter
-             * @property {string} sortBy=null - Default wfs sort by parameter
-             * @property {string} propertyName=null - Default wfs property name parameter
-             * @property {string} srsName="EPSG:4326" - Default wfs coordinate reference system parameter
-             * @property {string} cqlFilter=null - Default wfs cql filter parameter
-             * @property {string} outputFormat="text/javascript" - Default wfs output format parameter
-             * @property {string} format_options=null - Default wfs format options parameter
+            /** @typedef {Object} SMC.providers.SolrHistoryProvider~requestParams - Default solr request parameters
+             * @property {string} q="*:*" - Main query for the request
+             * @property {string} fq=null - Filter query that will be used to restrict the set of documents that will be returned
+             * @property {string} sort=null - Order for the returned documents
+             * @property {string} fl=null - Parameter for to specify a set of fields to return
+             * @property {string} df=null - Parameter that override the default field defined in Solr schema xml
+             * @property {string} rows=null - Parameter for specify the maximun number of documents returned
+             * @property {string} wt='json' - Default solr output format parameter
+             * @property {string} indent=true - Default indenting the response      
              */
             requestParams:{
                q:'*:*',
@@ -95,7 +89,7 @@ SMC.providers.SolrHistoryProvider = SMC.providers.URLFeatureProvider.extend(
 
         /**
          * Get params from options attributes
-         * @returns {object} Object with the wfs params to send
+         * @returns {object} Object with the Solr params to send
          */
         getParamsFromOptions: function() {
             var params = {};
@@ -170,8 +164,8 @@ SMC.providers.SolrHistoryProvider = SMC.providers.URLFeatureProvider.extend(
 
 });
 /**
- * API factory method for ease creation of wfs features providers.
- * @params {Object} options - Options to initialize the WFS provider
+ * API factory method for ease creation of Solr features providers.
+ * @params {Object} options - Options to initialize the Solr provider
  */
 SMC.wfsProvider = function(options) {
     return new SMC.providers.WFSProvider(options);
