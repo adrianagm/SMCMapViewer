@@ -206,17 +206,17 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             console.time("draw " + canvasLabel);
 
             // Visual debug info:
-            var text = new mypaper.PointText({
+           /* var text = new mypaper.PointText({
                 point: [5, 10],
                 content: canvasLabel,
                 fillColor: 'red',
                 fontFamily: 'Courier New',
                 fontWeight: 'bold',
                 fontSize: 10
-            });
+            });*/
 
-            var border = new mypaper.Path.Rectangle(0, 0, canvas.clientWidth, canvas.clientHeight);
-            border.style.strokeColor = "gray";
+           // var border = new mypaper.Path.Rectangle(0, 0, canvas.clientWidth, canvas.clientHeight);
+            //border.style.strokeColor = "gray";
 
             mypaper.view.draw();
 

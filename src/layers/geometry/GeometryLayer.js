@@ -40,13 +40,19 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 			// 	layer: this
 			//});
 			var self = this;
+			
 			map.on("popupopen", function(event) {
 				var d = event.target._panAnim;
 				if (d && map._autopan) {
-					L.DomUtil.setPosition(this._canvas, {
-						x: -d._newPos.x,
-						y: -d._newPos.y
-					});
+					var layers = map._layers;
+					for (var l in layers){
+						if(layers[l] instanceof SMC.layers.geometry.GeometryLayer){
+							L.DomUtil.setPosition(layers[l]._canvas, {
+								x: -d._newPos.x,
+								y: -d._newPos.y
+							});
+						}
+					}
 					map._autopan = false;
 				}
 
@@ -60,30 +66,45 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 			map.on("resize", function(event) {
 				var d = event.target.dragging._draggable._element._leaflet_pos;
 				if (d) {
-					L.DomUtil.setPosition(this._canvas, {
-						x: -d.x,
-						y: -d.y
-					});
+					var layers = map._layers;
+					for (var l in layers){
+						if(layers[l] instanceof SMC.layers.geometry.GeometryLayer){
+							L.DomUtil.setPosition(layers[l]._canvas, {
+								x: -d.x,
+								y: -d.y
+							});
+						}
+					}
 				}
 			}, this);
 
 			map.on("slidermove", function(event) {
 				var d = event.target.dragging._draggable._element._leaflet_pos;
 				if (d) {
-					L.DomUtil.setPosition(this._canvas, {
-						x: -d.x,
-						y: -d.y
-					});
+					var layers = map._layers;
+					for (var l in layers){
+						if(layers[l] instanceof SMC.layers.geometry.GeometryLayer){
+							L.DomUtil.setPosition(layers[l]._canvas, {
+								x: -d._newPos.x,
+								y: -d._newPos.y
+							});
+						}
+					}
 				}
 			}, this);
 
 			map.on("addIso", function(event) {
 				var d = event.target.dragging._draggable._element._leaflet_pos;
 				if (d) {
-					L.DomUtil.setPosition(this._canvas, {
-						x: -d.x,
-						y: -d.y
-					});
+					var layers = map._layers;
+					for (var l in layers){
+						if(layers[l] instanceof SMC.layers.geometry.GeometryLayer){
+							L.DomUtil.setPosition(layers[l]._canvas, {
+								x: -d._newPos.x,
+								y: -d._newPos.y
+							});
+						}
+					}
 				}
 			}, this);
 
