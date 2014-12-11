@@ -2,7 +2,7 @@ function initMap() {
 
     // Centered in Quito
     var map = SMC.map('map');
-    map.setView([-0.2006705,-78.5322076], 10);
+    map.setView([-0.2006705, -78.5322076], 10);
 
 
     var base = SMC.tileLayer({
@@ -28,28 +28,31 @@ function initMap() {
         collapsed: false
     }).addTo(map);
 
-    var stylesheet ='*[density=12]{color: "red";} *[density=11]{color: "#FACC2E";} *[density=10]{color: "#088A08";}';
-   
-     // Add tree to map
+    var stylesheet =
+        '*[density=12]{color: "red";} *[density=11]{color: "#FACC2E";} *[density=10]{color: "#088A08";}';
+
+    // Add tree to map
     var tree = [{
         type: 'folder',
         label: 'Folder',
-        layers:[{
-        
-            type:'folder',
-            label:'Folder 1',      
-            layers:[{
+        layers: [{
+
+            type: 'folder',
+            label: 'Folder 1',
+            layers: [{
                 type: "SMC.layers.geometry.SolrGeometryHistoryLayer",
                 params: [{
                     serverURL: "http://localhost:8983/solr/traffic/select",
                     timeField: 'time',
                     label: 'Solr Traffic',
-                    stylesheet: stylesheet
+                    stylesheet: stylesheet,
+                    //draggingUpdates: false,
+                    time: 1000
                 }]
-                   
-            }] 
-   
-        }] 
+
+            }]
+
+        }]
 
     }];
 

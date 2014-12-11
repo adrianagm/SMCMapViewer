@@ -14,170 +14,170 @@ require("../../../lib/canvasLayer/leaflet_canvas_layer.js");
  * @author Luis Román (lroman@emergya.com)
  */
 SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
-	/** @lends SMC.layers.geometry.GeometryLayer# */
-	{
+    /** @lends SMC.layers.geometry.GeometryLayer# */
+    {
 
-		features: [],
-		/**
-		 * Initialize the object with the params
-		 * @param {object} options - object with need parameters
-		 */
-		initialize: function(options) {
-			L.CanvasLayer.prototype.initialize.apply(this, arguments);
-			SMC.layers.stylers.MapCssStyler.prototype.initialize.apply(this, arguments);
-			SMC.layers.SingleLayer.prototype.initialize.apply(this, arguments);
-			L.Util.setOptions(this, options);
-		},
-		/**
-		 * Method to load the control in the map
-		 * @param {SMC.Map} map - Map to be added
-		 */
-		onAdd: function(map) {
-			L.CanvasLayer.prototype.onAdd.call(this, map);
-			SMC.layers.geometry.CanvasRenderer.prototype.onAdd.call(this, map);
-			SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
-		    // map.fire('layeradd', {
-			// 	layer: this
-			//});
-			var self = this;
-			map.on("popupopen", function(event) {
-				var d = event.target._panAnim;
-				if (d && map._autopan) {
-					L.DomUtil.setPosition(this._canvas, {
-						x: -d._newPos.x,
-						y: -d._newPos.y
-					});
-					map._autopan = false;
-				}
+        features: [],
+        /**
+         * Initialize the object with the params
+         * @param {object} options - object with need parameters
+         */
+        initialize: function(options) {
+            L.CanvasLayer.prototype.initialize.apply(this, arguments);
+            SMC.layers.stylers.MapCssStyler.prototype.initialize.apply(this, arguments);
+            SMC.layers.SingleLayer.prototype.initialize.apply(this, arguments);
+            L.Util.setOptions(this, options);
+        },
+        /**
+         * Method to load the control in the map
+         * @param {SMC.Map} map - Map to be added
+         */
+        onAdd: function(map) {
+            L.CanvasLayer.prototype.onAdd.call(this, map);
+            SMC.layers.geometry.CanvasRenderer.prototype.onAdd.call(this, map);
+            SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
+            // map.fire('layeradd', {
+            // 	layer: this
+            //});
+            var self = this;
+            map.on("popupopen", function(event) {
+                var d = event.target._panAnim;
+                if (d && map._autopan) {
+                    L.DomUtil.setPosition(this._canvas, {
+                        x: -d._newPos.x,
+                        y: -d._newPos.y
+                    });
+                    map._autopan = false;
+                }
 
-			}, this);
+            }, this);
 
-			map.on("autopanstart", function() {
-				map._autopan = true;
-			}, this);
-
-
-			map.on("resize", function(event) {
-				var d = event.target.dragging._draggable._element._leaflet_pos;
-				if (d) {
-					L.DomUtil.setPosition(this._canvas, {
-						x: -d.x,
-						y: -d.y
-					});
-				}
-			}, this);
-
-			map.on("slidermove", function(event) {
-				var d = event.target.dragging._draggable._element._leaflet_pos;
-				if (d) {
-					L.DomUtil.setPosition(this._canvas, {
-						x: -d.x,
-						y: -d.y
-					});
-				}
-			}, this);
-
-			map.on("addIso", function(event) {
-				var d = event.target.dragging._draggable._element._leaflet_pos;
-				if (d) {
-					L.DomUtil.setPosition(this._canvas, {
-						x: -d.x,
-						y: -d.y
-					});
-				}
-			}, this);
-
-			map.on('zoomend', function(){
-				self._onViewChanged();
-			})
+            map.on("autopanstart", function() {
+                map._autopan = true;
+            }, this);
 
 
-		},
+            map.on("resize", function(event) {
+                var d = event.target.dragging._draggable._element._leaflet_pos;
+                if (d) {
+                    L.DomUtil.setPosition(this._canvas, {
+                        x: -d.x,
+                        y: -d.y
+                    });
+                }
+            }, this);
 
-	   load: function(){
+
+            map.on("addIso", function(event) {
+                var d = event.target.dragging._draggable._element._leaflet_pos;
+                if (d) {
+                    L.DomUtil.setPosition(this._canvas, {
+                        x: -d.x,
+                        y: -d.y
+                    });
+                }
+            }, this);
+
+            map.on('zoomend', function() {
+                self._onViewChanged();
+            });
+
+
+        },
+
+        load: function() {
             this.addGeometryFromFeatures(this.features);
         },
 
-		/**
-		 * Method to load the control in the map
-		 * @param {SMC.Map} map - Map to be added
-		 */
-		onRemove: function(map) {
-			SMC.layers.geometry.CanvasRenderer.prototype.onRemove.call(this);
-			L.CanvasLayer.prototype.onRemove.apply(this, arguments);
-		},
+        /**
+         * Method to load the control in the map
+         * @param {SMC.Map} map - Map to be added
+         */
+        onRemove: function(map) {
+            SMC.layers.geometry.CanvasRenderer.prototype.onRemove.call(this);
+            L.CanvasLayer.prototype.onRemove.apply(this, arguments);
+        },
 
-		/**
+        /**
          * Method to get the map
          * @returns {SMC.Map} map - Map layer
          */
-		getMap: function() {
-			return this._map;
-		},
+        getMap: function() {
+            return this._map;
+        },
 
-		/**
-		 * Method to render a layer on the map
-		 */
-		render: function() {
-			var canvas = this.getCanvas();
+        /**
+         * Method to render a layer on the map
+         */
+        render: function() {
+            var canvas = this.getCanvas();
 
-			if (this.features.length !== 0) {
-				this.renderCanvas({
-					canvas: canvas
-				}, this.features, this.getMap());
-			}
-		},
+            if (this._renderTimeout) {
+                clearTimeout(this._renderTimeout);
+            }
 
-		/**
+            var this_ = this;
+            this._renderTimeout = setTimeout(function() {
+                if (this_.features.length !== 0) {
+                    this_.renderCanvas({
+                        canvas: canvas
+                    }, this_.features, this_.getMap());
+                }
+            }, 0);
+
+
+        },
+
+        /**
          * Method to add geometries from features
          * @param {object} features - Features to get its geometries
          */
-		addGeometryFromFeatures: function(features) {
-			if (L.Util.isArray(features)) {
-				this.features = features;
-			} else if (arguments.length > 1) {
-				this.features = arguments;
-			} else {
-				this.features = [features];
-			}
+        addGeometryFromFeatures: function(features) {
+            if (L.Util.isArray(features)) {
+                this.features = features;
+            } else if (arguments.length > 1) {
+                this.features = arguments;
+            } else {
+                this.features = [features];
+            }
 
-			for (var i = 0; i < this.features.length; i++) {
-				this._setProperties(this.features[i]);
-			}
+            for (var i = 0; i < this.features.length; i++) {
+                this._setProperties(this.features[i]);
+            }
 
-			SMC.layers.geometry.CanvasRenderer.prototype.initialize.call(this, this.options);
-			this.render();
-		},
+            SMC.layers.geometry.CanvasRenderer.prototype.initialize.call(this, this.options);
+            this.render();
+        },
 
-		_setProperties: function(feature) {
-			var id = this.options.idField;
-			if (feature.hasOwnProperty(id))
-				feature.id = feature[id];
-			else {
+        _setProperties: function(feature) {
+            var id = this.options.idField;
+            if (feature.hasOwnProperty(id))
+                feature.id = feature[id];
+            else {
 
-				for (var propKey in feature) {
-					if (feature[propKey].hasOwnProperty(id)) {
-						feature.id = feature[propKey][id];
-					}
-				}
+                for (var propKey in feature) {
+                    if (feature[propKey].hasOwnProperty(id)) {
+                        feature.id = feature[propKey][id];
+                    }
+                }
 
-			}
-		},
+            }
+        },
 
-		/**
-		 * Method to update the style of a feature
-		 * @param {object} feature - feature to be updated
-		 */
-		updateFeature: function(feature) {
-			for (var i = 0; i < this.features.length; i++) {
-				if (this.features[i].id == feature.id) {
-					feature._clean = false;
-					this.features[i] = feature;
-				}
-			}
-			this.render();
+        /**
+         * Method to update the style of a feature
+         * @param {object} feature - feature to be updated
+         */
+        updateFeature: function(feature) {
+            for (var i = 0; i < this.features.length; i++) {
+                if (this.features[i].id == feature.id) {
+                    feature._clean = false;
+                    this.features[i] = feature;
+                }
+            }
+            this.render();
 
-		}
+        }
 
 
-	}, [SMC.layers.SingleLayer, SMC.layers.geometry.CanvasRenderer]);
+    }, [SMC.layers.SingleLayer, SMC.layers.geometry.CanvasRenderer]);
