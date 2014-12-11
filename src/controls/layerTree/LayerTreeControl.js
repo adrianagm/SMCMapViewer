@@ -189,7 +189,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
                 i, obj;
 
             for (i in this._layers) {
-                obj = this._layers[i]; 
+                obj = this._layers[i];
                 this._addItem(obj);
                 overlaysPresent = overlaysPresent || obj.overlay;
                 baseLayersPresent = baseLayersPresent || !obj.overlay;
@@ -249,14 +249,14 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
         },
 
         _onLayerChange: function(e) {
-            if (e.layer._slidermove ) {
+            if (e.layer._slidermove) {
                 return;
             }
-            if(e.layer._group){
-                if(e.layer._group._slidermove)
+            if (e.layer._group) {
+                if (e.layer._group._slidermove)
                     return;
             }
-           
+
 
             var obj = this._layers[L.Util.stamp(e.layer)];
 
@@ -287,7 +287,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
 
         },
 
-        
+
 
         // IE7 bugs out if you create a radio dynamically, so you have to do it this hacky way (see http://bit.ly/PqYLBe)
         _createRadioElement: function(name, checked) {
@@ -323,7 +323,13 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
 
             input.layerId = L.Util.stamp(obj.layer);
 
-           
+            if (obj.layer && obj.layer.createNodeHTML) {
+                var nodeContent = obj.layer.createNodeHTML();
+                if (nodeContent) {
+                    obj.name = nodeContent;
+                }
+
+            }
 
             var name = document.createElement('span');
             //name.innerHTML = ' ' + obj.name;
@@ -332,12 +338,12 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             } else {
                 name.appendChild(obj.name);
             }
-            if(obj.layer instanceof SMC.layers.geometry.SolrGeometryHistoryLayer){
-                 var label = document.createElement('div');
+            if (obj.layer instanceof SMC.layers.geometry.SolrGeometryHistoryLayer) {
+                label = document.createElement('div');
                 label.appendChild(name);
                 return label;
             }
-            
+
             label.appendChild(input);
             label.appendChild(name);
 
@@ -382,7 +388,8 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
                     var folderId = L.Util.stamp(obj.layer);
                     if (!this._domGroups[folderId]) {
                         var parentDom = this._getParentDom(obj.parent);
-                        var parentContent = parentDom.getElementsByClassName("leaflet-control-layers-group-content")[0];
+                        var parentContent = parentDom.getElementsByClassName(
+                            "leaflet-control-layers-group-content")[0];
                         this._addFolderToOverlays(obj, parentContent);
                     }
                 } else {
@@ -476,7 +483,7 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
             this._handlingClick = false;
         },
 
-         _onRadioClick: function() {
+        _onRadioClick: function() {
             var i, input, obj,
                 inputs = $('input[type=radio]', this._from),
                 inputsLen = inputs.length;
@@ -502,7 +509,8 @@ SMC.controls.layerTree.LayerTreeControl = L.Control.extend(
         },
 
         _collapse: function() {
-            this._container.className = this._container.className.replace(' leaflet-control-layers-expanded', '');
+            this._container.className = this._container.className.replace(' leaflet-control-layers-expanded',
+                '');
         }
     }
 );

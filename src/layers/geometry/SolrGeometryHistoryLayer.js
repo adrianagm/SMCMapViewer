@@ -17,20 +17,19 @@ SMC.layers.geometry.SolrGeometryHistoryLayer = SMC.layers.geometry.GeometryLayer
         _historyLayers: {},
         _timer: null,
         _node: null,
-        
+
+        currentTime: 0,
+
 
         /**
          * Initialize the object with the params
          * @param {object} options - object with need parameters
          */
         initialize: function(options) {
-           
             SMC.layers.geometry.GeometryLayer.prototype.initialize.call(this, options);
             SMC.providers.SolrHistoryProvider.prototype.initialize.call(this, options);
             L.Util.setOptions(this, options);
             this.setZIndex(1000);
-
-             
         },
 
 
@@ -39,19 +38,19 @@ SMC.layers.geometry.SolrGeometryHistoryLayer = SMC.layers.geometry.GeometryLayer
          * Method to load the features
          */
         load: function() {
-           
+
 
         },
-      
+
         /**
          * Method to create an HTML node for the layer.
          * @returns {String} HTML code representing the code to be added to the layer's entry in the layer tree.
          */
-        createNodeHTML: function(){
+        createNodeHTML: function() {
 
             var node = document.createElement("div");
             node.id = "node_" + this._leaflet_id;
-            
+
             var label = document.createElement('span'),
                 input,
                 checked = this.getMap().hasLayer(this);
@@ -66,9 +65,9 @@ SMC.layers.geometry.SolrGeometryHistoryLayer = SMC.layers.geometry.GeometryLayer
             label.appendChild(input);
             label.appendChild(name);
             node.appendChild(label);
-            if($.isEmptyObject(this._featuresForLayer)){
-              return node;
-             }
+            if ($.isEmptyObject(this._featuresForLayer)) {
+                return node;
+            }
 
             var sliderControl = document.createElement("table");
             sliderControl.style.marginLeft = '10px';
@@ -76,6 +75,7 @@ SMC.layers.geometry.SolrGeometryHistoryLayer = SMC.layers.geometry.GeometryLayer
             sliderControl.className = 'leaflet-bar leaflet-update-interval ';
 
             var sliderControlLabel = document.createElement("span");
+            this.sliderControlLabel = sliderControlLabel;
             sliderControlLabel.style.float = 'left';
             sliderControl.style.font = '12px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif';
 
@@ -86,26 +86,22 @@ SMC.layers.geometry.SolrGeometryHistoryLayer = SMC.layers.geometry.GeometryLayer
             inputInterval.min = 0;
             inputInterval.max = Object.keys(this._featuresForLayer).length - 1;
             inputInterval.step = 1;
-            inputInterval.value = 0;
-            //sliderControl.innerHTML += '<input id="interval_' + this._leaflet_id + '" name="interval_' + this._leaflet_id + '" min="0" max="' + (Object.keys(this._featuresForLayer).length - 1) + '" type="range" step="1" value="0"/>';
-           
+            inputInterval.value = this.currentTime;
 
             var time = inputInterval.value;
 
-            var play_pause = document.createElement("i"); 
+            var play_pause = document.createElement("i");
             play_pause.className = 'fa fa-play';
             play_pause.style.cursor = "pointer";
 
-            this._addTimeData(time);
-            this._showLabel(sliderControlLabel);
+            this.showTimeData(this.currentTime);
 
             var self = this;
             L.DomEvent.addListener(inputInterval, 'mousedown', L.DomEvent.stopPropagation);
-            L.DomEvent.addListener(inputInterval, 'mouseup', function() {
+            L.DomEvent.addListener(inputInterval, 'mouseup', function(e) {
                 time = inputInterval.value;
                 self.showTimeData(time);
-                self._showLabel(sliderControlLabel);
-                L.DomEvent.stopPropagation;
+                L.DomEvent.stopPropagation(e);
             });
             L.DomEvent.addListener(inputInterval, 'touchstart', L.DomEvent.stopPropagation);
             L.DomEvent.addListener(inputInterval, 'touchend', L.DomEvent.stopPropagation);
@@ -122,8 +118,8 @@ SMC.layers.geometry.SolrGeometryHistoryLayer = SMC.layers.geometry.GeometryLayer
             tr.appendChild(td3);
 
             sliderControl.appendChild(tr);
-           
-            
+
+
             node.appendChild(sliderControl);
 
             play_pause.onclick = function() {
@@ -136,19 +132,18 @@ SMC.layers.geometry.SolrGeometryHistoryLayer = SMC.layers.geometry.GeometryLayer
             return node;
 
         },
-     
+
         /**
          * Method to get the map
          * @returns {SMC.Map} map - Map layer
          */
         getMap: function() {
-           if (this.parent) {
+            if (this.parent) {
                 if (this.parent.map) {
                     map = this.parent.map;
                 } else if (this.parent._map) {
                     map = this.parent._map;
-                }
-                 else if (this.parent.parent) {
+                } else if (this.parent.parent) {
                     if (this.parent.parent.map)
                         map = this.parent.parent.map;
                     else if (this.parent.parent._map)
@@ -156,16 +151,15 @@ SMC.layers.geometry.SolrGeometryHistoryLayer = SMC.layers.geometry.GeometryLayer
                 }
 
                 return map;
-            }
-            else if(this._map){
+            } else if (this._map) {
                 map = this._map;
                 return map;
             }
 
         },
 
-       
-         /**
+
+        /**
          * Method to change the set of features for the layer
          */
         showTimeData: function(time) {
@@ -175,60 +169,42 @@ SMC.layers.geometry.SolrGeometryHistoryLayer = SMC.layers.geometry.GeometryLayer
                 time = time - (time % 1);
             }
 
+
+
+            this.currentTime = time;
+
             for (var d in data) {
-                if (data[d].actual) { 
+                if (data[d].actual) {
                     data[d].actual = false;
                 }
                 if (i == time) {
                     if (!data[d].actual) {
-                        
+
                         data[d].actual = true;
                         this.features = [];
-                        if(data[d].lastZoom && (data[d].lastZoom != this.getMap().getZoom())){
-                            for(var f in data[d]){
+                        if (data[d].lastZoom && (data[d].lastZoom != this.getMap().getZoom())) {
+                            for (var f in data[d]) {
                                 data[d][f]._clean = false;
                             }
                         }
                         this.addGeometryFromFeatures(data[d]);
                         data[d].lastZoom = this.getMap().getZoom();
-                        //recalculate canvas position for geometry layers (important)
-                        this.getMap().fire("slidermove");
+
+                        // Update layer label
+                        this.sliderControlLabel.innerHTML = d;
                     }
-
                 }
 
                 i++;
 
             }
 
-        },
 
-        _addTimeData: function(time) {
-         var i = 0;
-            var data = this._featuresForLayer;
-            for (var d in data) {
-                if (i == time) {
-                    this.addGeometryFromFeatures(data[d]);
-                    data[d].actual = true;
-                }
-               
-                i++;
 
-            }
-
-        },
-
-        _showLabel: function(sliderControlLabel) {
-          var data = this._featuresForLayer;
-            for (var d in data) {
-                if (data[d].actual) {
-                    sliderControlLabel.innerHTML = d;
-                }
-            }
         },
 
         _clickOnLayer: function(node) {
-           var pause = node.getElementsByClassName('fa fa-pause')[0];
+            var pause = node.getElementsByClassName('fa fa-pause')[0];
             if (pause) {
                 this._onPlayPause(node);
             }
@@ -237,7 +213,7 @@ SMC.layers.geometry.SolrGeometryHistoryLayer = SMC.layers.geometry.GeometryLayer
                 node.children[1].style.display = 'none';
                 node.children[0].checked = false;
                 for (var d in data) {
-                    if (data[d].actual) { 
+                    if (data[d].actual) {
                         this.onRemove(this.getMap());
                     }
                 }
@@ -256,25 +232,24 @@ SMC.layers.geometry.SolrGeometryHistoryLayer = SMC.layers.geometry.GeometryLayer
         },
 
         _onPlayPause: function(node, time) {
-           var data = this._featuresForLayer;
-           var slider = node.children[1].children[0].children[2].children[0];
-           var maxValue = slider.max;
-           var sliderControlLabel = node.children[1].children[0].children[0].children[0];
-           var play = node.children[1].children[0].children[1].children[0];
+            var data = this._featuresForLayer;
+            var slider = node.children[1].children[0].children[2].children[0];
+            var maxValue = slider.max;
+            var sliderControlLabel = node.children[1].children[0].children[0].children[0];
+            var play = node.children[1].children[0].children[1].children[0];
 
             if (play.className == 'fa fa-play') {
                 play.className = 'fa fa-pause';
                 if (slider.value == maxValue) {
-                   slider.value = 0;
+                    slider.value = 0;
                 }
 
 
                 var i = parseFloat(slider.value);
                 var self = this;
                 this._timer = setInterval(function() {
-                    
+
                     self.showTimeData(i);
-                    self._showLabel(sliderControlLabel);
                     if (i < maxValue) {
                         slider.value = i;
 
@@ -296,13 +271,12 @@ SMC.layers.geometry.SolrGeometryHistoryLayer = SMC.layers.geometry.GeometryLayer
         },
 
 
-       
-        
+
     }, [SMC.providers.SolrHistoryProvider]);
 
 /**
  * API factory method for easy creation of Solr geometry history layer.
- * @params {Object} options - Options to initialize the Solr request 
+ * @params {Object} options - Options to initialize the Solr request
  */
 SMC.solrGeometryHistoryLayer = function(options) {
     return new SMC.layers.geometry.SolrGeometryHistoryLayer(options);
