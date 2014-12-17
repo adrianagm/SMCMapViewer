@@ -209,12 +209,13 @@ SMC.LayerLoader = L.Class.extend(
             else{
                 var i = this.labelLayers[label].length;
                 newLabel = label+" " +i.toString();
-                while(this.labelLayers[newLabel] && !lbexist){
+                while(this.labelLayers[newLabel]){
                     i++;
                     newLabel = label+" " +i.toString();
                     for(var lb in this.labelLayers[label]){
                         if(this.labelLayers[label][lb] == newLabel){
-                            var lbexist = true;
+                           i++;
+                           newLabel = label+" " +i.toString();
                         }
                     }
                 }
