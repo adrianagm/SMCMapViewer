@@ -208,16 +208,12 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 						multiLayers[l].onAdd(map);
 						multiLayers[l].active = true;
 
-						if (multiLayers[l] instanceof SMC.layers.aggregation.AggregatingLayer || multiLayers[l] instanceof SMC.layers.markers.WFSTMarkerLayer) {
-							this._addNode(multiLayers[l].options.label);
-						} else {
-							this._addNode('none');
-						}
 					}
 
 				}
 
 			}
+			this._initializeTree();
 
 			
 
@@ -259,7 +255,8 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 						node[i].parentNode.parentNode.style.display = 'block';
 						node[i].parentNode.parentNode.parentNode.style.display = 'block';
 						node[i].parentNode.parentNode.parentNode.parentNode.style.display = 'block';
-					
+						
+
 					}
 				}
 

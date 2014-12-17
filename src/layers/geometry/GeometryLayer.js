@@ -57,7 +57,7 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
 			}, this);
 
 			map.on("dragend", function(){
-             this._resizeAllCanvas();
+          this._resizeAllCanvas();
       }, this);
 
 			map.on('zoomend', function(){
