@@ -15,11 +15,23 @@ SMC.layers.WMSLayer = L.TileLayer.WMS.extend(
     /** @lends SMC.layers.WMSLayer# */
     {
 
+       defaultWmsParams: {
+            service: 'WMS',
+            request: 'GetMap',
+            version: '1.1.1',
+            layers: '',
+            styles: '',
+            format: 'image/png',
+            transparent: true
+        },
+
+      
          /**
          * Initialize the object with the params
          * @param {object} options - object with need parameters
          */
         initialize: function(options) {
+        
             if (!options.url || typeof(options.url) !== "string") {
                 throw new Error("SMC.layers.WMSLayer::initialize: options must contain an url attribute of type string.");
             }
@@ -61,7 +73,8 @@ SMC.layers.WMSLayer = L.TileLayer.WMS.extend(
             }
 
             return url;
-        }
+        },
+
 
     }, [SMC.layers.SingleLayer]);
 

@@ -3,9 +3,11 @@ function initMap() {
     // Centered in Manchester
     var map = SMC.map('map');
     map.setView([53.4666677, -2.2333333], 9);
+    //map.setView([-0.2006705, -78.5322076], 10);
 
     var base = SMC.tileLayer({
-        url: 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+       // url: 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+        url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
         maxZoom: 18,
     }).addTo(map);
@@ -40,7 +42,7 @@ function initMap() {
                     params: [{
                         serverURL: 'http://www.salford.gov.uk/geoserver/OpenData/wfs',
                         typeName: 'OpenData:Parks',
-                        label: 'Parks 1',
+                        label: 'Parks ',
                         date: '1',
                         zoomOffset: 0,
                         draggingUpdates: true,
@@ -53,7 +55,7 @@ function initMap() {
                     params: [{
                         serverURL: 'http://www.salford.gov.uk/geoserver/OpenData/wfs',
                         typeName: 'OpenData:Parks',
-                        label: 'Parks 2',
+                        label: 'Parks ',
                         date: '2',
                         zoomOffset: 0,
                         draggingUpdates: true,
@@ -65,7 +67,7 @@ function initMap() {
                     params: [{
                         serverURL: 'http://www.salford.gov.uk/geoserver/OpenData/wfs',
                         typeName: 'OpenData:Parks',
-                        label: 'Parks 3',
+                        label: 'Parks ',
                         date: '3',
                         zoomOffset: 0,
                         draggingUpdates: true,
@@ -73,7 +75,18 @@ function initMap() {
 
                     }]
                 }]
-}]
+},
+{
+            type: "SMC.layers.markers.WFSMarkerLayer",
+            params: [{
+                serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+                typeName: "OpenData:V_SURE_START_CENTRES",
+                date: "3",
+                label: "Children's Centres"
+            }]
+
+
+        }]
 
 
     }];

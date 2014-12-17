@@ -31,7 +31,9 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
          * @property {boolean} draggingUpdates=true - Default dragging updates value
          */
         options: {
-            draggingUpdates: true
+            draggingUpdates: true,
+            mouseOver: false,
+			debug: false
         },
 
         /**
@@ -83,6 +85,13 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
         },
 
         _onMouseMoveAux: function(event) {
+
+
+
+            if (this.dragging || !this.options.mouseOver) {
+                return;
+            }
+
             var canvasBbox = this._searchCanvas(event);
             console.debug("Mouse move canvases searched: " + canvasBbox.length);
             for (var i = 0; i < canvasBbox.length; i++) {
@@ -103,7 +112,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
         renderCanvas: function(ctx, features, map) {
 
             this._initCtx(ctx, map);
-            ctx.canvas.zBuffer = [];
+            var zBuffer = [];
 
             if (!this.options.draggingUpdates && this.dragging) {
                 // We don't draw while dragging, as it eats A LOT of CPU.
@@ -144,15 +153,17 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
 
             if (ctx.tile) {
                 ctx.canvas._s = ctx.tile.multiplyBy(ctx.canvas.width);
-
             } else {
-                //ctx.canvas._s = new L.Point(0, 0);
                 ctx.canvas._s = ctx.canvas._map.getPixelBounds().min;
             }
 
             console.time("applyStyles " + canvasLabel);
 
+            var layer = new mypaper.Group();
+            layer.applyMatrix = false;
+            layer.translate(new paper.Point(-ctx.canvas._s.x, -ctx.canvas._s.y));
 
+            var z;
             for (var i = 0; i < features.length; i++) {
                 var feature = features[i];
 
@@ -161,67 +172,60 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
                     styles = feature._styles;
                 } else {
                     styles = feature._styles = this._applyStyles(feature, ctx);
-
                 }
 
-                ctx.canvas.zBuffer.push({
+                z = {
                     style: styles,
                     zIndex: styles.zIndex,
                     feature: feature
-                });
+                };
+
+                zBuffer.push(z);
             }
 
-            console.timeEnd("applyStyles " + canvasLabel);
-
-            ctx.canvas.zBuffer.sort(function(f1, f2) {
+            zBuffer.sort(function(f1, f2) {
                 return f1.zIndex - f2.zIndex;
             });
 
+            var items = [];
 
-            console.time("addFeatures " + canvasLabel);
-            var layer = new mypaper.Group();
+            for (i = 0; i < zBuffer.length; i++) {
+                z = zBuffer[i];
+                var item = this._addFeature(ctx, z);
+                items.push(item);
 
-
-
-            for (i = 0; i < ctx.canvas.zBuffer.length; i++) {
-
-                var item = this._addFeature(ctx, ctx.canvas.zBuffer[i]);
-                layer.addChild(item);
-
-                if (ctx.canvas.zBuffer[i].feature.selected) {
+                if (z.feature.selected) {
                     item.selected = true;
                 }
-
             }
 
-            console.timeEnd("addFeatures " + canvasLabel);
+            layer.addChildren(items);
 
-            console.time("translate " + canvasLabel);
-
-            layer.applyMatrix = false;
-            layer.translate(new paper.Point(-ctx.canvas._s.x, -ctx.canvas._s.y));
-
-            console.timeEnd("translate " + canvasLabel);
+            console.timeEnd("applyStyles " + canvasLabel);
 
             console.time("draw " + canvasLabel);
 
             // Visual debug info:
-           /* var text = new mypaper.PointText({
-                point: [5, 10],
-                content: canvasLabel,
-                fillColor: 'red',
-                fontFamily: 'Courier New',
-                fontWeight: 'bold',
-                fontSize: 10
-            });*/
 
-           // var border = new mypaper.Path.Rectangle(0, 0, canvas.clientWidth, canvas.clientHeight);
-            //border.style.strokeColor = "gray";
+            if (this.options.debug) {
+                var text = new mypaper.PointText({
+                    point: [5, 10],
+                    content: canvasLabel,
+                    fillColor: 'red',
+                    fontFamily: 'Courier New',
+                    fontWeight: 'bold',
+                    fontSize: 10
+                });
+
+                var border = new mypaper.Path.Rectangle(0, 0, canvas.clientWidth, canvas.clientHeight);
+                border.style.strokeColor = "gray";
+
+            }
 
             mypaper.view.draw();
 
             console.timeEnd("draw " + canvasLabel);
-            console.timeEnd("render " + canvasLabel);                                                                                                                                                                                               
+            console.timeEnd("render " + canvasLabel);
 
             return layer;
         },
@@ -229,7 +233,6 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
         _initCtx: function(ctx, map) {
 
             if (ctx.canvas._initialized) {
-                console.debug("skiped init");
                 return;
             }
 
@@ -247,28 +250,24 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             var treeNode = this._createTreeNode(ctx);
             this.canvasTree.insert(treeNode);
 
-
-            ctx.canvas.zBuffer = [];
-
             this._registerCtxEvent("zoomend", function() {
                 this._onViewChanged(ctx);
             });
-            if(!this instanceof SMC.layers.geometry.SolrGeometryHistoryLayer){
 
-                this._registerCtxEvent("dragend", function() {
-                    this.dragging = false;
 
-                    console.debug("moving renabled!");
-                    map.on("mousemove", this._onMouseMoveAux, this);
+            this._registerCtxEvent("dragend", function() {
+                this.dragging = false;
 
-                    var treeNode = this._createTreeNode(ctx);
-                    this.canvasTree.insert(treeNode);
+                console.debug("moving renabled!");
+                map.on("mousemove", this._onMouseMoveAux, this);
 
-                    if (!this.options.draggingUpdates) {
-                        this.renderCanvas(ctx, ctx.features, ctx.canvas._map);
-                    }
-                });
-            }
+                var treeNode = this._createTreeNode(ctx);
+                this.canvasTree.insert(treeNode);
+
+                if (!this.options.draggingUpdates) {
+                    this.renderCanvas(ctx, ctx.features, ctx.canvas._map);
+                }
+            });
         },
 
         _registerCtxEvent: function(eventName, fn) {
@@ -311,7 +310,9 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
         },
 
         _searchCanvas: function(event) {
-            var bbox = L.bounds([event.containerPoint.y, event.containerPoint.x], [event.containerPoint.y, event.containerPoint.x]);
+            var bbox = L.bounds([event.containerPoint.y, event.containerPoint.x], [event.containerPoint.y,
+                event.containerPoint.x
+            ]);
 
 
             var canvas = [];
@@ -425,7 +426,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
                 points[i] = this._canvasPoint(geom[i], ctx, clean);
 
             }
-            points = L.LineUtil.simplify(points, 3);
+            points = L.LineUtil.simplify(points, 1);
 
             if (offset && offset !== 0) {
                 points = this._addOffset(points, offset, ctx);
@@ -505,8 +506,8 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
                 if (stylePopup.content != null) {
 
                     popup = L.popup({
-                        offset: stylePopup.offset
-                    })
+                            offset: stylePopup.offset
+                        })
                         .setLatLng(event.latlng)
                         .setContent(stylePopup.content)
                         .openOn(ctx.canvas._map);
@@ -540,7 +541,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             var fill = true;
 
             var options = {
-                tolerance: 5,
+                tolerance: 10,
                 fill: true,
                 stroke: true
             };
@@ -557,9 +558,8 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
                 var f = this.features[i];
                 f._clean = false;
                 this.canvasTree.clear();
-
             }
-            
+
         },
 
         _addOffset: function(proj, offset, ctx) {
@@ -653,21 +653,17 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             this._ctxEvents = {};
             var map = this.getMap();
             map.on("dragstart", this._onMapDragStarted, this);
-            if(!this instanceof SMC.layers.geometry.SolrGeometryHistoryLayer){
-                map.on("mousemove", this._onMapMouseMoved, this);
-                map.on("moveend", this._onMapMoveEnded, this);
-                map.on("click", this._onMapClicked, this);
-            }
+
+            map.on("mousemove", this._onMapMouseMoved, this);
+            map.on("moveend", this._onMapMoveEnded, this);
+            map.on("click", this._onMapClicked, this);
+
         },
 
         /**
          * Method to remove a layer from the map
          */
         onRemove: function() {
-            if (this.canvasTree) {
-                this.canvasTree.clear();
-            }
-
             // We need to remove all events associated with the layer, or performance will be sorely affected.
 
             var map = this.getMap();

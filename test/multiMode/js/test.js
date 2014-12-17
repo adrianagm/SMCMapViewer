@@ -3,6 +3,7 @@ function initMap() {
     // Centered in Manchester
     var map = SMC.map('map');
     map.setView([53.4666677, -2.2333333], 9);
+    //map.setView([-0.2006705, -78.5322076], 10);
 
 
     // var base = SMC.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
@@ -49,11 +50,11 @@ function initMap() {
                     params: [{
                         serverURL: 'http://www.salford.gov.uk/geoserver/OpenData/wfs',
                         typeName: 'OpenData:Parks',
-                        label: 'Parks 1',
+                       label: 'Parks 1',
                         date: '1',
                         zoomOffset: 0,
                         draggingUpdates: true,
-                        stylesheet: '* |z13- {fillColor: "rgba(0, 0, 255, 0.5)";}',
+                        stylesheet: '* {fillColor: "rgba(0, 0, 255, 0.5)";}',
 
                     }]
 

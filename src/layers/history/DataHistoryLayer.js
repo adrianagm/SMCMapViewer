@@ -193,8 +193,12 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 				// }
 				data[d]._slidermove = true;
 				if (data[d].actual) {
-						data[d].onRemove(this.getMap());
-						data[d].actual = false;
+					var id = L.stamp(data[d]);
+					var input = document.getElementById(id);
+					if(input)
+						input.checked = false;
+					this.getMap().removeLayer(data[d]);
+					data[d].actual = false;
 
 				}
 
@@ -207,10 +211,13 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 	                            data[d].features[f]._clean = false;
 	                        }
 	                    }
-						data[d].onAdd(this.getMap());
+
+						data[d].addTo(this.getMap());
 						data[d].lastZoom = this.getMap().getZoom();
 						//recalculate canvas position for geometry layers (important)
-						this.getMap().fire("slidermove");
+						if(data[d] instanceof SMC.layers.geometry.GeometryLayer){
+							data[d]._resizeCanvas();
+						}
 					}
 				}
 
@@ -256,7 +263,9 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 				node.children[0].checked = false;
 				for (var d in data) {
 					if (data[d].actual) {
+
 						data[d].onRemove(this.getMap());
+
 					}
 				}
 			} else {
@@ -347,6 +356,7 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 				if (data[d].actual) {
 					data[d]._slidermove = false;
 					data[d].onAdd(map);
+
 
 				}
 			}
