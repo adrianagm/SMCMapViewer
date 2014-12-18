@@ -55,6 +55,8 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 			input.onchange = function(event) {
 				self._clickOnMultiLayer(node);
 			};
+
+
 			node.appendChild(label);
 
 			var layers = this._aggregatingLayers;
@@ -269,15 +271,20 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 		_clickOnMultiLayer: function(node) {
 			//active/desactive multimode layer
 
-			var nodesLayers = event.target.parentNode.parentNode.parentNode.nextElementSibling;
-			var pause = nodesLayers.getElementsByClassName('fa fa-pause');
+			var id = this._leaflet_id;
+			var tree = document.getElementById(id);
+			if (!tree) {
+				return;
+			}
+			var treeNodes = tree.parentNode.nextElementSibling;
+			var pause = treeNodes.getElementsByClassName('fa fa-pause');
 			var multiLayers = this._aggregatingLayers;
 
 			if (node.children[1].style.display != 'none') {
 				this.checked = false;
 				node.children[1].style.display = 'none';
-				nodesLayers.style.display = 'none';
-				node.children[0].checked = false;
+				treeNodes.style.display = 'none';
+				node.children[0].children[0].checked = false;
 				for (var d in multiLayers) {
 					if (multiLayers[d].active) {
 						if (multiLayers[d] instanceof SMC.layers.history.AggregatingHistoryLayer) {
@@ -297,8 +304,8 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 			} else {
 				this.checked = true;
 				node.children[1].style.display = 'block';
-				nodesLayers.style.display = 'block';
-				node.children[0].checked = true;
+				treeNodes.style.display = 'block';
+				node.children[0].children[0].checked = true;
 				for (var l in multiLayers) {
 					if (multiLayers[l].active) {
 						multiLayers[l].onAdd(map);

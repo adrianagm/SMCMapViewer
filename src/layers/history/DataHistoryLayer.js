@@ -85,7 +85,7 @@ SMC.layers.history.DataHistoryLayer = SMC.layers.SingleLayer.extend(
 
             var self = this;
             L.DomEvent.addListener(inputInterval, 'mousedown', L.DomEvent.stopPropagation);
-            L.DomEvent.addListener(inputInterval, 'mouseup', function() {
+            L.DomEvent.addListener(inputInterval, 'change', function() {
                 time = inputInterval.value;
                 self.showTimeData(time);
                 self._showLabel(sliderControlLabel);
