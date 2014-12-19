@@ -125,6 +125,9 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 			var multiLayers = this._aggregatingLayers;
 			for (var l in multiLayers) {
 				if (multiLayers[l].active) {
+					if(multiLayers[l] instanceof SMC.layers.markers.WFSTMarkerLayer){
+						multiLayers[l]._setButtonText();
+					}
 					//add node of active layer
 					if ((multiLayers[l] instanceof SMC.layers.aggregation.AggregatingLayer || multiLayers[l] instanceof SMC.layers.markers.WFSTMarkerLayer) && this.checked) {
 						this._addNode(multiLayers[l].options.label);
@@ -245,6 +248,7 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 					if (node[i].innerHTML.trim() != label) {
 							if(node[i].type == 'checkbox' || node[i].nodeName == 'BR'){
 								node[i].style.display = 'none';	
+
 							}
 						
 						if (node[i].children.length != 0)
