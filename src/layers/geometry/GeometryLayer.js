@@ -17,75 +17,76 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
     /** @lends SMC.layers.geometry.GeometryLayer# */
     {
 
-        features: [],
-        /**
-         * Initialize the object with the params
-         * @param {object} options - object with need parameters
-         */
-        initialize: function(options) {
-            L.CanvasLayer.prototype.initialize.apply(this, arguments);
-            SMC.layers.stylers.MapCssStyler.prototype.initialize.apply(this, arguments);
-            SMC.layers.SingleLayer.prototype.initialize.apply(this, arguments);
-            L.Util.setOptions(this, options);
-        },
-        /**
-         * Method to load the control in the map
-         * @param {SMC.Map} map - Map to be added
-         */
-        onAdd: function(map) {
-            L.CanvasLayer.prototype.onAdd.call(this, map);
-            SMC.layers.geometry.CanvasRenderer.prototype.onAdd.call(this, map);
-            SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
-            // map.fire('layeradd', {
-            // 	layer: this
-            //});
-            var self = this;
-            map.on("popupopen", function(event) {
-                var d = event.target._panAnim;
-                if (d && map._autopan) {
-                    L.DomUtil.setPosition(this._canvas, {
-                        x: -d._newPos.x,
-                        y: -d._newPos.y
-                    });
-                    map._autopan = false;
-                }
+		features: [],
+		/**
+		 * Initialize the object with the params
+		 * @param {object} options - object with need parameters
+		 */
+		initialize: function(options) {
+			L.CanvasLayer.prototype.initialize.apply(this, arguments);
+			SMC.layers.stylers.MapCssStyler.prototype.initialize.apply(this, arguments);
+			SMC.layers.SingleLayer.prototype.initialize.apply(this, arguments);
+			L.Util.setOptions(this, options);
+		},
+		/**
+		 * Method to load the control in the map
+		 * @param {SMC.Map} map - Map to be added
+		 */
+		onAdd: function(map) {
+			L.CanvasLayer.prototype.onAdd.call(this, map);
+			SMC.layers.geometry.CanvasRenderer.prototype.onAdd.call(this, map);
+			SMC.layers.SingleLayer.prototype.onAdd.call(this, map);
+		   
+			var self = this;
+			
+			map.on("popupopen", function(event) {
+				if (map._autopan) {
+					this._resizeAllCanvas();
+					}
+					map._autopan = false;
 
-            }, this);
+			}, this);
 
-            map.on("autopanstart", function() {
-                map._autopan = true;
-            }, this);
+			map.on("autopanstart", function() {
+				map._autopan = true;
+			}, this);
 
 
-            map.on("resize", function(event) {
-                var d = event.target.dragging._draggable._element._leaflet_pos;
-                if (d) {
-                    L.DomUtil.setPosition(this._canvas, {
-                        x: -d.x,
-                        y: -d.y
-                    });
-                }
-            }, this);
+			map.on("resize", function(event) {
+					this._resizeAllCanvas();
+			}, this);
+
+			map.on("dragend", function(){
+          this._resizeAllCanvas();
+      }, this);
+
+			map.on('zoomend', function(){
+				self._onViewChanged();
+			})
 
 
-            map.on("addIso", function(event) {
-                var d = event.target.dragging._draggable._element._leaflet_pos;
-                if (d) {
-                    L.DomUtil.setPosition(this._canvas, {
-                        x: -d.x,
-                        y: -d.y
-                    });
-                }
-            }, this);
+		},
 
-            map.on('zoomend', function() {
-                self._onViewChanged();
-            });
-
-
+        _resizeCanvas: function(){
+            var p = this.getMap()._mapPane._leaflet_pos;
+                 if (p) {
+                         L.DomUtil.setPosition(this._canvas, {
+                                x: -p.x,
+                                y: -p.y
+                            });
+                  }
         },
 
-        load: function() {
+        _resizeAllCanvas: function(){
+            var layers = this.getMap()._layers;
+            for (var l in layers){
+                    if(layers[l] instanceof SMC.layers.geometry.GeometryLayer){
+                        layers[l]._resizeCanvas();
+                    }
+             }
+        },
+
+	    load: function(){
             this.addGeometryFromFeatures(this.features);
         },
 
@@ -123,9 +124,7 @@ SMC.layers.geometry.GeometryLayer = L.CanvasLayer.extend(
                         canvas: canvas
                     }, this_.features, this_.getMap());
                 }
-            }, 0);
-
-
+           }, 0);
         },
 
         /**

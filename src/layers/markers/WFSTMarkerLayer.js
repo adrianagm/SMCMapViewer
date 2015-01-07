@@ -91,6 +91,14 @@ SMC.layers.markers.WFSTMarkerLayer = SMC.layers.markers.MarkerLayer.extend(
                    
         },
 
+        _setButtonText: function(){
+            var label = this.options.label;
+            var layer_div = $("[id='" + label + "']")[0];
+            var buttons = $("input[type=button]", layer_div);
+            buttons[0].setAttribute("value",
+                    this._editing ? this.options.confirmButtonLabel : this.options.editButtonLabel);
+        },
+
 
         /**
          * Method to add edit control to map

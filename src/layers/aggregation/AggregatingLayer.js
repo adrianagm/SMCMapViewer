@@ -15,6 +15,7 @@ SMC.layers.aggregation.AggregatingLayer = L.LayerGroup.extend(
 	{
 
 		_aggregatingLayers: {},
+		
 
 		/**
          * Initialize the object with the params
@@ -40,7 +41,7 @@ SMC.layers.aggregation.AggregatingLayer = L.LayerGroup.extend(
 
 			} else if (typeof layerId === "object") {
 				console.log(layerId.options.typeName || layerId.options.label);
-				this._aggregatingLayers[layerId.options.label || layerId.options.typeName] = layerId;
+				this._aggregatingLayers[L.stamp(layerId)] = layerId;
 
 			}
 

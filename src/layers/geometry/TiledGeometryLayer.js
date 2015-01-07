@@ -33,7 +33,8 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
          * @property {number} tileSize=256 - Default tile size value
          */
         options: {
-            tileSize: 256,
+            tileSize: 256, 
+            fieldGeom: 'the_geom'   
         },
         /**
          * Global tree
@@ -59,6 +60,7 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
          * @default null
          */
         tilesToLoad: null,
+        
 
         /**
          * Initialize the object with the params
@@ -70,8 +72,8 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
             SMC.layers.geometry.CanvasRenderer.prototype.initialize.call(this, options);
             SMC.layers.stylers.MapCssStyler.prototype.initialize.apply(this, arguments);
 
-
-
+            this._setFieldGeom();
+           
             this.drawTile = function(canvas, tilePoint, zoom) {
                 var ctx = {
                     canvas: canvas,
@@ -93,13 +95,38 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
                 }
 
                 this._draw(ctx);
+               
+
                 if (!this.tilesToLoad) {
                     this.tilesToLoad = this._tilesToLoad;
                 }
             };
+ 
 
+        },
 
+        _setFieldGeom: function(){
 
+            var jsonpRandom = this._makeid();
+            this.options.format_options = "callback:" + jsonpRandom;
+            var self = this;
+            $.ajax({
+                        type: "GET",
+                        url: this.options.serverURL + "?request=DescribeFeatureType&version=1.1.0&typename=" +
+                    this.options.typeName + '&outputFormat=text/javascript' +'&format_options=' +this.options.format_options,
+                        dataType: "jsonp",
+                        jsonp:false,
+                        jsonpCallback: jsonpRandom,
+                        success: function(response) {
+                            var attributes = response.featureTypes[0].properties;
+                            for (var i = 0; i < attributes.length; i++) {
+                                if (attributes[i].type.substring(0,3) == "gml") {
+                                    self.options.fieldGeom = attributes[i].name;
+                                }
+                            }
+                            
+                     }
+                 });
         },
 
         /**
@@ -167,6 +194,8 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
                 console.log(featuresCollection.features);
                 self.addTiledGeometryFromFeatures(featuresCollection.features, ctx);
             });
+            
+
         },
 
         /**
@@ -192,13 +221,14 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
                 this._setProperties(feature);
 
 
+                if(feature.geometry.coordinates.length > 0){
+                    //We store the retrieved features in a search tree.
+                    if (!skipTree) {
+                        var treeNode = this._createTreeData(feature, ctx.tile);
+                        ctx.canvas.tree.insert(treeNode);
+                        this.globalTree.insert(treeNode);
 
-                //We store the retrieved features in a search tree.
-                if (!skipTree) {
-                    var treeNode = this._createTreeData(feature, ctx.tile);
-                    ctx.canvas.tree.insert(treeNode);
-                    this.globalTree.insert(treeNode);
-
+                    }
                 }
             }
 
@@ -260,7 +290,6 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
 
             var bbox = this._featureBBox(feature);
 
-
             return {
                 id: feature.properties.id,
                 feature: feature,
@@ -270,6 +299,7 @@ SMC.layers.geometry.TiledGeometryLayer = L.TileLayer.Canvas.extend(
                 maxy: bbox.max.y,
                 tilePoint: tilePoint
             };
+            
 
         },
 

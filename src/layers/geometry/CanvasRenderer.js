@@ -32,7 +32,8 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
          */
         options: {
             draggingUpdates: true,
-            mouseOver: false
+            mouseOver: false,
+            debug: false
         },
 
         /**
@@ -64,7 +65,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             if (this.canvasTree) {
                 this.canvasTree.clear();
             }
-            map.fireEvent("dragend");
+            this.getMap().fireEvent("dragend");
         },
 
         _onMapDragStarted: function() {
@@ -74,7 +75,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             }
 
             console.debug("moving disabled!");
-            map.off("mousemove", this._onMapMouseMoved, this);
+            this.getMap().off("mousemove", this._onMapMouseMoved, this);
         },
 
         _onMapMouseMoved: function(event) {
@@ -91,20 +92,13 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
                 return;
             }
 
-            if (this._mouseMoveAuxTimer) {
-                clearTimeout(this._mouseMoveAuxTimer);
-            }
-
-            var this_ = this;
-            //    this._mouseMoveAuxTimer = setTimeout(function() {
-            var canvasBbox = this_._searchCanvas(event);
+            var canvasBbox = this._searchCanvas(event);
             console.debug("Mouse move canvases searched: " + canvasBbox.length);
             for (var i = 0; i < canvasBbox.length; i++) {
                 var ctx = canvasBbox[i].ctx;
-                this_._onMouseMove(ctx, event);
+                this._onMouseMove(ctx, event);
 
             }
-            //    }, 1);
         },
 
 

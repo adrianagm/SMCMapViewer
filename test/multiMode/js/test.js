@@ -3,6 +3,7 @@ function initMap() {
     // Centered in Manchester
     var map = SMC.map('map');
     map.setView([53.4666677, -2.2333333], 9);
+    //map.setView([-0.2006705, -78.5322076], 10);
 
 
     // var base = SMC.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
@@ -49,11 +50,11 @@ function initMap() {
                     params: [{
                         serverURL: 'http://www.salford.gov.uk/geoserver/OpenData/wfs',
                         typeName: 'OpenData:Parks',
-                        label: 'Parks 1',
+                       label: 'Parks 1',
                         date: '1',
                         zoomOffset: 0,
                         draggingUpdates: true,
-                        stylesheet: '* |z13- {fillColor: "rgba(0, 0, 255, 0.5)";}',
+                        stylesheet: '* {fillColor: "rgba(0, 0, 255, 0.5)";}',
 
                     }]
 
@@ -138,13 +139,104 @@ function initMap() {
 
 
         }, {
-            type: "SMC.layers.markers.WFSMarkerLayer",
-            params: [{
-                serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
-                typeName: "OpenData:V_SURE_START_CENTRES",
-                date: "3",
-                label: "Children's Centres"
+
+            type: "SMC.layers.aggregation.MultiModeLayer",
+            label: 'Multi Mode Layer',
+            layers: [{
+
+                type: "SMC.layers.history.AggregatingHistoryLayer",
+                label: 'History Geometry',
+                layers: [{
+                    type: 'SMC.layers.geometry.WFSGeometryLayer',
+                    params: [{
+                        serverURL: 'http://www.salford.gov.uk/geoserver/OpenData/wfs',
+                        typeName: 'OpenData:Parks',
+                       label: 'Parks 1',
+                        date: '1',
+                        zoomOffset: 0,
+                        draggingUpdates: true,
+                        stylesheet: '* {fillColor: "rgba(0, 0, 255, 0.5)";}',
+
+                    }]
+
+                }, {
+                    type: 'SMC.layers.geometry.WFSGeometryLayer',
+                    params: [{
+                        serverURL: 'http://www.salford.gov.uk/geoserver/OpenData/wfs',
+                        typeName: 'OpenData:Parks',
+                        label: 'Parks 2',
+                        date: '2',
+                        zoomOffset: 0,
+                        draggingUpdates: true,
+                        stylesheet: '* {fillColor: "rgba(255, 0, 0, 0.5)";}',
+
+                    }]
+                }, {
+                    type: 'SMC.layers.geometry.WFSGeometryLayer',
+                    params: [{
+                        serverURL: 'http://www.salford.gov.uk/geoserver/OpenData/wfs',
+                        typeName: 'OpenData:Parks',
+                        label: 'Parks 3',
+                        date: '3',
+                        zoomOffset: 0,
+                        draggingUpdates: true,
+                        stylesheet: '* {fillColor: "rgba(0, 255, 0, 0.5)";}',
+
+                    }]
+                }]
+
+
+            }, {
+                type: "SMC.layers.markers.WFSMarkerLayer",
+                params: [{
+                    serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+                    typeName: "OpenData:Parks",
+                    date: "1",
+                    label: 'Parks'
+                }]
+
+
+            }, {
+                type: "SMC.layers.history.AggregatingHistoryLayer",
+                label: 'History Markers',
+                layers: [{
+                    type: "SMC.layers.markers.WFSMarkerLayer",
+                    params: [{
+                        serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+                        typeName: "OpenData:COMMUNITY_CENTRES",
+                        date: "2",
+                        label: 'Community Centres'
+                    }]
+                }, {
+                    type: "SMC.layers.markers.WFSMarkerLayer",
+                    params: [{
+                        serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+                        typeName: "OpenData:Parks",
+                        date: "1",
+                        label: 'Parks'
+                    }]
+                }, {
+                    type: "SMC.layers.markers.WFSMarkerLayer",
+                    params: [{
+                        serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+                        typeName: "OpenData:V_SURE_START_CENTRES",
+                        date: "3",
+                        label: "Children's Centres"
+                    }]
+                }]
+
+
+            }, {
+                type: "SMC.layers.markers.WFSTMarkerLayer",
+                params: [{
+                    serverURL: "http://www.ideandalucia.es/dea100/wfs",
+                    typeName: "ideandalucia:it01_puerto_pun",
+                    label: "Puertos",
+                    outputFormat: "json"
+                }]
+
             }]
+
 
 
         }]

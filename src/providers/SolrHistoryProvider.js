@@ -152,8 +152,10 @@ SMC.providers.SolrHistoryProvider = SMC.providers.URLFeatureProvider.extend(
                    console.log(self._featuresForLayer);
                    //override tree node for layer
                    var node = document.getElementById('node_'+self._leaflet_id);
-                   node.parentNode.appendChild(self.createNodeHTML());
-                   node.parentNode.removeChild(node);
+                   if(node){
+                     node.parentNode.appendChild(self.createNodeHTML());
+                     node.parentNode.removeChild(node);
+                   }
    
                 }
 

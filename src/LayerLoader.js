@@ -13,6 +13,7 @@ SMC.LayerLoader = L.Class.extend(
     {
 
         loadedLayers: {},
+        labelLayers:{},
 
         /**
          * Creates layers from a Javascript object (or its javascript reprsentantion) defining the type and options of the layers to be loaded.
@@ -65,6 +66,12 @@ SMC.LayerLoader = L.Class.extend(
 
             var params = [];
             var url = "";
+            var label = '';
+            var typePaths = type.split(".");
+            for (var i = 0; i < typePaths.length; i++) {
+                label = typePaths[i];
+            }
+
 
             if (type === "folder") {
                 // Folders are a special case in which we allow a shortcut to ease configuration.
@@ -72,12 +79,12 @@ SMC.LayerLoader = L.Class.extend(
                 if (!layerConfig.layers) {
                     throw new Error("SMC.layers.LayerLoader::_loadLayerConfig: layer config in position " + idx + " is of type 'folder' but doesn't define a layers array.");
                 }
-                if (!layerConfig.label) {
+                /*if (!layerConfig.label) {
                     throw new Error("SMC.layers.LayerLoader::_loadLayerConfig: layer config in position " + idx + " is of type 'folder' but doesn't define a label property.");
-                }
+                }*/
                 params = [{
                     layersConfig: layerConfig.layers,
-                    label: layerConfig.label
+                    label: layerConfig.label || label
                 }];
 
     
@@ -94,16 +101,27 @@ SMC.LayerLoader = L.Class.extend(
                     params = JSON.parse(params);
                 }
 
-                if (!layerConfig.params && layerConfig.label) {
+                if(params){
+                     if (Array.isArray(params) && params.length >0) {
+                        if(!params[0].label)
+                            params[0].label= label
+                    } else {
+                        if(!params.label)
+                            params.label= label    
+                    }
+                    
+                }
+
+                if (!layerConfig.params) {
                     params = [{
-                        label: layerConfig.label
+                        label: layerConfig.label || label
                     }];
                 }
 
-                if (!layerConfig.params && layerConfig.label && layerConfig.layers) {
+                if (!layerConfig.params && layerConfig.layers) {
                     params = [{
                         layersConfig: layerConfig.layers,
-                        label: layerConfig.label,
+                        label: layerConfig.label || label,
                         active: layerConfig.active
                     }];
                 }
@@ -118,10 +136,20 @@ SMC.LayerLoader = L.Class.extend(
             if (url) {
                 if (Array.isArray(params)) {
                     params[0].url = url;
+                    this._setLabel(params[0].label);
+
                 } else {
-                    params.url = url;    
+                    params.url = url;
+                    this._setLabel(params.label);    
                 }
             } 
+
+             if (Array.isArray(params)) {
+                    params[0].label = this._setLabel(params[0].label);
+
+            } else {
+                params.label = this._setLabel(params.label);    
+            }
 
             layer = constructor(params);
 
@@ -161,5 +189,40 @@ SMC.LayerLoader = L.Class.extend(
             }
 
             this.loadedLayers[id] = layer;
+        },
+
+        _setLabel: function(label){
+            var exist = false;
+            var newLabel = '';
+            for(var l in this.labelLayers){
+                if(l == label){
+                    exist = true;
+                }
+               
+            }
+            if(!exist){
+                this.labelLayers[label] = [];
+                newLabel = label;
+                this.labelLayers[label].push(newLabel);
+
+            }
+            else{
+                var i = this.labelLayers[label].length;
+                newLabel = label+" " +i.toString();
+                while(this.labelLayers[newLabel]){
+                    i++;
+                    newLabel = label+" " +i.toString();
+                    for(var lb in this.labelLayers[label]){
+                        if(this.labelLayers[label][lb] == newLabel){
+                           i++;
+                           newLabel = label+" " +i.toString();
+                        }
+                    }
+                }
+
+                this.labelLayers[label].push(newLabel);
+            }
+            return newLabel;
         }
     });
+

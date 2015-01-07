@@ -78,7 +78,10 @@ SMC.layers.EditableLayer = SMC.layers.SingleLayer.extend(
 
                 return false; // So the event doesnt propagate.
             };
-
+            node.onclick = function(){
+                return false;
+            };
+            
             this._button = button;
 
             return node;
