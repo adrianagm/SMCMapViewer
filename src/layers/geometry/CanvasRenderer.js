@@ -75,7 +75,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             }
 
             console.debug("moving disabled!");
-           this.getMap().off("mousemove", this._onMapMouseMoved, this);
+            this.getMap().off("mousemove", this._onMapMouseMoved, this);
         },
 
         _onMapMouseMoved: function(event) {
