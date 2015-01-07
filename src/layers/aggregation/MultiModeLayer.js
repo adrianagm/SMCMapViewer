@@ -55,6 +55,8 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 			input.onchange = function(event) {
 				self._clickOnMultiLayer(node);
 			};
+
+
 			node.appendChild(label);
 
 			var layers = this._aggregatingLayers;
@@ -123,18 +125,14 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 			var multiLayers = this._aggregatingLayers;
 			for (var l in multiLayers) {
 				if (multiLayers[l].active) {
-					//add node of active layer
-					var id = this._leaflet_id;
-					var tree = document.getElementById(id);
-					if (!tree) {
-						return;
+					if(multiLayers[l] instanceof SMC.layers.markers.WFSTMarkerLayer){
+						multiLayers[l]._setButtonText();
 					}
-					var treeNodes = tree.parentNode.nextElementSibling;
-					var label = multiLayers[l].options.label;
-					if ((multiLayers[label] instanceof SMC.layers.aggregation.AggregatingLayer || multiLayers[label] instanceof SMC.layers.markers.WFSTMarkerLayer) && this.checked) {
-						this._addNode(treeNodes, label);
+					//add node of active layer
+					if ((multiLayers[l] instanceof SMC.layers.aggregation.AggregatingLayer || multiLayers[l] instanceof SMC.layers.markers.WFSTMarkerLayer) && this.checked) {
+						this._addNode(multiLayers[l].options.label);
 					} else
-						this._addNode(treeNodes, 'none');
+						this._addNode('none');
 
 				}
 
@@ -211,70 +209,60 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 
 				} else {
 					if (!multiLayers[l].active) {
+
 						multiLayers[l].onAdd(map);
 						multiLayers[l].active = true;
+
 					}
 
 				}
 
 			}
+			this._initializeTree();
 
-			var d = document.getElementById('leaflet-control-layers-group-' + this._leaflet_id);
-			var treeNodes = d.getElementsByClassName('leaflet-control-layers-group-content')[0];
-			var label = event.target.value;
-			if (multiLayers[label] instanceof SMC.layers.aggregation.AggregatingLayer || multiLayers[label] instanceof SMC.layers.markers.WFSTMarkerLayer) {
-				this._addNode(treeNodes, label);
-			} else {
-				this._addNode(treeNodes, 'none');
-			}
+			
 
 		},
 
-		_addNode: function(treeNodes, label) {
-			var node = null;
+		_addNode: function(label) {
+			var id = this._leaflet_id;
+			var tree = document.getElementById(id);
+			if (!tree) {
+				return;
+			}
+			var treeNodes = tree.parentNode.nextElementSibling;
 			var tree = treeNodes.children;
-			search(tree);
+			
 			treeNodes.style.display = 'block';
+			for (var i = 0; i < tree.length; i++) {
+				
+					tree[i].style.display = 'none';
+					search(tree[i]);
+
+			}
 
 			//search node active layer
 			function search(tree) {
+				var node = tree.children;
+				for (var i = 0; i < node.length; i++) {
+					if (node[i].innerHTML.trim() != label) {
+							if(node[i].type == 'checkbox' || node[i].nodeName == 'BR'){
+								node[i].style.display = 'none';	
 
-				for (var i = 0; i < tree.length; i++) {
-					if (tree[i].innerHTML.trim() != label) {
-
-						if (tree[i].parentNode == treeNodes || tree[i].type == 'checkbox' || tree[i].nodeName == 'BR') {
-							tree[i].style.display = 'none';
-						}
-						if (node != null) {
-							var sibling = node.nextElementSibling;
-							if (sibling && sibling.children) {
-								for (var k = 0; k < sibling.children.length; k++) {
-									if (sibling.children[k] == tree[i]) {
-										tree[i].parentNode.style.display = 'block';
-										break;
-									}
-								}
 							}
-						} else {
-							tree[i].parentNode.style.display = 'none';
-
-						}
-
-						if (tree[i].children.length != 0)
-							search(tree[i].children);
+						
+						if (node[i].children.length != 0)
+							search(node[i]);
 
 
 					} else {
-						if (tree[i].parentNode.nextElementSibling) {
-							tree[i].parentNode.nextElementSibling.style.display = 'block';
-						}
-						tree[i].style.display = 'none';
-						tree[i].parentNode.style.display = 'block';
-						tree[i].parentNode.parentNode.style.display = 'block';
-						tree[i].parentNode.parentNode.parentNode.style.display = 'block';
-						tree[i].parentNode.parentNode.parentNode.parentNode.style.display = 'block';
-						tree[i].parentNode.parentNode.parentNode.parentNode.parentNode.style.display = 'block';
-						node = tree[i];
+						node[i].style.display = 'none';
+						node[i].parentNode.style.display = 'block';
+						node[i].parentNode.parentNode.style.display = 'block';
+						node[i].parentNode.parentNode.parentNode.style.display = 'block';
+						node[i].parentNode.parentNode.parentNode.parentNode.style.display = 'block';
+						
+
 					}
 				}
 
@@ -287,15 +275,20 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 		_clickOnMultiLayer: function(node) {
 			//active/desactive multimode layer
 
-			var nodesLayers = event.target.parentNode.parentNode.parentNode.nextElementSibling;
-			var pause = nodesLayers.getElementsByClassName('fa fa-pause');
+			var id = this._leaflet_id;
+			var tree = document.getElementById(id);
+			if (!tree) {
+				return;
+			}
+			var treeNodes = tree.parentNode.nextElementSibling;
+			var pause = treeNodes.getElementsByClassName('fa fa-pause');
 			var multiLayers = this._aggregatingLayers;
 
 			if (node.children[1].style.display != 'none') {
 				this.checked = false;
 				node.children[1].style.display = 'none';
-				nodesLayers.style.display = 'none';
-				node.children[0].checked = false;
+				treeNodes.style.display = 'none';
+				node.children[0].children[0].checked = false;
 				for (var d in multiLayers) {
 					if (multiLayers[d].active) {
 						if (multiLayers[d] instanceof SMC.layers.history.AggregatingHistoryLayer) {
@@ -315,11 +308,16 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 			} else {
 				this.checked = true;
 				node.children[1].style.display = 'block';
-				nodesLayers.style.display = 'block';
-				node.children[0].checked = true;
-				for (var d in multiLayers) {
-					if (multiLayers[d].active) {
-						multiLayers[d].onAdd(map);
+				treeNodes.style.display = 'block';
+				node.children[0].children[0].checked = true;
+				for (var l in multiLayers) {
+					if (multiLayers[l].active) {
+						multiLayers[l].onAdd(map);
+						if ((multiLayers[l] instanceof SMC.layers.aggregation.AggregatingLayer || multiLayers[l] instanceof SMC.layers.markers.WFSTMarkerLayer) && this.checked) {
+							this._addNode(multiLayers[l].options.label);
+						} else
+							this._addNode('none');
+						
 					}
 				}
 
@@ -328,7 +326,6 @@ SMC.layers.aggregation.MultiModeLayer = SMC.layers.aggregation.AggregatingLayer.
 			}
 
 		},
-
 
 
 	}, [SMC.layers.SingleLayer]);

@@ -2,26 +2,74 @@ function initMap() {
 
 	// Centered in London
 	var map = SMC.map('map');
-	//map.setView([-0.2298500, -78.5249500], 8)
-	//map.setView([51.5135587, 0.26855], 9);
-	map.setView([40.25, -102.21], 5);
+	map.setView([53.4916444,-2.2881105], 13);
 
 
-
-	var base = SMC.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+	var base = SMC.tileLayer({
+		url: 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
 		attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery Â© <a href="http://cloudmade.com">CloudMade</a>',
 		maxZoom: 18
 	}).addTo(map);
 
-	var satelite = L.tileLayer.wms("http://maps.opengeo.org/geowebcache/service/wms", {
-		layers: "bluemarble",
-		format: 'image/png',
-		transparent: true,
-		attribution: "Weather data Â© 2012 IEM Nexrad"
-	});
+	var satelite = SMC.wmsLayer({
+        url: "http://maps.opengeo.org/geowebcache/service/wms",
+        layers: "bluemarble",
+        attribution: "Weather data © 2012 IEM Nexrad"
+    });
+
+    // Add layers to control group
+    var baseLayer = {
+        "Street Map": base,
+        "Satelite": satelite
+    };
+    // Add control to map
+    var leyenda = SMC.layerTreeControl(baseLayer, {
+        collapsed: false
+    }).addTo(map);
+
+     // Add tree to map
+    var tree = [
+			{
+		        type: "SMC.layers.markers.WFSMarkerLayer",
+		        params: [{
+		        	serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+		            typeName: "OpenData:V_SURE_START_CENTRES",
+                    //label: "Children's Centres"
+		         }]   
+
+		    },
+		    {
+	    		type: 'SMC.layers.geometry.WFSGeometryLayer',
+                params: [{
+                    serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+                    typeName: "OpenData:COMMUNITY_CENTRES",
+                    stylesheet: '* {fillColor: "rgba(0, 0, 255, 0.5)";}',
+                    //label: 'Community Centres'
+                }]
+            },
+          /* {
+	    		type: 'SMC.layers.geometry.WFSTiledGeometryLayer',
+                params: [{
+                    serverURL: "http://demo.opengeo.org/geoserver/wfs",
+                   typeName: "ne_10m_roads",
+                    //label: 'Children's Centers'
+                }]
+            },*/
+            {
+	    		type: 'SMC.layers.geometry.WFSTiledGeometryLayer',
+                params: [{
+                   serverURL: "http://www.salford.gov.uk/geoserver/OpenData/wfs",
+		           typeName: "OpenData:Parks",
+		           stylesheet: '* {fillColor: "rgba(255, 0, 0, 0.5)";}',
+		            //label: 'Parks'
+		        }]
+            }
+        ];
+
+        map.loadLayers(tree);
 
 	//--------------------------------------------------markers-----------------------------------
-	var marcador1_geojson = {
+/*	var marcador1_geojson = {
 		"type": "Feature",
 		"geometry": {
 			"type": "Point",
@@ -592,7 +640,7 @@ var coordenadas = L.control({position:"bottomright"});
 
 	//--------------------------------------------------------------------------------------------
 
-
+*/
 
 }
 
