@@ -170,7 +170,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             layer.translate(new paper.Point(-ctx.canvas._s.x, -ctx.canvas._s.y));
 
             var z;
-            for (var i = 0; i < features.length && i < 100; i++) {
+            for (var i = 0; i < features.length; i++) {
                 var feature = features[i];
 
                 var styles;
