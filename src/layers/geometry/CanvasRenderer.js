@@ -65,7 +65,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             if (this.canvasTree) {
                 this.canvasTree.clear();
             }
-            map.fireEvent("dragend");
+            this.getMap().fireEvent("dragend");
         },
 
         _onMapDragStarted: function() {
@@ -75,7 +75,7 @@ SMC.layers.geometry.CanvasRenderer = L.Class.extend(
             }
 
             console.debug("moving disabled!");
-            map.off("mousemove", this._onMapMouseMoved, this);
+           this.getMap().off("mousemove", this._onMapMouseMoved, this);
         },
 
         _onMapMouseMoved: function(event) {

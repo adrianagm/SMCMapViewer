@@ -67,7 +67,7 @@ SMC.providers.WFSProvider = SMC.providers.URLFeatureProvider.extend(
         doFeaturesLoading: function(bounds) {
         	var jsonpRandom = this._makeid();
         	this.options.format_options = "callback:" + jsonpRandom;
-
+            
             if (this.options.serverURL !== null) {
                 var requestData = {
                     url: this.options.serverURL,
@@ -78,28 +78,30 @@ SMC.providers.WFSProvider = SMC.providers.URLFeatureProvider.extend(
                     jsonp: false
                 };
 
-                
+               /* if(bounds){
+                        this.options.requestParams.cql_filter = requestData.data.cql_filter;
+                        if(requestData.data.cql_filter){
+                           requestData.data.cql_filter =  this.options.requestParams.cql_filter + ' AND ' + this.options.bbox;
+                        }
+                        else{
+                            requestData.data.cql_filter = this.options.bbox;
+                        }
 
-                if(bounds) {
-                    this.options.requestParams.cql_filter = requestData.data.cql_filter;
-                    this.options.bbox = 'bbox(the_geom,' 
-                        + bounds[1]+ ','
-                        + bounds[0]+ ','
-                        + bounds[3]+ ','
-                        + bounds[2]
-                        +')';
-                    if(requestData.data.cql_filter){
-                       requestData.data.cql_filter =  this.options.requestParams.cql_filter + ' AND ' + this.options.bbox;
-                    }
-                    else{
-                        requestData.data.cql_filter = this.options.bbox;
-                    }
-              
-                  
+                }*/
+
+                if(bounds){  
+                  this.options.bbox = 'bbox('+this.options.fieldGeom +',' 
+                                + bounds[1]+ ','
+                                + bounds[0]+ ','
+                                + bounds[3]+ ','
+                                + bounds[2]
+                                +')';
+                  requestData.data[''] = this.options.bbox;
                 }
-               
 
                 return $.ajax(requestData);
+                
+                
             }
             return $.Deferred();
         },
@@ -117,8 +119,7 @@ SMC.providers.WFSProvider = SMC.providers.URLFeatureProvider.extend(
                 }
                 else if (this.options.requestParams[option] !== null && option != 'cql_filter'){
                     params[option] = this.options.requestParams[option];
-                }
-                
+                }    
 
             }
             return params;
